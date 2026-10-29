@@ -74,6 +74,15 @@ set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}")
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)
 
+option(FLCLASH_BUILD_PROCESS_PROXY_BRIDGE "Build the experimental x64 process proxy companion" OFF)
+if(FLCLASH_BUILD_PROCESS_PROXY_BRIDGE)
+  add_subdirectory(proxylane_bridge)
+  add_dependencies(${BINARY_NAME} FlClashProxyBridge)
+  install(FILES "proxylane_bridge/UPSTREAM-LICENSE"
+    DESTINATION "${INSTALL_BUNDLE_DATA_DIR}/process-proxy" COMPONENT Runtime)
+endif()
+
+
 install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   COMPONENT Runtime)
 

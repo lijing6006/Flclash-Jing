@@ -44,6 +44,24 @@ final Map<String, void Function()> processProxyPolicyCases = {
   'uses non-default configured mixed port': () {
     _check(_runtime().endpoint.port == 9527);
   },
+  'rejects direct mode instead of pretending selected node is used': () {
+    const runtime = ProcessProxyRuntime(
+      running: true,
+      safeMode: false,
+      systemProxy: false,
+      tunEnabled: false,
+      directMode: true,
+      mixedPort: 9527,
+      socksPort: 0,
+      httpPort: 0,
+    );
+    _fails(() => runtime.endpoint, 'directMode');
+  },
+  'rejects wildcard and dot-segment executable paths': () {
+    for (final path in [r'C:\*.exe', r'C:\app?.exe', r'C:\tools\..\app.exe']) {
+      _fails(() => validateExecutablePath(path), 'invalidExecutable');
+    }
+  },
   'uses SOCKS fallback before HTTP': () {
     _check(_runtime(mixed: 0, socks: 1085, http: 8888).endpoint.port == 1085);
   },
@@ -200,6 +218,40 @@ final Map<String, void Function()> processProxyPolicyCases = {
     _check(bytes.length == 6 && bytes[0] == 255 && bytes[1] == 254);
     _check(bytes[2] == 0x2d && bytes[3] == 0x4e);
   },
+  'rejects invalid numeric IP instead of treating it as domain': () {
+    _fails(
+      () => compileBypassRules('999.999.1.2', privateNetworks: false),
+      'invalidBypassRule',
+    );
+  },
+  'normalizes literal IPv6 to backend representation': () {
+    final rules = compileBypassRules(
+      '2001:0DB8:0:0:0:0:0:1',
+      privateNetworks: false,
+    );
+    _check(rules.contains('[2001:db8::1]:*'));
+  },
+  'enforces actual backend credential buffer length': () {
+    _fails(
+      () => buildProcessProxyIni(
+        _request,
+        ProcessProxyEndpoint('SOCKS5', 9527, 'user', 'x' * 128),
+        'FlClash_test',
+      ),
+      'invalidAuthentication',
+    );
+  },
+  'rejects quote-delimited INI credentials rather than silently changing them':
+      () {
+        _fails(
+          () => buildProcessProxyIni(
+            _request,
+            const ProcessProxyEndpoint('SOCKS5', 9527, 'user', "'secret'"),
+            'FlClash_test',
+          ),
+          'invalidAuthentication',
+        );
+      },
   'settings JSON round trip': () {
     final restored = ProcessProxyLaunchRequest.fromJson(
       jsonDecode(jsonEncode(_request.toJson())) as Map<String, dynamic>,

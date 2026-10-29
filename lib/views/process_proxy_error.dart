@@ -6,9 +6,11 @@ String processProxyErrorMessage(Object error, AppLocalizations l) {
   return switch (error.code) {
     'coreNotRunning' => l.processProxyCoreRequired,
     'safeMode' => l.processProxySafeMode,
+    'directMode' => l.processProxyDirectMode,
     'globalProxyEnabled' => l.processProxyTakeoverOff,
     'noListener' => l.processProxyNoPort,
     'invalidArguments' => l.processProxyInvalidArguments,
+    'invalidQuery' => l.processProxyJsonObjectRequired,
     'backendNotTrusted' => l.processProxyErrorTrust,
     'backendName' ||
     'backendVersionMismatch' => l.processProxyErrorBackendVersion,
@@ -31,6 +33,9 @@ String processProxyErrorMessage(Object error, AppLocalizations l) {
     'unsupportedCidr' => l.processProxyErrorCidr(_ruleDetail(error.detail)),
     'tooManyRules' => l.processProxyErrorRuleLimit,
     'quicNeedsUdp' => l.processProxyErrorQuic,
+    'bridgeFrameTooLarge' => l.processProxyErrorResponseLarge,
+    'bridgeOperationFailed' => _bridgeErrorMessage(error.detail, l),
+    final code when code.startsWith('bridge') => l.processProxyErrorBridge,
     _ => l.processProxyErrorGeneric,
   };
 }
@@ -52,4 +57,30 @@ String _ruleDetail(String? detail) {
       .replaceAll(RegExp(r'[\x00-\x1f\x7f]'), ' ')
       .trim();
   return safe.length > 160 ? '${safe.substring(0, 160)}…' : safe;
+}
+
+String _bridgeErrorMessage(String? code, AppLocalizations l) {
+  return switch (code) {
+    'response_too_large' ||
+    'request_too_large' => l.processProxyErrorResponseLarge,
+    'certificate_required' => l.processProxyErrorCaRequired,
+    'monitor_active' => l.processProxyErrorMonitoringActive,
+    'recording_directory' || 'invalid_path' => l.processProxyErrorDirectory,
+    'target_architecture' => l.processProxyErrorArchitecture,
+    'backend_version' => l.processProxyErrorBackendVersion,
+    'backend_abi' ||
+    'backend_load' ||
+    'advanced_module_unavailable' => l.processProxyErrorComponents,
+    'invalid_executable' ||
+    'invalid_target' ||
+    'target_start' => l.processProxyErrorExecutable,
+    'target_hook' => l.processProxyErrorHook,
+    'proxy_not_running' ||
+    'listener_unavailable' ||
+    'proxy_start' => l.processProxyErrorListener,
+    'quic_requires_udp' => l.processProxyErrorQuic,
+    'invalid_arguments' => l.processProxyInvalidArguments,
+    'invalid_request' => l.processProxyJsonObjectRequired,
+    _ => l.processProxyErrorBridge,
+  };
 }

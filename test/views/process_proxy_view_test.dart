@@ -22,8 +22,19 @@ const _settings = ProcessProxyLaunchRequest(
   decryptHttps: true,
 );
 
+class _VerifiedSetupAction extends SetupAction {
+  bool applied = true;
+
+  @override
+  void build() {}
+
+  @override
+  Future<bool> inputsApplied() async => applied;
+}
+
 class _FakeService extends ProcessProxyService {
   int launches = 0;
+  Future<ProcessProxyRuntime> Function()? lastRuntime;
   ProcessProxyLaunchRequest? saved;
   bool failSearch = false;
   Completer<List<ProcessProxyCandidate>>? pendingSearch;
@@ -38,7 +49,7 @@ class _FakeService extends ProcessProxyService {
 
   @override
   Future<List<ProcessProxyCandidate>> searchProcesses(String query) async {
-    if (failSearch) throw const ProcessProxyException('searchFailed');
+    if (failSearch) throw const ProcessProxyException('windowsQueryFailed');
     if (pendingSearch case final pending?) return pending.future;
     return const [
       ProcessProxyCandidate(
@@ -54,6 +65,7 @@ class _FakeService extends ProcessProxyService {
     required ProcessProxyLaunchRequest request,
     required Future<ProcessProxyRuntime> Function() runtime,
   }) async {
+    lastRuntime = runtime;
     final endpoint = (await runtime()).endpoint;
     if (endpoint.port > 0) launches++;
   }
@@ -65,6 +77,9 @@ Future<ProviderContainer> _pump(
   bool running = true,
   bool safeMode = false,
   bool systemProxy = false,
+  bool applied = true,
+  bool suspended = false,
+  bool direct = false,
 }) async {
   const size = Size(1200, 3200);
   tester.view.physicalSize = size;
@@ -74,6 +89,8 @@ Future<ProviderContainer> _pump(
   final container = ProviderContainer(
     overrides: [
       safeModeProvider.overrideWithValue(safeMode),
+      suspendProvider.overrideWithValue(suspended),
+      setupActionProvider.overrideWith(_VerifiedSetupAction.new),
       coreStatusProvider.overrideWithBuild(
         (_, _) => running ? CoreStatus.connected : CoreStatus.disconnected,
       ),
@@ -82,12 +99,18 @@ Future<ProviderContainer> _pump(
         (_, _) => NetworkProps(systemProxy: systemProxy),
       ),
       patchClashConfigProvider.overrideWithBuild(
-        (_, _) => const PatchClashConfig(mixedPort: 17891),
+        (_, _) => PatchClashConfig(
+          mixedPort: 17891,
+          mode: direct ? Mode.direct : Mode.rule,
+        ),
       ),
     ],
   );
   addTearDown(container.dispose);
   globalState.container = container;
+  (container.read(
+    setupActionProvider.notifier,
+  ) as _VerifiedSetupAction).applied = applied;
   container.read(viewSizeProvider.notifier).value = size;
   await tester.pumpWidget(
     UncontrolledProviderScope(
@@ -128,7 +151,7 @@ void main() {
     expect(service.launches, 0);
   });
 
-  for (final scenario in ['stopped', 'safe', 'global']) {
+  for (final scenario in ['stopped', 'safe', 'global', 'suspended', 'direct']) {
     testWidgets('$scenario state prevents a launch after trust', (
       tester,
     ) async {
@@ -139,6 +162,8 @@ void main() {
         running: scenario != 'stopped',
         safeMode: scenario == 'safe',
         systemProxy: scenario == 'global',
+        suspended: scenario == 'suspended',
+        direct: scenario == 'direct',
       );
       await _trustBackend(tester);
       expect(
@@ -203,6 +228,52 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets(
+    'confirmed launch verifies applied inputs and survives navigation',
+    (tester) async {
+      final service = _FakeService();
+      await _pump(tester, service);
+      await _trustBackend(tester);
+      await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.widgetWithText(
+          TextButton,
+          currentAppLocalizations.processProxyLaunch,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(service.launches, 1);
+      await tester.pumpWidget(const SizedBox.shrink());
+      final snapshot = await service.lastRuntime!();
+      expect(snapshot.running, isTrue);
+      expect(snapshot.mixedPort, 17891);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('unapplied core inputs reject the confirmed launch', (
+    tester,
+  ) async {
+    final service = _FakeService();
+    await _pump(tester, service, applied: false);
+    await _trustBackend(tester);
+    await tester.tap(find.byType(FilledButton));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.widgetWithText(
+        TextButton,
+        currentAppLocalizations.processProxyLaunch,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(service.launches, 0);
+    expect(
+      find.textContaining(currentAppLocalizations.processProxyErrorCoreChanged),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('a search failure clears progress and stays retryable', (
     tester,
   ) async {
@@ -213,7 +284,12 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.byType(LinearProgressIndicator), findsNothing);
-    expect(find.textContaining('searchFailed'), findsOneWidget);
+    expect(
+      find.textContaining(
+        currentAppLocalizations.processProxyErrorProcessQuery,
+      ),
+      findsOneWidget,
+    );
     service.failSearch = false;
     await tester.tap(
       find.byTooltip(currentAppLocalizations.processProxySearch),

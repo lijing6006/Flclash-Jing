@@ -16,6 +16,7 @@ class ProcessProxyRuntime {
   final bool safeMode;
   final bool systemProxy;
   final bool tunEnabled;
+  final bool directMode;
   final int mixedPort;
   final int socksPort;
   final int httpPort;
@@ -30,6 +31,7 @@ class ProcessProxyRuntime {
     required this.mixedPort,
     required this.socksPort,
     required this.httpPort,
+    this.directMode = false,
     this.username = '',
     this.password = '',
   });
@@ -37,6 +39,7 @@ class ProcessProxyRuntime {
   ProcessProxyEndpoint get endpoint {
     if (!running) throw const ProcessProxyException('coreNotRunning');
     if (safeMode) throw const ProcessProxyException('safeMode');
+    if (directMode) throw const ProcessProxyException('directMode');
     if (systemProxy || tunEnabled) {
       throw const ProcessProxyException('globalProxyEnabled');
     }
@@ -130,7 +133,10 @@ class ProcessProxyLaunchRequest {
     if (!trustedBackend) throw const ProcessProxyException('backendNotTrusted');
     validateExecutablePath(backendPath);
     validateExecutablePath(executable);
-    if (!backendPath.toLowerCase().endsWith(r'\proxylane64.exe')) {
+    if (!backendPath
+        .replaceAll('/', r'\')
+        .toLowerCase()
+        .endsWith(r'\proxylane64.exe')) {
       throw const ProcessProxyException('backendName');
     }
     if (arguments.length > 128 ||
@@ -148,8 +154,9 @@ class ProcessProxyLaunchRequest {
 void validateExecutablePath(String path) {
   if (!RegExp(r'^[a-zA-Z]:[\\/]').hasMatch(path) ||
       !path.toLowerCase().endsWith('.exe') ||
-      path.contains(RegExp(r'[\x00-\x1f"<>|]')) ||
+      path.contains(RegExp(r'[\x00-\x1f"<>|*?]')) ||
       path.substring(2).contains(':') ||
+      path.split(RegExp(r'[\\/]')).any((part) => part == '.' || part == '..') ||
       path.length > 240) {
     throw const ProcessProxyException('invalidExecutable');
   }
@@ -196,11 +203,14 @@ List<String> compileBypassRules(String text, {required bool privateNetworks}) {
       final ip = InternetAddress.tryParse(rule);
       if (ip != null) {
         rules.add(
-          ip.type == InternetAddressType.IPv6 ? '[$rule]:*' : '$rule:*',
+          ip.type == InternetAddressType.IPv6
+              ? '[${_canonicalIpv6(ip)}]:*'
+              : '${ip.address}:*',
         );
-      } else if (RegExp(
-        r'^(\*\.)?([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$',
-      ).hasMatch(rule)) {
+      } else if (!RegExp(r'^[0-9.]+$').hasMatch(rule) &&
+          RegExp(
+            r'^(\*\.)?([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$',
+          ).hasMatch(rule)) {
         if (rule.startsWith('*.')) rules.add('${rule.substring(2)}:*');
         rules.add('$rule:*');
       } else {
@@ -210,6 +220,37 @@ List<String> compileBypassRules(String text, {required bool privateNetworks}) {
     if (rules.length > 512) throw const ProcessProxyException('tooManyRules');
   }
   return rules.toList(growable: false);
+}
+
+String _canonicalIpv6(InternetAddress address) {
+  final bytes = address.rawAddress;
+  if (bytes.take(10).every((b) => b == 0) &&
+      bytes[10] == 255 &&
+      bytes[11] == 255) {
+    return '::ffff:${bytes.skip(12).join('.')}';
+  }
+  final words = [
+    for (var i = 0; i < 16; i += 2) (bytes[i] << 8) | bytes[i + 1],
+  ];
+  var bestStart = -1;
+  var bestLength = 1;
+  for (var i = 0; i < words.length;) {
+    if (words[i] != 0) {
+      i++;
+      continue;
+    }
+    final start = i;
+    while (i < words.length && words[i] == 0) {
+      i++;
+    }
+    if (i - start > bestLength) {
+      bestStart = start;
+      bestLength = i - start;
+    }
+  }
+  final hex = words.map((word) => word.toRadixString(16)).toList();
+  if (bestStart < 0) return hex.join(':');
+  return '${hex.take(bestStart).join(':')}::${hex.skip(bestStart + bestLength).join(':')}';
 }
 
 Iterable<String> _ipv4CidrPatterns(String input) sync* {
@@ -248,8 +289,8 @@ String buildProcessProxyIni(
   }
   for (final value in [endpoint.username, endpoint.password]) {
     if (value != value.trim() ||
-        value.contains(RegExp(r'[\r\n\x00"]')) ||
-        utf8.encode(value).length > 255) {
+        value.contains(RegExp(r'''[\r\n\x00"']''')) ||
+        utf8.encode(value).length > 127) {
       throw const ProcessProxyException('invalidAuthentication');
     }
   }

@@ -75,6 +75,46 @@ void main() {
     );
   });
 
+  test('allowlisted bridge codes get useful instructions without raw text', () {
+    expect(
+      processProxyErrorMessage(
+        const ProcessProxyException(
+          'bridgeOperationFailed',
+          'certificate_required',
+        ),
+        l,
+      ),
+      l.processProxyErrorCaRequired,
+    );
+    expect(
+      processProxyErrorMessage(
+        const ProcessProxyException(
+          'bridgeOperationFailed',
+          'target_architecture',
+        ),
+        l,
+      ),
+      l.processProxyErrorArchitecture,
+    );
+    expect(
+      processProxyErrorMessage(
+        const ProcessProxyException(
+          'bridgeOperationFailed',
+          'response_too_large',
+        ),
+        l,
+      ),
+      l.processProxyErrorResponseLarge,
+    );
+    expect(
+      processProxyErrorMessage(
+        const ProcessProxyException('bridgeOperationFailed', 'raw-secret'),
+        l,
+      ),
+      l.processProxyErrorBridge,
+    );
+  });
+
   test('hook incompatibility never recommends weakening security', () {
     expect(processProxyExitMessage(7, l), l.processProxyErrorHook);
     expect(processProxyExitMessage(999, l), l.processProxyErrorGeneric);

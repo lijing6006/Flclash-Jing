@@ -9,8 +9,39 @@ import 'package:fl_clash/services/process_proxy.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/views/process_proxy_error.dart';
+import 'package:fl_clash/views/process_proxy/advanced.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Future<ProcessProxyRuntime> _verifiedProcessProxyRuntime(
+  ProviderContainer container,
+) async {
+  if (!await container.read(setupActionProvider.notifier).inputsApplied()) {
+    throw const ProcessProxyException('coreConfigurationChanged');
+  }
+  return _processProxyRuntime(container);
+}
+
+ProcessProxyRuntime _processProxyRuntime(ProviderContainer container) {
+  final config = container.read(patchClashConfigProvider);
+  final network = container.read(networkSettingProvider);
+  final authentication = network.authentication;
+  return ProcessProxyRuntime(
+    running:
+        container.read(coreStatusProvider) == CoreStatus.connected &&
+        container.read(runTimeProvider) != null &&
+        !container.read(suspendProvider),
+    safeMode: container.read(safeModeProvider),
+    systemProxy: network.systemProxy,
+    tunEnabled: config.tun.enable,
+    directMode: config.mode == Mode.direct,
+    mixedPort: config.mixedPort,
+    socksPort: config.socksPort,
+    httpPort: config.port,
+    username: authentication.enable ? authentication.username : '',
+    password: authentication.enable ? authentication.password : '',
+  );
+}
 
 class ProcessProxyView extends ConsumerStatefulWidget {
   final ProcessProxyService Function()? serviceFactory;
@@ -23,7 +54,8 @@ class ProcessProxyView extends ConsumerStatefulWidget {
 }
 
 class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
-  late final _service = widget.serviceFactory?.call() ?? ProcessProxyService();
+  late final _service =
+      widget.serviceFactory?.call() ?? ProcessProxyService.shared;
   final _backend = TextEditingController();
   final _target = TextEditingController();
   final _arguments = TextEditingController(text: '[]');
@@ -37,8 +69,6 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   bool _blockUdp = true;
   bool _remoteDns = false;
   bool _trusted = false;
-  bool _decryptHttps = false;
-  bool _decryptQuic = false;
   Object? _error;
   List<ProcessProxyCandidate> _processes = [];
 
@@ -74,24 +104,8 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
     }
   }
 
-  ProcessProxyRuntime _runtime() {
-    final config = ref.read(patchClashConfigProvider);
-    final network = ref.read(networkSettingProvider);
-    final authentication = network.authentication;
-    return ProcessProxyRuntime(
-      running:
-          ref.read(coreStatusProvider) == CoreStatus.connected &&
-          ref.read(runTimeProvider) != null,
-      safeMode: ref.read(safeModeProvider),
-      systemProxy: network.systemProxy,
-      tunEnabled: config.tun.enable,
-      mixedPort: config.mixedPort,
-      socksPort: config.socksPort,
-      httpPort: config.port,
-      username: authentication.enable ? authentication.username : '',
-      password: authentication.enable ? authentication.password : '',
-    );
-  }
+  ProcessProxyRuntime _runtime() =>
+      _processProxyRuntime(ProviderScope.containerOf(context, listen: false));
 
   ProcessProxyLaunchRequest _request() {
     final arguments = parseProcessArguments(_arguments.text);
@@ -105,8 +119,6 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       blockUdp: _blockUdp,
       remoteDns: _remoteDns,
       trustedBackend: _trusted,
-      decryptHttps: _decryptHttps,
-      decryptQuic: _decryptQuic,
     );
   }
 
@@ -161,6 +173,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
     });
     try {
       final request = _request();
+      final container = ProviderScope.containerOf(context, listen: false);
       final confirmed = await dialogs.showMessage(
         context: context,
         title: context.appLocalizations.processProxyLaunch,
@@ -172,7 +185,10 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
         confirmText: context.appLocalizations.processProxyLaunch,
       );
       if (!mounted || confirmed != true) return;
-      await _service.launch(request: request, runtime: () async => _runtime());
+      await _service.launch(
+        request: request,
+        runtime: () => _verifiedProcessProxyRuntime(container),
+      );
     } catch (error) {
       if (mounted) setState(() => _error = error);
     } finally {
@@ -242,6 +258,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
     final l = context.appLocalizations;
     ref.watch(coreStatusProvider);
     ref.watch(runTimeProvider);
+    ref.watch(suspendProvider);
     ref.watch(safeModeProvider);
     ref.watch(patchClashConfigProvider);
     ref.watch(networkSettingProvider);
@@ -258,6 +275,8 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
         ? l.processProxySafeMode
         : !runtime.running
         ? l.processProxyCoreRequired
+        : runtime.directMode
+        ? l.processProxyDirectMode
         : runtime.systemProxy || runtime.tunEnabled
         ? l.processProxyTakeoverOff
         : port <= 0
@@ -431,22 +450,6 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
               ],
               footer: l.processProxySearchHelp,
             ),
-            generateSection(
-              title: l.processProxyAdvanced,
-              items: [
-                _toggle(
-                  title: l.processProxyDecryptHttps,
-                  value: _decryptHttps,
-                  onChanged: (value) => _decryptHttps = value,
-                ),
-                _toggle(
-                  title: l.processProxyDecryptQuic,
-                  value: _decryptQuic,
-                  onChanged: (value) => _decryptQuic = value,
-                ),
-              ],
-              footer: l.processProxyAdvancedHelp,
-            ),
             if (_service.sessions.isNotEmpty)
               generateSection(
                 title: l.processProxySessions,
@@ -459,10 +462,19 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                       ),
                     ),
                     if (session.status == 'backendRunning')
-                      ListItem(
-                        title: Text(l.processProxyOpenBackend),
-                        onTap: () => _showBackend(session),
-                      ),
+                      if (session.nativeBridge)
+                        ListItem.open(
+                          title: Text(l.processProxyNativeWorkspace),
+                          widget: ProcessProxyAdvancedView(
+                            service: _service,
+                            session: session,
+                          ),
+                        )
+                      else
+                        ListItem(
+                          title: Text(l.processProxyOpenBackend),
+                          onTap: () => _showBackend(session),
+                        ),
                   ],
                 ],
                 footer: l.processProxySessionHelp,
@@ -476,7 +488,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   @override
   void dispose() {
     _service.removeListener(_onServiceChanged);
-    _service.dispose();
+    if (widget.serviceFactory != null) _service.dispose();
     _backend.dispose();
     _target.dispose();
     _arguments.dispose();

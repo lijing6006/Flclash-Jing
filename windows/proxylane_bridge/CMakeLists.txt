@@ -1,0 +1,46 @@
+cmake_minimum_required(VERSION 3.20)
+project(FlClashProxyBridge LANGUAGES CXX)
+
+set(PROXYLANE_SOURCE_DIR "" CACHE PATH "Read-only ProxyLane v1.3.5 source checkout")
+set(PROXYLANE_AUDITED_COMMIT "c95248ac8cc790efe0ebaa37383b1008e42c78ce")
+if(NOT EXISTS "${PROXYLANE_SOURCE_DIR}/src/ProxyLaneHook/ProxyModule.h")
+  message(FATAL_ERROR "Set PROXYLANE_SOURCE_DIR to the audited upstream source checkout")
+endif()
+find_package(Git REQUIRED)
+execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${PROXYLANE_SOURCE_DIR}" rev-parse HEAD
+  OUTPUT_VARIABLE PROXYLANE_COMMIT OUTPUT_STRIP_TRAILING_WHITESPACE RESULT_VARIABLE GIT_RESULT)
+if(NOT GIT_RESULT EQUAL 0 OR NOT PROXYLANE_COMMIT STREQUAL PROXYLANE_AUDITED_COMMIT)
+  message(FATAL_ERROR "ProxyLane source revision does not match the audited ABI")
+endif()
+execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${PROXYLANE_SOURCE_DIR}" diff --quiet HEAD --
+  src/ProxyLaneHook third_party/nlohmann
+  RESULT_VARIABLE HEADER_DIFF)
+if(NOT HEADER_DIFF EQUAL 0)
+  message(FATAL_ERROR "Audited ProxyLane ABI headers have local modifications")
+endif()
+
+add_executable(bridge_protocol_test tests/protocol_test.cpp)
+target_compile_features(bridge_protocol_test PRIVATE cxx_std_17)
+target_include_directories(bridge_protocol_test SYSTEM PRIVATE "${PROXYLANE_SOURCE_DIR}/third_party")
+enable_testing()
+add_test(NAME bridge_protocol COMMAND bridge_protocol_test)
+
+add_executable(bridge_ui_contract_test tests/ui_contract_test.cpp)
+target_compile_features(bridge_ui_contract_test PRIVATE cxx_std_17)
+target_include_directories(bridge_ui_contract_test SYSTEM PRIVATE "${PROXYLANE_SOURCE_DIR}/third_party")
+add_test(NAME bridge_ui_contract COMMAND bridge_ui_contract_test)
+
+if(WIN32)
+  if(NOT MSVC OR NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message(FATAL_ERROR "The experimental bridge requires the Windows x64 MSVC toolchain")
+  endif()
+  add_executable(FlClashProxyBridge bridge.cpp)
+  target_compile_features(FlClashProxyBridge PRIVATE cxx_std_17)
+  target_compile_definitions(FlClashProxyBridge PRIVATE UNICODE _UNICODE WINVER=0x0A00 _WIN32_WINNT=0x0A00)
+  target_compile_options(FlClashProxyBridge PRIVATE /W4 /EHsc /utf-8)
+  target_include_directories(FlClashProxyBridge SYSTEM PRIVATE
+    "${PROXYLANE_SOURCE_DIR}/src/ProxyLaneHook" "${PROXYLANE_SOURCE_DIR}/third_party")
+  target_link_libraries(FlClashProxyBridge PRIVATE ws2_32 shlwapi bcrypt version shell32)
+  install(TARGETS FlClashProxyBridge RUNTIME DESTINATION .)
+  install(FILES UPSTREAM-LICENSE NLOHMANN-LICENSE DESTINATION licenses/proxylane_bridge)
+endif()

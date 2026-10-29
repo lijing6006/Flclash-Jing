@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'process_proxy/backend.dart';
+import 'process_proxy/bridge_client.dart';
 import 'process_proxy/policy.dart';
 
 export 'process_proxy/backend.dart' show ProcessProxyCandidate;
@@ -19,6 +20,8 @@ class ProcessProxySession {
   final String backendExecutable;
   final String status;
   final int? exitCode;
+  final bool nativeBridge;
+  final int? targetPid;
 
   const ProcessProxySession({
     required this.id,
@@ -27,10 +30,16 @@ class ProcessProxySession {
     required this.backendExecutable,
     required this.status,
     this.exitCode,
+    this.nativeBridge = false,
+    this.targetPid,
   });
 }
 
 class ProcessProxyService extends ChangeNotifier {
+  static final shared = ProcessProxyService();
+  final Map<String, ProcessProxyBridgeClient> _bridges = {};
+  final Map<String, Future<ProcessProxyRuntime> Function()> _runtimeChecks = {};
+  final Map<String, ProcessProxyEndpoint> _endpoints = {};
   bool _busy = false;
   bool _disposed = false;
   final List<ProcessProxySession> _sessions = [];
@@ -63,10 +72,19 @@ class ProcessProxyService extends ChangeNotifier {
   }
 
   Future<void> saveSettings(ProcessProxyLaunchRequest request) async {
-    final file = File(p.join((await _root()).path, 'settings.json'));
-    final temp = File('${file.path}.pending');
-    await temp.writeAsString(jsonEncode(request.toJson()), flush: true);
-    await temp.rename(file.path);
+    if (_busy) throw const ProcessProxyException('launchBusy');
+    if (_disposed) throw const ProcessProxyException('serviceDisposed');
+    _busy = true;
+    _changed();
+    try {
+      final file = File(p.join((await _root()).path, 'settings.json'));
+      final temp = File('${file.path}.pending');
+      await temp.writeAsString(jsonEncode(request.toJson()), flush: true);
+      await temp.rename(file.path);
+    } finally {
+      _busy = false;
+      _changed();
+    }
   }
 
   Future<List<ProcessProxyCandidate>> searchProcesses(String query) async {
@@ -130,56 +148,99 @@ class ProcessProxyService extends ChangeNotifier {
         throw const ProcessProxyException('missingAdvancedModule');
       }
       final ini = buildProcessProxyIni(request, endpoint, profile);
-      await File(p.join(sessionDirectory.path, 'ProxyLane.ini'))
-          .writeAsBytes(encodeProcessProxyIni(ini), flush: true);
       final latest = (await runtime()).endpoint;
       if (!endpoint.sameAs(latest)) {
         throw const ProcessProxyException('coreConfigurationChanged');
       }
       if (_disposed) throw const ProcessProxyException('serviceDisposed');
-      final executable = p.join(sessionDirectory.path, 'ProxyLane64.exe');
-      final process = await Process.start(
-        executable,
-        [
-          '--auto',
-          '--profile',
-          profile,
-          '--run',
-          request.executable,
-          if (request.arguments.isNotEmpty) ...['--', ...request.arguments],
-        ],
-        workingDirectory: sessionDirectory.path,
-        runInShell: false,
-      );
-      started = true;
-      unawaited(process.stdout.drain<void>());
-      unawaited(process.stderr.drain<void>());
-      _sessions.insert(
-        0,
-        ProcessProxySession(
-          id: id,
-          executable: request.executable,
-          backendPid: process.pid,
-          backendExecutable: executable,
-          status: 'backendRunning',
+      final packagedBridge = File(
+        p.join(
+          p.dirname(Platform.resolvedExecutable),
+          'FlClashProxyBridge.exe',
         ),
       );
-      _changed();
-      unawaited(
-        process.exitCode.then((code) {
-          final index = _sessions.indexWhere((s) => s.id == id);
-          if (index < 0) return;
-          _sessions[index] = ProcessProxySession(
+      if (await packagedBridge.exists()) {
+        final executable = p.join(
+          sessionDirectory.path,
+          'FlClashProxyBridge.exe',
+        );
+        await packagedBridge.copy(executable);
+        final bridge = await ProcessProxyBridgeClient.start(executable);
+        _bridges[id] = bridge;
+        try {
+          await bridge.request('configure', {
+            'backend_directory': sessionDirectory.path,
+            'port': endpoint.port,
+            'proxy_type': endpoint.type,
+            'username': endpoint.username,
+            'password': endpoint.password,
+            'children': request.includeChildren,
+            'block_udp': request.blockUdp,
+            'remote_dns': request.remoteDns,
+            'bypass': compileBypassRules(
+              request.bypassRules,
+              privateNetworks: request.bypassPrivateNetworks,
+            ),
+          });
+          if (!endpoint.sameAs((await runtime()).endpoint) || _disposed) {
+            throw const ProcessProxyException('coreConfigurationChanged');
+          }
+          final launched = await bridge.request('launch', {
+            'executable': request.executable,
+            'arguments': request.arguments,
+            'confirm': true,
+          });
+          started = true;
+          _runtimeChecks[id] = runtime;
+          _endpoints[id] = endpoint;
+          _trackSession(
+            ProcessProxySession(
+              id: id,
+              executable: request.executable,
+              backendPid: bridge.processId,
+              backendExecutable: executable,
+              status: 'backendRunning',
+              nativeBridge: true,
+              targetPid: launched['target_pid'] as int?,
+            ),
+            bridge.processExit!,
+          );
+        } catch (_) {
+          _bridges.remove(id);
+          await bridge.close();
+          rethrow;
+        }
+      } else {
+        await File(p.join(sessionDirectory.path, 'ProxyLane.ini'))
+            .writeAsBytes(encodeProcessProxyIni(ini), flush: true);
+        final executable = p.join(sessionDirectory.path, 'ProxyLane64.exe');
+        final process = await Process.start(
+          executable,
+          [
+            '--auto',
+            '--profile',
+            profile,
+            '--run',
+            request.executable,
+            if (request.arguments.isNotEmpty) ...['--', ...request.arguments],
+          ],
+          workingDirectory: sessionDirectory.path,
+          runInShell: false,
+        );
+        started = true;
+        unawaited(process.stdout.drain<void>());
+        unawaited(process.stderr.drain<void>());
+        _trackSession(
+          ProcessProxySession(
             id: id,
             executable: request.executable,
             backendPid: process.pid,
             backendExecutable: executable,
-            status: code == 0 ? 'exited' : 'failed',
-            exitCode: code,
-          );
-          _changed();
-        }),
-      );
+            status: 'backendRunning',
+          ),
+          process.exitCode,
+        );
+      }
     } on ProcessProxyException {
       rethrow;
     } on Exception {
@@ -195,6 +256,51 @@ class ProcessProxyService extends ChangeNotifier {
     }
   }
 
+  void _trackSession(ProcessProxySession session, Future<int> exit) {
+    _sessions.insert(0, session);
+    _changed();
+    unawaited(
+      exit.then((code) {
+        final index = _sessions.indexWhere((s) => s.id == session.id);
+        if (index < 0) return;
+        _sessions[index] = ProcessProxySession(
+          id: session.id,
+          executable: session.executable,
+          backendPid: session.backendPid,
+          backendExecutable: session.backendExecutable,
+          status: code == 0 ? 'exited' : 'failed',
+          exitCode: code,
+          nativeBridge: session.nativeBridge,
+          targetPid: session.targetPid,
+        );
+        final bridge = _bridges.remove(session.id);
+        if (bridge != null) unawaited(bridge.close());
+        _runtimeChecks.remove(session.id);
+        _endpoints.remove(session.id);
+        _changed();
+      }),
+    );
+  }
+
+  Future<Map<String, dynamic>> bridgeRequest(
+    String sessionId,
+    String operation, [
+    Map<String, dynamic> arguments = const {},
+  ]) async {
+    final bridge = _bridges[sessionId];
+    if (bridge == null) throw const ProcessProxyException('sessionUnavailable');
+    if (operation == 'monitor.start' || operation == 'recording.start') {
+      final check = _runtimeChecks[sessionId];
+      final endpoint = _endpoints[sessionId];
+      if (check == null ||
+          endpoint == null ||
+          !endpoint.sameAs((await check()).endpoint)) {
+        throw const ProcessProxyException('coreConfigurationChanged');
+      }
+    }
+    return bridge.request(operation, arguments);
+  }
+
   Future<void> showBackendWindow(String id) async {
     final selected = _sessions.where((s) => s.id == id).firstOrNull;
     if (selected == null || selected.status != 'backendRunning') {
@@ -206,6 +312,12 @@ class ProcessProxyService extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    for (final bridge in _bridges.values) {
+      unawaited(bridge.close());
+    }
+    _bridges.clear();
+    _runtimeChecks.clear();
+    _endpoints.clear();
     super.dispose();
   }
 }
