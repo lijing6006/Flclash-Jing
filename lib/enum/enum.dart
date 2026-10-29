@@ -557,6 +557,7 @@ extension GeoResourceExt on GeoResource {
 
 enum PageLabel {
   dashboard,
+  processProxy,
   proxies,
   profiles,
   tools,

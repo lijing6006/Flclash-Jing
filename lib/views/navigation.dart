@@ -1,8 +1,10 @@
 import 'package:fl_clash/common/app_ports.dart';
+import 'package:fl_clash/common/system.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/ui/icons/app_glyphs.dart';
 import 'package:fl_clash/views/views.dart';
+import 'package:fl_clash/views/process_proxy.dart';
 import 'package:material_ui/material_ui.dart';
 
 class Navigation implements NavigationPort {
@@ -29,6 +31,15 @@ class Navigation implements NavigationPort {
             ? [NavigationItemMode.mobile, NavigationItemMode.desktop]
             : [],
       ),
+      if (system.isWindows)
+        NavigationItem(
+          glyph: AppGlyphs.appsList,
+          label: PageLabel.processProxy,
+          builder: (_) => const ProcessProxyView(
+            key: GlobalObjectKey(PageLabel.processProxy),
+          ),
+          modes: [NavigationItemMode.desktop],
+        ),
       NavigationItem(
         glyph: AppGlyphs.profiles,
         label: PageLabel.profiles,
