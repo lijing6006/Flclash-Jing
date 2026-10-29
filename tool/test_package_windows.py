@@ -25,7 +25,7 @@ class PackageTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         for name in REQUIRED:
             path = self.root / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -127,7 +127,7 @@ class DependencySourceTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
 
     def test_copy_keeps_sources_and_license_but_not_cache_or_credentials(self):
         source = self.root / "package"
