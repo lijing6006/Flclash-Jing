@@ -1,0 +1,138 @@
+name: Windows application package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/windows-package.yaml'
+      - 'tool/package_windows.py'
+      - 'tool/test_package_windows.py'
+      - 'docs/process-proxy/WINDOWS_PACKAGE.md'
+      - 'lib/**'
+      - 'windows/**'
+      - 'plugins/**'
+      - 'core/**'
+      - 'services/**'
+      - 'assets/**'
+      - 'pubspec.*'
+      - 'build_config.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-package-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  BOT: 'true'
+  CI: 'true'
+  FLUTTER_VERSION: '3.47.6'
+  RUSTUP_TOOLCHAIN: '1.99.0'
+  PROXYLANE_COMMIT: c95248ac8cc790efe0ebaa37383b1008e42c78ce
+
+jobs:
+  build:
+    name: Full Windows x64 application
+    runs-on: windows-2022
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: core/go.sum
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Prepare pinned Windows toolchain
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.99.0 --profile minimal --target x86_64-pc-windows-msvc
+          if ($LASTEXITCODE -ne 0) { throw 'Rust toolchain installation failed' }
+          flutter --suppress-analytics --version
+          go version
+          rustc --version
+          python --version
+      - name: Packaging tests and source contracts
+        run: |
+          python -m unittest discover -s tool -p test_package_windows.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Package policy tests failed' }
+          python tool/check_process_proxy_sources.py
+          if ($LASTEXITCODE -ne 0) { throw 'Source contract check failed' }
+      - name: Resolve locked application dependencies
+        run: flutter --suppress-analytics pub get --enforce-lockfile
+      - name: Analyze application
+        run: flutter analyze --no-fatal-infos
+      - name: Build actual Flutter release application and native assets
+        run: flutter build windows --release --dart-define=APP_ENV=pre
+      - name: Fetch exact interface source for companion build
+        shell: pwsh
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/threatexpert/ProxyLane.git "$env:RUNNER_TEMP/ProxyLane"
+          if ($LASTEXITCODE -ne 0) { throw 'Interface source fetch failed' }
+          git -C "$env:RUNNER_TEMP/ProxyLane" checkout --detach $env:PROXYLANE_COMMIT
+          if ($LASTEXITCODE -ne 0) { throw 'Interface checkout failed' }
+          if ((git -C "$env:RUNNER_TEMP/ProxyLane" rev-parse HEAD) -ne $env:PROXYLANE_COMMIT) { throw 'Unexpected interface revision' }
+      - name: Compile companion and run only non-invasive policy tests
+        shell: pwsh
+        run: |
+          cmake -S windows/proxylane_bridge -B build/proxylane_bridge -A x64 "-DPROXYLANE_SOURCE_DIR=$env:RUNNER_TEMP/ProxyLane"
+          if ($LASTEXITCODE -ne 0) { throw 'Companion configure failed' }
+          cmake --build build/proxylane_bridge --config Release
+          if ($LASTEXITCODE -ne 0) { throw 'Companion compile failed' }
+          ctest --test-dir build/proxylane_bridge -C Release --output-on-failure
+          if ($LASTEXITCODE -ne 0) { throw 'Companion policy tests failed' }
+      - name: Assemble and verify portable package and corresponding source
+        run: python tool/package_windows.py
+      - name: Upload downloadable application, source and checksums
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Flclash-Jing-windows-x64-${{ github.sha }}
+          path: dist/windows-package/*
+          if-no-files-found: error
+          retention-days: 30
+      - name: Preserve build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-package-diagnostics-${{ github.run_id }}
+          path: |
+            .dart_tool/setup_build_cache/hook.log
+            build/windows/x64/CMakeFiles/CMakeConfigureLog.yaml
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  prerelease:
+    name: Publish experimental Windows download
+    needs: build
+    if: github.repository == 'lijing6006/Flclash-Jing' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: Flclash-Jing-windows-x64-${{ github.sha }}
+          path: package
+      - name: Verify package hashes and publish immutable prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SOURCE_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          cd package
+          sha256sum --check SHA256SUMS
+          tag="windows-preview-${SOURCE_SHA:0:12}-${RUN_ID}"
+          gh release create "$tag" --target "$SOURCE_SHA" --prerelease --latest=false \
+            --title "Flclash-Jing Windows x64 preview ${SOURCE_SHA:0:12}" \
+            --notes-file RELEASE_NOTES.md \
+            ./*.zip SHA256SUMS PACKAGE_MANIFEST.json RELEASE_NOTES.md
