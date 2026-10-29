@@ -57,8 +57,10 @@ tool/package_windows.py 验证主 EXE/Core/Helper/bridge/Flutter 引擎的 x64 P
 生成逐文件 SHA256 manifest，重新读取 ZIP 校验 CRC 和内容哈希。
 这不是数字签名或实际应用启动测试。纯打包策略测试可用 Python unittest 执行。
 
-同一 Release 附项目源码 ZIP（包含精确 Core 子模块源）、构建脚本、依赖锁与许可证；
-SDK、包管理器依赖及明确固定的 ProxyLane ABI 接口源按构建脚本取得，
+同一 Release 附项目源码 ZIP（包含精确 Core 子模块源）和 dependency-source ZIP，
+后者保存锁定 Go/Rust vendored 源、实际 Dart/Flutter framework 包、5 个 ABI 头与 nlohmann，
+并把依赖许可/NOTICE/COPYING 收集到应用 licenses/dependencies。SDK/engine 的固定源码版本
+另记于 DEPENDENCIES.json；构建脚本、锁文件与再生成说明一同保留。
 不包含个人配置、秘密或实际流量。SHA256SUMS 可校验应用、源码与 manifest。
 完整能力边界仍见 [能力矩阵](CAPABILITIES.md)。
 
@@ -80,6 +82,8 @@ because redistribution provenance is unverified; its UWP helper action is unavai
 CI builds the actual release app without running it or performing injection, certificate,
 service or network changes. It checks required x64 PE components, native/runtime assets and
 archive hashes, then publishes an immutable prerelease only from main. Build permissions are
-read-only; only the isolated release job can write release assets. No signing key or deployment
+read-only; only the isolated release job can write release assets. A separate dependency-source ZIP contains
+resolved Go/Rust/Dart/Flutter framework sources and the audited ABI headers; dependency notices
+are retained in the binary bundle. SDK/engine source revisions and regeneration instructions are recorded. No signing key or deployment
 secret is used. Recording/decryption remain opt-in; stopping a session does not remove target
 hooks or guarantee clean direct access. See the capability matrix for remaining limitations.

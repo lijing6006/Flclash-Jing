@@ -126,6 +126,10 @@ def main():
     if not core_license.is_file():
         raise ValueError("Core license is required")
     shutil.copy2(core_license, staging / "licenses/Clash.Meta-LICENSE")
+    dependency_sources = ROOT / "build/package-dependencies"
+    if not (dependency_sources / "DEPENDENCIES.json").is_file():
+        raise ValueError("Resolved dependency sources and notices are required")
+    shutil.copytree(ROOT / "build/package-dependency-notices", staging / "licenses/dependencies")
     files = [
         {"path": p.relative_to(staging).as_posix(), "bytes": p.stat().st_size, "sha256": sha256(p)}
         for p in sorted(staging.rglob("*")) if p.is_file()
@@ -167,11 +171,19 @@ def main():
                                  "plugins/rust_api/rust/Cargo.lock", "services/helper/Cargo.lock"],
             "proxylane_interface_source": f"https://github.com/threatexpert/ProxyLane/tree/{PROXYLANE_COMMIT}",
             "excluded": ["windows/EnableLoopback.exe"],
-            "notes": "Core submodule source is included. Obtain pinned interface headers and normal SDK/package dependencies as described in the build recipe; no ProxyLane backend binary or user data is included."
+            "notes": "Core submodule source is included. Resolved dependency and ABI header snapshots are in the companion dependency-source ZIP; SDK/engine source revisions are identified there. No ProxyLane backend binary or user data is included."
         }, indent=2) + "\n")
     with zipfile.ZipFile(source_zip) as archive:
         if archive.testzip() is not None:
             raise ValueError("Source archive CRC check failed")
+    dependency_zip = output / f"Flclash-Jing-dependency-source-{commit[:12]}.zip"
+    with zipfile.ZipFile(dependency_zip, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+        for path in sorted(dependency_sources.rglob("*")):
+            if path.is_file():
+                archive.write(path, "dependencies/" + path.relative_to(dependency_sources).as_posix())
+    with zipfile.ZipFile(dependency_zip) as archive:
+        if archive.testzip() is not None:
+            raise ValueError("Dependency archive CRC check failed")
     notes = f"""# Windows x64 实验预览 / Experimental preview
 
 源码 / Source: {commit}
@@ -189,10 +201,10 @@ Extract the complete portable ZIP and launch FlClash.exe; it is not a standalone
 The separately obtained official ProxyLane 1.3.5 backend is still required and is NOT redistributed.
 Unsigned experimental build: successful compilation is not real process/traffic/certificate validation.
 The optional inherited UWP loopback utility is omitted pending redistribution-license verification.
-Corresponding project and pinned core source, build recipe, licenses and SHA256SUMS accompany this release.
+Corresponding project/core and resolved dependency sources, audited ABI headers, build recipe, licenses and SHA256SUMS accompany this release.
 """
     (output / "RELEASE_NOTES.md").write_text(notes, encoding="utf-8")
-    checksummed = [binary_zip, source_zip, output / "PACKAGE_MANIFEST.json", output / "RELEASE_NOTES.md"]
+    checksummed = [binary_zip, source_zip, dependency_zip, output / "PACKAGE_MANIFEST.json", output / "RELEASE_NOTES.md"]
     (output / "SHA256SUMS").write_text(
         "".join(f"{sha256(p)}  {p.name}\n" for p in checksummed), encoding="ascii")
     print(json.dumps({"source_commit": commit, "artifacts": [

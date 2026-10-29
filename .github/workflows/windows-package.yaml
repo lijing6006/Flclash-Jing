@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/windows-package.yaml'
       - 'tool/package_windows.py'
+      - 'tool/collect_windows_dependencies.py'
       - 'tool/test_package_windows.py'
       - 'docs/process-proxy/WINDOWS_PACKAGE.md'
       - 'lib/**'
@@ -88,6 +89,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Companion compile failed' }
           ctest --test-dir build/proxylane_bridge -C Release --output-on-failure
           if ($LASTEXITCODE -ne 0) { throw 'Companion policy tests failed' }
+      - name: Preserve resolved dependency source and license notices
+        run: python tool/collect_windows_dependencies.py
       - name: Assemble and verify portable package and corresponding source
         run: python tool/package_windows.py
       - name: Upload downloadable application, source and checksums

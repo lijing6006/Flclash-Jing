@@ -5,6 +5,8 @@ import tempfile
 import unittest
 import zipfile
 
+from collect_windows_dependencies import copy_sources, notice_file, package_root
+
 from package_windows import (
     FORBIDDEN, REQUIRED, append_archive, pe_machine, safe_archive_name, verify_bundle,
 )
@@ -119,6 +121,44 @@ class PackageTests(unittest.TestCase):
         with zipfile.ZipFile(result) as archive:
             self.assertEqual(archive.namelist(), ["src/LICENSE"])
             self.assertEqual(archive.read("src/LICENSE"), b"fixture license")
+
+
+class DependencySourceTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+
+    def test_copy_keeps_sources_and_license_but_not_cache_or_credentials(self):
+        source = self.root / "package"
+        source.mkdir()
+        for name in ("LICENSE", "library.dart", ".env", ".netrc"):
+            (source / name).write_text("fixture")
+        (source / ".git").mkdir()
+        (source / ".git/config").write_text("fixture")
+        (source / "build").mkdir()
+        (source / "build/cache").write_text("fixture")
+        target = self.root / "snapshot"
+        copy_sources(source, target)
+        self.assertEqual(sorted(p.name for p in target.iterdir()), ["LICENSE", "library.dart"])
+
+    def test_notice_names(self):
+        for name in ("LICENSE-MIT", "COPYING", "NOTICE.txt", "Copyright", "PATENT_GRANT"):
+            self.assertTrue(notice_file(Path(name)))
+        self.assertFalse(notice_file(Path("main.rs")))
+
+    def test_relative_package_root(self):
+        config = self.root / ".dart_tool/package_config.json"
+        self.assertEqual(package_root(config, "../dependency/"), self.root / "dependency")
+
+    def test_file_uri_package_root(self):
+        self.assertEqual(package_root(self.root / "config.json", self.root.as_uri()), self.root)
+
+    def test_network_package_root_rejected(self):
+        with self.assertRaises(ValueError):
+            package_root(self.root / "config.json", "https://example.test/package")
+        with self.assertRaises(ValueError):
+            package_root(self.root / "config.json", "file://server/package")
 
 
 if __name__ == "__main__":
