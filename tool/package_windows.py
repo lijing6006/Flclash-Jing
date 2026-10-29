@@ -92,6 +92,10 @@ def write_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def open_output_zip(path):
+    return zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, compresslevel=9, strict_timestamps=False)
+
+
 def main():
     commit = git("rev-parse", "HEAD").decode().strip()
     if not re.fullmatch(r"[0-9a-f]{40}", commit):
@@ -147,7 +151,7 @@ def main():
     write_json(output / "PACKAGE_MANIFEST.json", manifest)
     basename = f"Flclash-Jing-windows-x64-preview-{commit[:12]}"
     binary_zip = output / f"{basename}.zip"
-    with zipfile.ZipFile(binary_zip, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+    with open_output_zip(binary_zip) as archive:
         for path in sorted(staging.rglob("*")):
             if path.is_file():
                 archive.write(path, basename + "/" + path.relative_to(staging).as_posix())
@@ -160,7 +164,7 @@ def main():
                 raise ValueError("Binary archive manifest mismatch")
     source_zip = output / f"Flclash-Jing-source-{commit[:12]}.zip"
     prefix = f"Flclash-Jing-source-{commit[:12]}/"
-    with zipfile.ZipFile(source_zip, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+    with open_output_zip(source_zip) as archive:
         append_archive(archive, git("archive", "--format=zip", commit), prefix,
                        skip=("windows/EnableLoopback.exe",))
         append_archive(archive, git("archive", "--format=zip", CORE_COMMIT, cwd=core),
@@ -178,7 +182,7 @@ def main():
         if archive.testzip() is not None:
             raise ValueError("Source archive CRC check failed")
     dependency_zip = output / f"Flclash-Jing-dependency-source-{commit[:12]}.zip"
-    with zipfile.ZipFile(dependency_zip, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+    with open_output_zip(dependency_zip) as archive:
         for path in sorted(dependency_sources.rglob("*")):
             if path.is_file():
                 archive.write(path, "dependencies/" + path.relative_to(dependency_sources).as_posix())

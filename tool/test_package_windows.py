@@ -1,4 +1,5 @@
 import io
+import os
 from pathlib import Path
 import struct
 import tempfile
@@ -8,7 +9,7 @@ import zipfile
 from collect_windows_dependencies import copy_sources, notice_file, package_root
 
 from package_windows import (
-    FORBIDDEN, REQUIRED, append_archive, pe_machine, safe_archive_name, verify_bundle,
+    FORBIDDEN, REQUIRED, append_archive, open_output_zip, pe_machine, safe_archive_name, verify_bundle,
 )
 
 
@@ -101,6 +102,18 @@ class PackageTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 verify_bundle(self.root)
             path.unlink()
+
+    def test_legacy_dependency_timestamp_keeps_content(self):
+        source = self.root / "old-LICENSE"
+        source.write_bytes(b"unchanged license text")
+        os.utime(source, (0, 0))
+        archive_path = self.root / "package.zip"
+        with open_output_zip(archive_path) as archive:
+            archive.write(source, "licenses/old-LICENSE")
+        with zipfile.ZipFile(archive_path) as archive:
+            self.assertEqual(archive.read("licenses/old-LICENSE"), source.read_bytes())
+            self.assertEqual(archive.getinfo("licenses/old-LICENSE").date_time[0], 1980)
+            self.assertIsNone(archive.testzip())
 
     def test_archive_traversal_rejected(self):
         for name in ("", "/absolute", "../escape", "a/../../b", r"a\b", "C:/drive"):
