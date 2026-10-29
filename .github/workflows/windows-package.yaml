@@ -24,11 +24,12 @@ permissions:
 
 concurrency:
   group: windows-package-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   BOT: 'true'
   CI: 'true'
+  PYTHONUTF8: '1'
   FLUTTER_VERSION: '3.47.6'
   RUSTUP_TOOLCHAIN: '1.99.0'
   PROXYLANE_COMMIT: c95248ac8cc790efe0ebaa37383b1008e42c78ce
