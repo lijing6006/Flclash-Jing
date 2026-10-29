@@ -17,3 +17,8 @@ GPL-3.0, preserving upstream FlClash notices. ProxyLane's MIT and third-party no
 ## Optional bundled companion
 
 The Windows root CMake configuration accepts `FLCLASH_BUILD_PROCESS_PROXY_BRIDGE=ON` and `PROXYLANE_SOURCE_DIR=<audited checkout>`. It is OFF until Windows validation is complete. Alternatively build the standalone companion and place `FlClashProxyBridge.exe` next to the FlClash application executable, retaining the bridge's upstream license notice. The launcher copies it into each isolated runtime directory before use. Never copy a build-output directory from an unrelated application.
+
+
+Native source now also includes named profiles with previewed, non-overwriting JSON imports and argument-free exports by default; a read-only App Paths/Start Menu EXE catalog preserving shortcut arguments and working directories; bounded directional payload Raw/Hex and DNS/DoH previews; and separately confirmed index recovery and same-session TCP reconnect snapshots. QUIC compatibility preparation must be selected before the new target starts and lasts until that process exits. It does not start capture or alter browser profile files. Reconnect may interrupt direct-bypass connections too and does not guarantee application recovery. Offline replay never resends network requests.
+
+Saved profiles and their local backup contain plaintext paths and arguments. Exported paths/rules may still be private even when arguments are omitted. Isolated runtime directories are not recursively removed automatically; compatibility-session INI credentials are removed on normal backend exit on a best-effort basis. Crashes or file locks may leave a copy for the user to clean up. None of these source additions has been Windows-runtime validated yet.
