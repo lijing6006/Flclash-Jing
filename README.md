@@ -1,143 +1,43 @@
-<div align="center">
+# Flclash-Jing
 
-<img src="assets/images/icon.png" alt="FlClash" width="88">
+[English](docs/process-proxy/README.en.md) · [上游 FlClash](https://github.com/chen08209/FlClash) · [上游 ProxyLane](https://github.com/threatexpert/ProxyLane)
 
-# FlClash
+基于 FlClash **v0.9.2** 的 Windows 优先实验性改造：在侧栏增加「进程代理」，使用当前 FlClash 本地代理监听端口，让明确选择的新启动应用及子进程使用当前节点/规则，而不用开启系统代理或 TUN。
 
-A multi-platform proxy client based on ClashMeta. Simple to use, open source and ad-free.
+> **开发中，尚未完成 Windows 构建与真实流量验收，不是正式可用发行版。**
+> 不把「已启动后端」当作「已验证目标流量被代理」。高级原生迁移正在实现；完整状态见[能力矩阵](docs/process-proxy/CAPABILITIES.md)。
 
-**English** · [简体中文](README_zh_CN.md)
+## 已实现的源代码
 
-[![Release](https://img.shields.io/github/v/release/chen08209/FlClash?style=flat-square&label=release)](https://github.com/chen08209/FlClash/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/chen08209/FlClash/total?style=flat-square&logo=github)](https://github.com/chen08209/FlClash/releases)
-[![License](https://img.shields.io/github/license/chen08209/FlClash?style=flat-square)](LICENSE)
-[![Telegram](https://img.shields.io/badge/Telegram-channel-26A5E4?style=flat-square&logo=telegram&logoColor=white)](https://t.me/FlClash)
+- 原生 FlClash 风格 Windows 菜单、进程搜索与选择、可执行文件选择、参数、直连规则、子进程/DNS/UDP选项。
+- 首页已启动、核心连接、安全模式、系统代理/TUN与配置应用状态门禁；读取真实配置端口，不固定 7890。
+- 本地 SOCKS5/HTTP 监听探测；用户提供的 ProxyLane v1.3.5 组件按会话隔离，不覆盖其原安装配置。
+- 实验性本地 stdio companion 协议与原生高级工作区；同一后端会话承载监视、解密、录制、回放与证书操作，无网络控制端口。
+- 解密、QUIC 解密、监视、录制默认关闭；证书操作必须单独确认，不自动安装、不降低上游证书校验。
 
-[Website](https://chen08209.github.io/FlClash) · [Download](#download) · [Changelog](CHANGELOG.md) · [Build from source](#build-from-source)
+## 开发与验证
 
-</div>
+先阅读[架构与安全边界](docs/process-proxy/ARCHITECTURE.zh-CN.md)和[验证记录](docs/process-proxy/VALIDATION.md)。保留上游 Flutter 3.47.6 工具链要求。
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="snapshots/preview-dark.png">
-    <img alt="FlClash dashboard on a MacBook and a phone" src="snapshots/preview.png" width="92%">
-  </picture>
-</p>
-
-## Features
-
-- **One app for Android, Windows, macOS and Linux**, with x64 and ARM64 builds on the desktop.
-- **mihomo (Clash.Meta) core** with rule routing, proxy groups, latency tests, system proxy and TUN mode.
-- **Profiles** from a subscription link or a file, with a built-in editor, override scripts, and custom rules,
-  proxies and proxy groups.
-- **Live views** of connections, requests, DNS queries and logs.
-- **Material You design with Apple-style interaction**: dynamic color, light and dark themes, continuous corners,
-  sheets that snap between heights, and layouts that adapt from phones to desktops.
-- **Backup and restore** through WebDAV or a local file.
-- **Platform touches**: a Quick Settings tile, per-app proxy and Android TV support on Android; a tray menu and
-  global hotkeys on the desktop.
-- **Open source and ad-free**, licensed under GPL-3.0.
-
-## Download
-
-Get the latest build from [GitHub Releases](https://github.com/chen08209/FlClash/releases/latest), or open the
-[website](https://chen08209.github.io/FlClash#download), which picks the right file for your device.
-
-| Platform | Packages | Notes |
-| --- | --- | --- |
-| Android | APK for `arm64-v8a`, `armeabi-v7a` and `x86_64` | Most phones use `arm64-v8a`. Also on the F-Droid repository below. |
-| Windows 10 and later | Installer (`.exe`) or portable `.zip`, for x64 and ARM64 | Pick ARM64 on Snapdragon and other ARM laptops. |
-| macOS 12 and later | DMG for Apple Silicon and Intel | Also on Homebrew. |
-| Linux | `.deb`, `.rpm` and AppImage, for x64 and ARM64 | See the tray note below. |
-
-<p>
-  <a href="https://chen08209.github.io/FlClash-fdroid-repo/repo?fingerprint=789D6D32668712EF7672F9E58DEEB15FBD6DCEEC5AE7A4371EA72F2AAE8A12FD"><img alt="Get it on F-Droid" src="snapshots/get-it-on-fdroid.svg" height="56"></a>
-  <a href="https://github.com/chen08209/FlClash/releases/latest"><img alt="Get it on GitHub" src="snapshots/get-it-on-github.svg" height="56"></a>
-</p>
-
-**Homebrew**
-
-```bash
-brew tap chen08209/tap
-brew install --cask flclash
-```
-
-**Linux tray icon**
-
-The `.deb` package installs its own dependencies. With the AppImage or the `.rpm`, install the AyatanaAppIndicator
-library so the tray icon can show:
-
-```bash
-sudo apt-get install libayatana-appindicator3-1   # Debian and Ubuntu
-sudo dnf install libayatana-appindicator-gtk3     # Fedora
-```
-
-**Unattended desktop**
-
-FlClash starts the core only after the disclaimer is accepted. Where nobody can click it, such as a container, set
-`FLCLASH_ACCEPT_DISCLAIMER=1` in the app's environment to accept it on first launch.
-
-## Usage
-
-**Import a profile from a link.** Opening a link in this form imports the subscription into FlClash. The `clashmeta://`
-and `flclash://` schemes work the same way.
-
-```text
-clash://install-config?url=<URL-encoded subscription link>
-```
-
-**Automate on Android.** Tasker, MacroDroid and similar apps can start, stop or toggle the proxy by starting an
-activity with one of these actions:
-
-```text
-com.follow.clash.action.START
-com.follow.clash.action.STOP
-com.follow.clash.action.TOGGLE
-```
-
-From a computer, the same works over adb:
-
-```bash
-adb shell am start -a com.follow.clash.action.TOGGLE
-```
-
-## Build from source
-
-You need [Flutter](https://docs.flutter.dev/get-started/install) 3.47 (release builds use 3.47.6),
-[Go](https://go.dev/dl/) 1.27 and [Rust](https://rustup.rs/) installed through rustup. Each platform builds on its own
-host, except Android, which builds anywhere.
-
-```bash
-git clone --recursive https://github.com/chen08209/FlClash.git
-cd FlClash
+```sh
 flutter pub get
-dart setup.dart android   # or windows, macos, linux
+dart run intl_utils:generate
+flutter analyze --no-fatal-infos
+flutter test test/services/process_proxy_policy_test.dart test/services/process_proxy_backend_test.dart test/services/process_proxy_bridge_test.dart
 ```
 
-Packages land in `dist/`. The Go core and the Rust libraries are compiled as part of the Flutter build.
+新增 ARB 尚需正式生成本地化代码；当前开发环境依赖引导被安全审查阻止，因此**未宣称 Flutter/Windows 编译通过**。可移植纯 Dart 检查不替代完整 Flutter 或 Windows 测试。
 
-| Platform | Also needed |
-| --- | --- |
-| Android | Android SDK with the NDK. Add `--arch arm64` to build a single ABI. |
-| Windows | GCC (MinGW-w64) for the core and [Inno Setup](https://jrsoftware.org/isinfo.php) 6 for the installer. |
-| macOS | Xcode and Node.js. The script installs `appdmg` through npm. |
-| Linux | Debian or Ubuntu. The script installs the build packages with apt and downloads `appimagetool`. |
+Windows companion 构建见 `windows/proxylane_bridge/README.md`。不分发 ProxyLane 二进制，用户需要自行取得官方完整 v1.3.5 安装；后端版本不匹配时拒绝启动。默认构建没有 companion 时只提供明确标记的兼容启动路径，不视为全功能原生集成完成。
 
-Run `dart setup.dart --help` for the remaining options, such as `--targets` to build only some package formats.
+## 重要限制
 
-## Support
+- IP/CIDR规则不等同于「解析后IP策略」：上游有域名时优先按域名匹配；公司内网域名请单独添加。默认本地 DNS，不把私有 DNS 强制重定向到公共解析器。
+- 进程搜索是为新启动选择路径，不是自动接管现有进程。浏览器可能复用旧的未代理实例，需自行完全退出后重试。
+- 应用遵循 FlClash 当前规则/策略组。规则模式不意味着所有目的地都强制走同一个节点；本功能不擅自改变模式或节点。
+- API Hook 不是安全隔离/泄漏防护保证；不承诺兼容受保护进程、反作弊程序或提权边界。不要关闭安全软件来绕过限制。
+- macOS 不在本次实现范围。Windows 专用注入能力不可以直接移植到 macOS。
 
-Starring the repository is the easiest way to support the project. Questions and announcements go to the
-[Telegram channel](https://t.me/FlClash); bugs and feature requests go to
-[GitHub Issues](https://github.com/chen08209/FlClash/issues).
+## 许可证
 
-<a href="https://star-history.com/#chen08209/FlClash&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=chen08209/FlClash&type=Date&theme=dark">
-    <img alt="Star history" src="https://api.star-history.com/svg?repos=chen08209/FlClash&type=Date" width="640">
-  </picture>
-</a>
-
-## License
-
-FlClash is released under the [GPL-3.0 license](LICENSE).
+本项目继续使用 [GPL-3.0](LICENSE)，保留 FlClash 原有版权与许可证。ProxyLane 顶层 MIT 与其第三方声明分开审阅；本仓库不包含其 Hook 实现或预编译组件。[上游原 README](docs/process-proxy/UPSTREAM_README.en.md)。

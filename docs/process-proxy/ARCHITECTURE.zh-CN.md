@@ -28,3 +28,11 @@
 ## 验证边界
 
 不在此 Linux 执行 Windows 注入/证书/代理系统变更。Flutter SDK 引导的依赖安装被安全审查拒绝：调用触发对云元数据地址 `169.254.169.254` 的请求，可能暴露实例凭据。没有重试该网络操作或绕过。可继续使用已下载的离线工具进行格式/可移植测试；完整 Flutter 和 Windows 构建/运行验收单独记录。
+
+## 原生 companion 的实现状态
+
+`windows/proxylane_bridge` 使用固定上游ABI头文件，承载真正的同一个IGlobalProxy实例及其启动的新x64根进程。stdio仅接受继承匿名管道、随机会话token、单调请求ID和严格命令/字段白名单；不开放网络控制端口。Dart客户端支持分帧、超时、消息大小/并发限制，不自动重试状态不确定的启动操作。后端启动期间临时job用于回收尚未正常开始的自有目标；稳定运行后不以job结束正常应用。
+
+高级页从该实例取得实际状态、日志、监视/录制/回放/CA响应。证书初始化、当前用户信任与移除分别确认，不以解密开关代替信任授权。未编译/运行Windows代码，不能声称完整迁移已验收。原生bridge缺失时兼容CLI会话不能进入原生高级页；明确标记而不伪造功能。
+
+根Windows CMake可显式设置 `FLCLASH_BUILD_PROCESS_PROXY_BRIDGE=ON` 与 `PROXYLANE_SOURCE_DIR`；默认关闭直到Windows验收。亦可单独构建companion并将EXE和许可证放在FlClash程序旁。构建时只读取固定上游源代码，不打包其Hook二进制。
