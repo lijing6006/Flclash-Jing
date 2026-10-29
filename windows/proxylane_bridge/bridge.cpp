@@ -11,6 +11,7 @@
 #include <deque>
 #include <exception>
 #include <iostream>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -19,6 +20,7 @@
 
 #include "ProxyModule.h"
 #include "protocol.hpp"
+#include "windows_patterns.hpp"
 
 namespace flclash_bridge {
 
@@ -255,7 +257,8 @@ class Runtime final : public IProxySettings, public IProxyLog {
   }
 
   Json Configure(const Json& args) {
-    if (proxy_) throw Error("already_configured", "A broker owns exactly one configuration");
+    if (configuration_attempted_) throw Error("already_configured", "Create a new broker after any configuration attempt");
+    configuration_attempted_ = true;
     const auto directory = LocalDirectory(args["backend_directory"].get<std::string>());
     if (_wcsicmp(directory.c_str(), ExecutableDirectory().c_str())) {
       throw Error("backend_location", "Stage the bridge beside the selected backend components");
@@ -285,6 +288,10 @@ class Runtime final : public IProxySettings, public IProxyLog {
     attach_ = reinterpret_cast<DWORD (WINAPI*)(DWORD, DWORD, LPCSTR)>(GetProcAddress(module_, "AttachToI"));
     if (!create || !release_ || !attach_) throw Error("backend_abi", "Missing required backend exports");
     configuration_ = args;
+    for (const auto& value : args.value("bypass", Json::array())) bypass_patterns_.push_back(Wide(value.get<std::string>()));
+    for (const auto& value : args.value("include_targets", Json::array())) include_patterns_.push_back(Wide(value.get<std::string>()));
+    for (const auto& value : args.value("child_filter", Json::array())) child_patterns_.push_back(Wide(value.get<std::string>()));
+    child_include_mode_ = args.value("child_filter_mode", std::string("exclude")) == "include";
     WSADATA winsock = {};
     if (WSAStartup(MAKEWORD(2, 2), &winsock)) {
       throw Error("winsock_unavailable", "Cannot initialize Winsock");
@@ -372,6 +379,8 @@ class Runtime final : public IProxySettings, public IProxyLog {
                    {"root_pid", root_pid_}, {"monitoring", monitoring_},
                    {"recording", recording_}, {"replay_open", replay_open_},
                    {"quic_preparation_requested", Flag(configuration_, "prepare_quic")},
+                   {"target_include_rules", include_patterns_.size()}, {"child_filter_rules", child_patterns_.size()},
+                   {"child_filter_mode", child_include_mode_ ? "include" : "exclude"},
                    {"upload_bytes", 0}, {"download_bytes", 0}};
     if (reconnect_.id()) {
       result["reconnect_preparation"] = {{"preparation_id", std::to_string(reconnect_.id())}, {"count", reconnect_.count()},
@@ -643,14 +652,13 @@ class Runtime final : public IProxySettings, public IProxyLog {
       client->udpAddr.SetIPLong(0);
       client->udpAddr.SetPort(0);
     }
-    const auto address = Destination(client);
-    for (const auto& rule : configuration_.value("bypass", Json::array())) {
-      if (PathMatchSpecW(Wide(address).c_str(), Wide(rule.get<std::string>()).c_str())) {
-        info->strProxyType = L"NOPROXY";
-        info->strProxyUser.szbuf[0] = 0;
-        info->strProxyPass.szbuf[0] = 0;
-        break;
-      }
+    const auto address = Wide(Destination(client));
+    const auto bypass_match = WindowsPatternsMatch(address, bypass_patterns_);
+    const auto include_match = !bypass_match && WindowsPatternsMatch(address, include_patterns_);
+    if (!ProxyTargetAllowed(bypass_match, !include_patterns_.empty(), include_match)) {
+      info->strProxyType = L"NOPROXY";
+      info->strProxyUser.szbuf[0] = 0;
+      info->strProxyPass.szbuf[0] = 0;
     }
     return TRUE;
   } catch (...) { return FALSE; }
@@ -694,9 +702,27 @@ class Runtime final : public IProxySettings, public IProxyLog {
     if (!parent_handle.value || !child_handle.value) return FALSE;
     const auto parent_time = ProcessTime(parent_handle.value);
     if (ProcessTime(child_handle.value) != child->processCreateTime) return FALSE;
+    {
+      std::lock_guard<std::mutex> lock(ownership_lock_);
+      if (!OwnsIdentity(owned_, parent, parent_time) || owned_.size() >= 4096) return FALSE;
+    }
+    if (!child_patterns_.empty()) {
+      wchar_t path[32768] = {};
+      DWORD length = static_cast<DWORD>(std::size(path));
+      if (!QueryFullProcessImageNameW(child_handle.value, 0, path, &length) || !length || length >= std::size(path)) {
+        AddLog("child_filter", "Skipped child because its complete executable path could not be verified", child->dwProcessId);
+        return FALSE;
+      }
+      const std::wstring image(path, length);
+      const bool local = image.size() > 3 && ((image[0] >= L'A' && image[0] <= L'Z') ||
+          (image[0] >= L'a' && image[0] <= L'z')) && image[1] == L':' && image[2] == L'\\';
+      if (!local || !ProxyChildAllowed(true, child_include_mode_, WindowsPatternsMatch(image, child_patterns_))) {
+        AddLog("child_filter", "Child excluded by the configured path rules; its descendants will not automatically inherit", child->dwProcessId);
+        return FALSE;
+      }
+    }
     std::lock_guard<std::mutex> lock(ownership_lock_);
-    const auto owned = owned_.find(parent);
-    if (owned == owned_.end() || owned->second != parent_time || owned_.size() >= 4096) return FALSE;
+    if (!OwnsIdentity(owned_, parent, parent_time) || owned_.size() >= 4096) return FALSE;
     owned_[child->dwProcessId] = child->processCreateTime;
     return TRUE;
   } catch (...) { return FALSE; }
@@ -804,9 +830,14 @@ class Runtime final : public IProxySettings, public IProxyLog {
   std::vector<Handle> file_locks_;
   Json configuration_ = Json::object();
   Json settings_ = Json::object();
+  std::vector<std::wstring> bypass_patterns_;
+  std::vector<std::wstring> include_patterns_;
+  std::vector<std::wstring> child_patterns_;
+  bool child_include_mode_ = false;
   std::unique_ptr<Handle> root_handle_;
   DWORD root_pid_ = 0;
   ULONGLONG root_time_ = 0;
+  bool configuration_attempted_ = false;
   bool winsock_started_ = false;
   bool monitoring_ = false;
   bool recording_ = false;
@@ -828,7 +859,8 @@ Json Dispatch(Runtime& runtime, const Json& request, const std::string& token) {
                 {"native_runtime", true}, {"root_architectures", Json::array({"x64"})},
                 {"launch", true}, {"children", true}, {"traffic", true}, {"logs", true},
                 {"https_decryption", true}, {"quic_decryption", true}, {"quic_prelaunch_preparation", true},
-                {"working_directory", true}, {"recording", true},
+                {"working_directory", true}, {"target_include_filter", true}, {"child_path_filter", true},
+                {"recording", true},
                 {"replay", true}, {"recording_index_rebuild", true}, {"owned_tcp_reconnect", true},
                 {"current_user_ca", true}, {"attach_existing", false},
                 {"terminate_target", false}, {"packaged_apps", false}}}};

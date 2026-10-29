@@ -24,7 +24,7 @@
 - **QUIC兼容调整的持久性：** `BrowserQuicPolicy.cpp:59–60,134–165,204–220,255–274` 仅在已注入的当前目标中安装内存 detour，保留模块至进程退出；没有调用浏览器 profile/磁盘文件/注册表写入。`plm_quic_locate_image`（`src/ProxyLaneMitm/src/lib.rs:455–462`）只分析传入的内存镜像。该审计不意味着浏览器正常运行自身不会写入用户数据；它仅说明兼容策略本身没有持久化设置动作。没有停止监视时的 detach；必须退出目标才能移除进程内调整。
 - **损坏录制索引恢复：** `Page4Protocol.cpp:500–509,787` 在用户再次确认后使用 `recording_open{path,rebuild_index:true}`。`recording_reader.rs:66–105` 取得录制锁，写临时索引并原子替换；不改原始载荷。桥接 `replay.open` 固定 `rebuild_index:false`；独立 `replay.rebuild_index{directory,confirm:true}` 仅在监视停止、离线视图关闭时调用该恢复一次，成功后打开恢复视图，generic query 仍不能写索引。
 - **既有连接重建：** `Page4.cpp:582–604` 使用本运行时 `GetPTMInstance(0)->PrepareReconnect()` 获取受影响连接数，经确认后 `CompleteReconnect(true)`。上游 `ProxyTaskMgr.cpp:172–191,204–209` 的 snapshot 标记落在本运行时已有 TCP 对象上（含 bypass 直连，decrypt 参数目前被忽略），提交后由维护线程断开，应用自行重连。桥接提供 `connections.prepare_reconnect`、一次性字符串 preparation_id 与 60 秒有效期、显式确认的 `connections.reconnect` 和取消操作。准备前后与提交前核对本树 PID+创建时间，拒绝外部身份；监视开关不会自动提交。不存在 UDP 重连或实际应用重连成功保证。
-- **目标/子进程规则：** `Page1.cpp:627–679` 支持目标 bypass/include 两种模式；`Page3.cpp:2882–2914` 支持子程序路径 include/exclude。当前桥接实现目标 bypass 与整个所选后代树，完整规则模式仍需独立迁移，不能用全局 attach 补齐。
+- **目标/子进程规则：** `Page1.cpp:627–679` 支持目标 bypass/include 两种模式；`Page3.cpp:2882–2914` 支持子程序路径 include/exclude。桥接现提供 `include_targets` 与始终优先的 bypass，以及 child_filter include/exclude；空子规则不限制。子路径以已验证进程句柄重新查询，无法读取时拒绝，不能用全局 attach 补齐。裸文件名由界面显式规范化为 `*\\basenameglob`；上游示例为 `*chrome.exe`、`C:\\Windows\\System32\\*`（locales/zh-CN.json:140）。排除中间子程序也切断它的自动后代代理链。
 - **跳过上游证书校验：** `Page4.cpp:248–264` 存在该危险选项。本桥接维持证书校验开启，不通过 generic query 接受 `skip_upstream_verify`；若产品未来允许，须另行安全设计，不能混在普通解密开关里。
 
 ## GONC TLS-PSK 不是目标流量解密

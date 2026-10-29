@@ -36,6 +36,9 @@ const _request = ProcessProxyLaunchRequest(
   workingDirectory: r'C:\Work',
   arguments: ['--token', 'private-token', 'a b', '&whoami', ''],
   bypassRules: 'internal.example\n10.0.0.0/8',
+  proxyOnlyRules: '*.example.com\n192.0.2.0/24',
+  childRules: 'launcher.exe\nC:\\Tools\\*.exe',
+  childRuleInclude: true,
   remoteDns: true,
   includeChildren: false,
   bypassPrivateNetworks: false,
@@ -166,6 +169,73 @@ final Map<String, FutureOr<void> Function()> processProxyProfilesCases = {
           .workingDirectory
           .isEmpty,
     );
+  },
+  'legacy version one profile may omit all new optional filters': () {
+    final doc = _document();
+    for (final key in ['proxyOnlyRules', 'childRules', 'childRuleInclude']) {
+      _fields(doc).remove(key);
+    }
+    final request = decodeProcessProxyProfiles(jsonEncode(doc)).single.request;
+    _check(request.proxyOnlyRules.isEmpty && request.childRules.isEmpty);
+    _check(!request.childRuleInclude);
+  },
+  'filters round trip exactly without restoring sensitive consent': () {
+    final request = decodeProcessProxyProfiles(jsonEncode(_document()))
+        .single
+        .request;
+    _check(request.proxyOnlyRules == _request.proxyOnlyRules);
+    _check(
+      request.childRules == _request.childRules && request.childRuleInclude,
+    );
+    _check(
+      !request.trustedBackend && !request.prepareQuic && !request.decryptHttps,
+    );
+  },
+  'default export retains filter settings while omitting arguments': () {
+    final request = decodeProcessProxyProfiles(
+      encodeProcessProxyProfiles([_profile()]),
+    ).single.request;
+    _check(request.arguments.isEmpty);
+    _check(
+      request.proxyOnlyRules == _request.proxyOnlyRules &&
+          request.childRuleInclude,
+    );
+  },
+  'optional filter fields reject type coercion': () {
+    for (final change in <String, Object?>{
+      'proxyOnlyRules': ['example.com'],
+      'childRules': null,
+      'childRuleInclude': 'true',
+    }.entries) {
+      final doc = _document();
+      _fields(doc)[change.key] = change.value;
+      _fails(
+        () => decodeProcessProxyProfiles(jsonEncode(doc)),
+        'profilesInvalid',
+      );
+    }
+  },
+  'destination allowlist validates before any profile is imported': () {
+    final doc = _document();
+    _fields(doc)['proxyOnlyRules'] = '*';
+    _fails(
+      () => decodeProcessProxyProfiles(jsonEncode(doc)),
+      'invalidBypassRule',
+    );
+  },
+  'child filters reject UNC and command-line patterns before import': () {
+    for (final rule in [
+      r'\\server\tool.exe',
+      'tool.exe --flag',
+      r'C:\App\..\tool.exe',
+    ]) {
+      final doc = _document();
+      _fields(doc)['childRules'] = rule;
+      _fails(
+        () => decodeProcessProxyProfiles(jsonEncode(doc)),
+        'invalidChildRule',
+      );
+    }
   },
   'unknown top level fields are rejected': () {
     final doc = _document()..['command'] = 'start';

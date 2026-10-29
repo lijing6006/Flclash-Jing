@@ -110,14 +110,17 @@ ProcessProxyPayloadPreview formatProcessProxyPayload(
 class ProcessProxyTrafficRow {
   final String label;
   final int cacheId;
+  final String runId;
 
-  const ProcessProxyTrafficRow(this.label, this.cacheId);
+  const ProcessProxyTrafficRow(this.label, this.cacheId, this.runId);
 }
 
 List<ProcessProxyTrafficRow> processProxyTrafficRows(
   Map<String, dynamic> response,
 ) {
   final records = response['records'];
+  final runId = response['run_id'];
+  if (runId is! String || runId.isEmpty || runId.length > 256) return const [];
   if (records is! List) return const [];
   final rows = <ProcessProxyTrafficRow>[];
   for (final record in records.take(64)) {
@@ -135,6 +138,7 @@ List<ProcessProxyTrafficRow> processProxyTrafficRows(
       ProcessProxyTrafficRow(
         label.length > 256 ? label.substring(0, 256) : label,
         id,
+        runId,
       ),
     );
   }

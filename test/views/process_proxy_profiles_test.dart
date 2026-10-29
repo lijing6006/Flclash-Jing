@@ -18,6 +18,9 @@ const _request = ProcessProxyLaunchRequest(
   executable: r'C:\Apps\Example.exe',
   workingDirectory: r'C:\Work',
   arguments: ['--token', 'private-token'],
+  proxyOnlyRules: '*.example.com',
+  childRules: 'launcher.exe',
+  childRuleInclude: true,
   trustedBackend: true,
   prepareQuic: true,
   decryptHttps: true,
@@ -241,6 +244,9 @@ void main() {
     await _confirm(tester);
     expect(harness.selected!.executable, _request.executable);
     expect(harness.selected!.workingDirectory, _request.workingDirectory);
+    expect(harness.selected!.proxyOnlyRules, _request.proxyOnlyRules);
+    expect(harness.selected!.childRules, _request.childRules);
+    expect(harness.selected!.childRuleInclude, isTrue);
     expect(harness.selected!.trustedBackend, isFalse);
     expect(harness.selected!.prepareQuic, isFalse);
     expect(harness.selected!.decryptHttps, isFalse);

@@ -42,7 +42,7 @@ The authoritative allowlist and argument validation are in `protocol.hpp`. Suppo
 
 | Operation | Required / notable args | Upstream source |
 |---|---|---|
-| `configure` | backend_directory, port, proxy_type; optional username/password, children, block_udp, remote_dns, bypass, prepare_quic + confirm_quic | ProxyModule.h / ProxySettingsInfo |
+| `configure` | backend_directory, port, proxy_type; optional username/password, children, block_udp, remote_dns, bypass, include_targets, child_filter/mode, prepare_quic + confirm_quic | ProxyModule.h / ProxySettingsInfo |
 | `launch` | executable, arguments, optional working_directory, confirm:true | CreateProcessW then audited AttachToI |
 | `status`, `logs` | logs: after, limit<=128 | callbacks / GetTrafficTotals |
 | `monitor.start`, `monitor.stop` | start: confirm:true, decrypt_https, decrypt_quic | MitmBridge.cpp monitor_start/monitor_stop |
@@ -64,6 +64,8 @@ Read-only queries include `stats`, `poll`, `cache_status`, `cache_read`, `cache_
 
 未准备的会话请求 QUIC 解密会返回 `quic_preparation_required`，需用户自行创建新会话；不重新注入、重启或结束旧目标。已经准备的目标可能保留兼容修改直到退出，停止监视不撤回。上游证据和其他剩余能力见 [UPSTREAM_CONTRACTS.md](UPSTREAM_CONTRACTS.md)。
 
+当前路径字段采用 **240 个 UTF-8 字节**的保守上限（不是 240 个中文字或 UTF-16 单元），拒绝而不截断。上游注入入口仍使用 `GetModuleFileNameA` 和 `MAX_PATH` 获取 Hook 路径；非当前 Windows ANSI 代码页可表示的后端路径仍需真实 Windows 验证，不能仅提高 UTF-8 帧上限就宣称长路径兼容。
+
 `launch.working_directory` 可省略或为空，此时使用目标 EXE 所在目录；非空值须为现有普通本地目录，拒绝 UNC、设备路径和重解析目录/祖先。盘符根目录仅能作为工作目录，不能作为后端/录制路径。它由 `CreateProcessW` 的工作目录参数传入，不拼入命令或启动 shell。官方兼容 CLI 没有工作目录参数，调用方应拒绝非空自定义目录而非忽略。
 
 The preparation flag never implies successful compatibility or active decryption. The backend still performs its own compatibility checks. A supplied working directory is passed directly to `CreateProcessW`; no command shell is involved.
@@ -81,6 +83,23 @@ TCP 重建使用两阶段、一次性确认：
 受影响的是**该运行时已经选中的 TCP 连接，包括 bypass 直连**，不含 UDP、其他 ProxyLane 实例或准备之后的新连接。审计使用持有进程树的 PID 与创建时间，在准备前后及提交前枚举确认；异常身份使操作失败。断开可能中断上传/登录会话，应用是否自动重连由应用决定。监视/解密开关不会自动提交重连，任意 PID/任务 ID 输入均不被协议接受。
 
 Index recovery is an explicit metadata write. Reconnect confirmation applies only to the snapshot of TCP tasks in this broker's owned runtime, including direct bypass routes, and expires after 60 seconds. It schedules disconnection; it does not restart applications or guarantee reconnection. No operation is retried automatically after an uncertain result.
+
+## 目标与子进程规则 / Target and child filters
+
+`configure.include_targets` 为可选 host:port/IP:port 通配符数组，校验与 `bypass` 相同，各至多 512 条。决策顺序：先检查 bypass；命中则直连，不会被 include 覆盖。未命中 bypass 时，若 include 非空，仅命中的目标走本地 FlClash，其余直连（不是阻断）。空 include 保持原先默认代理语义。主机名优先于 IP 的上游语义不变，企业 split-DNS 域名仍需显式 bypass。兼容 CLI 的单一 target-mode 不能忠实表达 include+bypass 组合，因此含 include 的配置必须使用原生桥接。
+
+`configure.child_filter_mode` 为 `exclude`（默认）或 `include`，`child_filter` 为至多 128 条、每条至多 240 个 UTF-8 字节的编译后模式。例如：
+
+```json
+{"include_targets":["*.example.com:*"],"bypass":["10.*:*"],
+ "child_filter_mode":"exclude","child_filter":["*\\helper*.exe","C:\\Tools\\*"]}
+```
+
+桥接只接收本地盘符绝对路径 glob 或 `*\basenameglob`；裸文件名须由界面编译为后一形式。禁止 UNC、设备路径、分号、多规则管道分隔符、控制字符、`.`/`..` 路径段。空规则列表在两种模式下都表示不额外限制，与上游一致。模式只作用于新子进程，不改变用户明确选中的根程序。
+
+只有已属于本会话的父子 PID+创建时间核验通过，才读取子进程真实完整路径进行匹配，再登记允许的子进程。启用过滤时，无法可靠读取路径会拒绝该子进程，不用截断/猜测的路径放行。被排除的子程序不会加载代理 Hook，因此其后代也不会自动继承；include 模式需包含必要的中间启动器。规则不扩大到其它根进程或既有进程。
+
+Target includes never override bypass. Child filtering preserves process ownership checks and matches the actual image path, not a claimed/truncated callback path. Both use upstream `PathMatchSpecW` semantics. Portable tests cover validation and routing decisions; `bridge_windows_matcher_test` contains real Windows matcher checks but has not run in this Linux workspace.
 
 ## Verified here / 已验证
 

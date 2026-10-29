@@ -19,6 +19,9 @@ const _settings = ProcessProxyLaunchRequest(
   executable: r'C:\Apps\Example.exe',
   arguments: ['--profile', 'Work'],
   workingDirectory: r'C:\Work',
+  proxyOnlyRules: '*.example.com',
+  childRules: 'launcher.exe',
+  childRuleInclude: true,
   trustedBackend: true,
   prepareQuic: true,
   decryptHttps: true,
@@ -96,7 +99,7 @@ Future<ProviderContainer> _pump(
   bool suspended = false,
   bool direct = false,
 }) async {
-  const size = Size(1200, 3200);
+  const size = Size(1200, 4200);
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
@@ -176,6 +179,40 @@ void main() {
     expect(find.textContaining('SOCKS5 · 127.0.0.1:17891'), findsOneWidget);
     expect(service.launches, 0);
   });
+
+  testWidgets(
+    'destination and child filters restore and save without launching',
+    (tester) async {
+      final service = _FakeService();
+      await _pump(tester, service);
+      final fields = tester.widgetList<TextFormField>(
+        find.byType(TextFormField),
+      );
+      expect(
+        fields.any(
+          (field) => field.controller?.text == _settings.proxyOnlyRules,
+        ),
+        isTrue,
+      );
+      expect(
+        fields.any((field) => field.controller?.text == _settings.childRules),
+        isTrue,
+      );
+      expect(
+        tester.widget<CommonSwitch>(find.byType(CommonSwitch).at(2)).value,
+        isTrue,
+      );
+      await tester.tap(
+        find.widgetWithText(TextButton, currentAppLocalizations.save),
+      );
+      await tester.pumpAndSettle();
+      expect(service.saved!.proxyOnlyRules, _settings.proxyOnlyRules);
+      expect(service.saved!.childRules, _settings.childRules);
+      expect(service.saved!.childRuleInclude, isTrue);
+      expect(service.saved!.trustedBackend, isFalse);
+      expect(service.launches, 0);
+    },
+  );
 
   for (final scenario in ['stopped', 'safe', 'global', 'suspended', 'direct']) {
     testWidgets('$scenario state prevents a launch after trust', (

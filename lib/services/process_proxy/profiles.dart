@@ -45,6 +45,9 @@ class ProcessProxyProfile {
       'workingDirectory': request.workingDirectory,
       'arguments': includeArguments ? request.arguments : <String>[],
       'bypassRules': request.bypassRules,
+      'proxyOnlyRules': request.proxyOnlyRules,
+      'childRules': request.childRules,
+      'childRuleInclude': request.childRuleInclude,
       'includeChildren': request.includeChildren,
       'bypassPrivateNetworks': request.bypassPrivateNetworks,
       'blockUdp': request.blockUdp,
@@ -60,6 +63,9 @@ ProcessProxyLaunchRequest _safeRequest(ProcessProxyLaunchRequest request) {
     workingDirectory: request.workingDirectory,
     arguments: List.unmodifiable(request.arguments),
     bypassRules: request.bypassRules,
+    proxyOnlyRules: request.proxyOnlyRules,
+    childRules: request.childRules,
+    childRuleInclude: request.childRuleInclude,
     includeChildren: request.includeChildren,
     bypassPrivateNetworks: request.bypassPrivateNetworks,
     blockUdp: request.blockUdp,
@@ -126,9 +132,23 @@ List<ProcessProxyProfile> decodeProcessProxyProfiles(String text) {
           request is! Map<String, dynamic>) {
         throw const FormatException();
       }
-      _keys(request, _requestKeys, optional: {'workingDirectory'});
-      if (request.containsKey('workingDirectory') &&
-          request['workingDirectory'] is! String) {
+      _keys(
+        request,
+        _requestKeys,
+        optional: {
+          'workingDirectory',
+          'proxyOnlyRules',
+          'childRules',
+          'childRuleInclude',
+        },
+      );
+      for (final key in ['workingDirectory', 'proxyOnlyRules', 'childRules']) {
+        if (request.containsKey(key) && request[key] is! String) {
+          throw const FormatException();
+        }
+      }
+      if (request.containsKey('childRuleInclude') &&
+          request['childRuleInclude'] is! bool) {
         throw const FormatException();
       }
       for (final key in ['backendPath', 'executable', 'bypassRules']) {

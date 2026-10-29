@@ -63,11 +63,14 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   final _arguments = TextEditingController(text: '[]');
   final _workingDirectory = TextEditingController();
   final _bypass = TextEditingController();
+  final _proxyOnly = TextEditingController();
+  final _childRules = TextEditingController();
   final _query = TextEditingController();
   bool _loaded = false;
   bool _searching = false;
   bool _confirming = false;
   bool _includeChildren = true;
+  bool _childRuleInclude = false;
   bool _bypassPrivate = true;
   bool _blockUdp = true;
   bool _remoteDns = false;
@@ -97,6 +100,9 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
         _arguments.text = jsonEncode(saved.arguments);
         _workingDirectory.text = saved.workingDirectory;
         _bypass.text = saved.bypassRules;
+        _proxyOnly.text = saved.proxyOnlyRules;
+        _childRules.text = saved.childRules;
+        _childRuleInclude = saved.childRuleInclude;
         _includeChildren = saved.includeChildren;
         _bypassPrivate = saved.bypassPrivateNetworks;
         _blockUdp = saved.blockUdp;
@@ -121,6 +127,9 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       workingDirectory: _workingDirectory.text.trim(),
       prepareQuic: _prepareQuic,
       bypassRules: _bypass.text,
+      proxyOnlyRules: _proxyOnly.text,
+      childRules: _childRules.text,
+      childRuleInclude: _childRuleInclude,
       includeChildren: _includeChildren,
       bypassPrivateNetworks: _bypassPrivate,
       blockUdp: _blockUdp,
@@ -256,6 +265,9 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
         _arguments.text = jsonEncode(selected.arguments);
         _workingDirectory.text = selected.workingDirectory;
         _bypass.text = selected.bypassRules;
+        _proxyOnly.text = selected.proxyOnlyRules;
+        _childRules.text = selected.childRules;
+        _childRuleInclude = selected.childRuleInclude;
         _includeChildren = selected.includeChildren;
         _bypassPrivate = selected.bypassPrivateNetworks;
         _blockUdp = selected.blockUdp;
@@ -468,6 +480,12 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
               title: l.processProxyRules,
               items: [
                 _field(
+                  controller: _proxyOnly,
+                  label: l.processProxyOnlyRules,
+                  help: l.processProxyOnlyRulesHelp,
+                  multiline: true,
+                ),
+                _field(
                   controller: _bypass,
                   label: l.processProxyBypass,
                   help: l.processProxyBypassHelp,
@@ -477,6 +495,17 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                   title: l.processProxyChildren,
                   value: _includeChildren,
                   onChanged: (value) => _includeChildren = value,
+                ),
+                _field(
+                  controller: _childRules,
+                  label: l.processProxyChildRules,
+                  help: l.processProxyChildRulesHelp,
+                  multiline: true,
+                ),
+                _toggle(
+                  title: l.processProxyChildRuleInclude,
+                  value: _childRuleInclude,
+                  onChanged: (value) => _childRuleInclude = value,
                 ),
                 _toggle(
                   title: l.processProxyPrivate,
@@ -612,6 +641,8 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
     _arguments.dispose();
     _workingDirectory.dispose();
     _bypass.dispose();
+    _proxyOnly.dispose();
+    _childRules.dispose();
     _query.dispose();
     super.dispose();
   }

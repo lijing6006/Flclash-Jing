@@ -1018,9 +1018,9 @@
   "processProxyErrorAuthentication": "ローカルプロキシ認証に失敗しました。FlClash のユーザー名とパスワードを確認してください。認証情報は表示しません。",
   "processProxyErrorListener": "ローカルプロキシのハンドシェイクに失敗しました。FlClash と mixed・SOCKS・HTTP ポートを確認してください。",
   "processProxyErrorProcessQuery": "Windows のプロセス照会を完了できません。再検索するか .exe ファイルを直接選択してください。",
-  "processProxyErrorRule": "無効な除外ルール：{rule}。1 行に IP・対応 CIDR・ドメインを指定し、URL やポートは入力しないでください。",
+  "processProxyErrorRule": "IP／ドメインルールが無効です：{rule}。1行にIP、対応CIDRまたはドメインパターンを入力し、URLやポートは入力しないでください。",
   "processProxyErrorCidr": "この CIDR を安全に変換できません：{rule}。正確な IP または対応するネットワーク接頭辞を使ってください。",
-  "processProxyErrorRuleLimit": "除外リストは 512 件・16 KiB 以内にしてください。",
+  "processProxyErrorRuleLimit": "ルール上限を超えています。IP／ドメインは512件、子プロセスは128件、各リストは16 KiB以下です。",
   "processProxyErrorQuic": "QUIC 復号には UDP が必要です。先に「UDP をブロック」を明示的にオフにしてください。",
   "processProxyErrorHook": "対象アプリでプロキシを初期化できません。非対応または保護されている可能性があります。安全機能を無効にせず、対応アプリを試してください。",
   "processProxyErrorGeneric": "操作を完了できません。選択ファイルとコアの状態を確認して再試行してください。機密情報を含む可能性がある詳細は非表示です。",
@@ -1112,5 +1112,12 @@
   "processProxyRebuildIndexWarning": "明示的に選択したローカル記録フォルダーのみを再インデックス化します。メタデータを書き込みますが通信は再送しません。失敗やタイムアウトは自動再試行しません。バックアップを確認し、監視を停止してください。",
   "processProxyStopSession": "プロキシセッションを停止",
   "processProxySessionStopWarning": "このセッションの監視・記録・プロキシを停止しますか？アプリは終了しませんが、接続が切断される場合があります。",
-  "processProxyHex": "16進数"
+  "processProxyHex": "16進数",
+  "processProxyOnlyRules": "指定IP／ドメインのみをプロキシ（任意）",
+  "processProxyOnlyRulesHelp": "1行にIP、対応CIDR、またはドメインパターンを入力します。空欄は全宛先、未一致は直接接続です。除外が常に優先します。IP照合はアプリがIPを通知した場合のみです。内部ドメインは明示してください。次回起動から適用します。",
+  "processProxyChildRules": "子プロセスのパス／名前ルール",
+  "processProxyChildRulesHelp": "ローカル完全パス／ワイルドカード、またはEXE名を1行ずつ、最大128件。子プロセスのプロキシが必要です。既定は一致を除外、下のスイッチで一致のみ許可します。空欄はすべて、ルートは対象外です。除外された子には注入せず、その子孫も自動継承しません。中間ランチャーを含めてください。",
+  "processProxyChildRuleInclude": "一致する子プロセスのみに注入",
+  "processProxyErrorChildRule": "子プロセスルールが無効です。ローカル完全パス／ワイルドカードまたはEXE名を1行ずつ指定してください。UNC、親パス参照、コマンド構文は禁止です。",
+  "processProxyErrorPathLength": "現在のバックエンドはパスを UTF-8 の240バイト以内に制限します。短いローカルパスを選択してください。Unicode と一時パスは Windows での検証が必要です。"
 }

@@ -26,6 +26,7 @@ class _BridgeService extends ProcessProxyService {
   final calls = <({String operation, Map<String, dynamic> arguments})>[];
   bool fail = false;
   String runId = 'run-1';
+  bool rows = false;
 
   @override
   Future<Map<String, dynamic>> bridgeRequest(
@@ -47,6 +48,17 @@ class _BridgeService extends ProcessProxyService {
       'run_id': runId,
       'preparation_id': '7',
       'count': 2,
+      if (rows && arguments['type'] == 'poll')
+        'records': [
+          {
+            'type': 'stream',
+            'protocol': 'tcp',
+            'connection': {'pid': 42},
+            'stream': {
+              'cache': {'id': 991},
+            },
+          },
+        ],
     };
   }
 }
@@ -269,6 +281,60 @@ void main() {
       });
     },
   );
+
+  testWidgets('monitor restart removes links for the previous run cache IDs', (
+    tester,
+  ) async {
+    final service = await _pump(tester);
+    service.rows = true;
+    final l = currentAppLocalizations;
+    await _tab(tester, l.traffic);
+    await tester.tap(
+      find.widgetWithText(OutlinedButton, l.processProxyReadNext),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('#991'), findsOneWidget);
+    await tester.tap(
+      find.widgetWithText(OutlinedButton, l.processProxyStartMonitor),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.confirm));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('#991'), findsNothing);
+  });
+
+  testWidgets('shutdown cancellation never stops the backend', (tester) async {
+    final service = await _pump(tester);
+    final l = currentAppLocalizations;
+    await tester.tap(
+      find.widgetWithText(OutlinedButton, l.processProxyStopSession),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.cancel));
+    await tester.pumpAndSettle();
+    expect(service.calls.where((c) => c.operation == 'shutdown'), isEmpty);
+  });
+
+  testWidgets('index recovery cancellation never writes the recording', (
+    tester,
+  ) async {
+    final service = await _pump(tester);
+    final l = currentAppLocalizations;
+    await _tab(tester, l.processProxyRecording);
+    final button = find.widgetWithText(
+      OutlinedButton,
+      l.processProxyRebuildIndex,
+    );
+    await tester.ensureVisible(button);
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.cancel));
+    await tester.pumpAndSettle();
+    expect(
+      service.calls.where((c) => c.operation == 'replay.rebuild_index'),
+      isEmpty,
+    );
+  });
 
   testWidgets('bridge failures hide diagnostics and allow retry', (
     tester,

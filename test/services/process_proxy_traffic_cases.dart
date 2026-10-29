@@ -75,8 +75,23 @@ final Map<String, void Function()> processProxyTrafficCases = {
       } on ProcessProxyException {}
     }
   },
+  'rows without a valid run identity cannot open a payload from another run':
+      () {
+        _check(
+          processProxyTrafficRows({
+            'records': [
+              {
+                'exchange': {
+                  'cache': {'id': 1},
+                },
+              },
+            ],
+          }).isEmpty,
+        );
+      },
   'live rows use actual exchange and stream cache identities': () {
     final rows = processProxyTrafficRows({
+      'run_id': 'actual-run',
       'records': [
         {
           'type': 'exchange',
@@ -97,7 +112,10 @@ final Map<String, void Function()> processProxyTrafficCases = {
       ],
     });
     _check(
-      rows.length == 2 && rows.first.cacheId == 7 && rows.last.cacheId == 8,
+      rows.length == 2 &&
+          rows.first.cacheId == 7 &&
+          rows.first.runId == 'actual-run' &&
+          rows.last.cacheId == 8,
     );
   },
 };

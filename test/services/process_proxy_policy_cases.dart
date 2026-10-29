@@ -89,6 +89,14 @@ final Map<String, void Function()> processProxyPolicyCases = {
     _check(!request.toJson().containsKey('prepareQuic'));
     _check(!ProcessProxyLaunchRequest.fromJson(request.toJson()).prepareQuic);
   },
+  'Windows paths share the audited backend UTF8 byte limit': () {
+    _fails(() => validateExecutablePath('C:\\${'中' * 80}.exe'), 'pathTooLong');
+    _fails(
+      () => validateWorkingDirectoryPath('C:\\${'中' * 80}'),
+      'pathTooLong',
+    );
+    validateExecutablePath(r'C:\应用\工具.exe');
+  },
   'uses SOCKS fallback before HTTP': () {
     _check(_runtime(mixed: 0, socks: 1085, http: 8888).endpoint.port == 1085);
   },
@@ -279,6 +287,79 @@ final Map<String, void Function()> processProxyPolicyCases = {
           'invalidAuthentication',
         );
       },
+  'proxy-only targets do not accidentally include loopback or private defaults':
+      () {
+        _check(compileProxyOnlyRules('').isEmpty);
+        final rules = compileProxyOnlyRules('*.example.com');
+        _check(
+          rules.length == 2 &&
+              rules.contains('example.com:*') &&
+              rules.contains('*.example.com:*'),
+        );
+        _check(!rules.any((r) => r.startsWith('127.') || r.startsWith('10.')));
+      },
+  'proxy-only targets reuse strict domain IP CIDR validation': () {
+    _check(compileProxyOnlyRules('192.0.2.0/24').single == '192.0.2.*:*');
+    _fails(() => compileProxyOnlyRules('*'), 'invalidBypassRule');
+    _fails(() => compileProxyOnlyRules('host;other'), 'invalidBypassRule');
+  },
+  'child basename globs compile explicitly to full-path suffix matches': () {
+    final rules = compileChildRules('chrome.exe\n*helper?.exe\n# note');
+    _check(rules.join('|') == r'*\chrome.exe|*\*helper?.exe');
+    _check(compileChildRules('').isEmpty);
+  },
+  'child absolute directory globs retain Windows semantics': () {
+    _check(
+      compileChildRules(r'C:\Program Files\Browser\*').single ==
+          r'C:\Program Files\Browser\*',
+    );
+    _check(
+      compileChildRules('C:/Apps/helper.exe').single == r'C:\Apps\helper.exe',
+    );
+  },
+  'child filters reject shell separators devices UNC and dot paths': () {
+    for (final rule in [
+      r'\\server\*.exe',
+      r'\\?\C:\Apps\a.exe',
+      r'C:\Apps\..\a.exe',
+      'a.exe;b.exe',
+      'a.exe|b.exe',
+      'relative/path.exe',
+      'tool.cmd',
+    ]) {
+      _fails(() => compileChildRules(rule), 'invalidChildRule');
+    }
+  },
+  'child filter UTF8 size matches the backend byte limit': () {
+    _fails(() => compileChildRules('${'中' * 80}.exe'), 'invalidChildRule');
+  },
+  'child filters deduplicate and enforce a bounded pattern list': () {
+    _check(compileChildRules('a.exe\na.exe').length == 1);
+    _fails(
+      () => compileChildRules(
+        [for (var i = 0; i < 129; i++) '$i.exe'].join('\n'),
+      ),
+      'tooManyRules',
+    );
+  },
+  'new filter settings persist without any sensitive consent': () {
+    const request = ProcessProxyLaunchRequest(
+      backendPath: r'C:\ProxyLane\ProxyLane64.exe',
+      executable: r'C:\Apps\app.exe',
+      proxyOnlyRules: 'example.com',
+      childRules: 'helper.exe',
+      childRuleInclude: true,
+      prepareQuic: true,
+      trustedBackend: true,
+    );
+    final restored = ProcessProxyLaunchRequest.fromJson(request.toJson());
+    _check(
+      restored.proxyOnlyRules == 'example.com' &&
+          restored.childRules == 'helper.exe' &&
+          restored.childRuleInclude,
+    );
+    _check(!restored.prepareQuic && !restored.trustedBackend);
+  },
   'settings JSON round trip': () {
     final restored = ProcessProxyLaunchRequest.fromJson(
       jsonDecode(jsonEncode(_request.toJson())) as Map<String, dynamic>,

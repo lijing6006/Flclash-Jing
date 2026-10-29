@@ -141,13 +141,21 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
         if (operation == 'monitor.start' || operation == 'recording.start') {
           _after = 0;
           _runId = null;
+          _trafficRows = [];
+          if (panel != _Panel.traffic) _responses.remove(_Panel.traffic);
         }
         final runId = response['run_id'];
         var runChanged = false;
         if (runId is String && runId.isNotEmpty) {
           runChanged = _runId != null && _runId != runId;
           _runId = runId;
-          if (runChanged) _after = 0;
+          if (runChanged) {
+            _after = 0;
+            if (operation != 'query' || arguments['type'] != 'poll') {
+              _trafficRows = [];
+              if (panel != _Panel.traffic) _responses.remove(_Panel.traffic);
+            }
+          }
         }
         final next = response['next'];
         if (next is int && next >= 0) {
@@ -488,7 +496,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
           widget: ProcessProxyPayloadView(
             service: widget.service,
             session: widget.session,
-            runId: _runId,
+            runId: row.runId,
             cacheId: row.cacheId,
           ),
         ),

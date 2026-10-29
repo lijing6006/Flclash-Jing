@@ -85,6 +85,9 @@ class ProcessProxyLaunchRequest {
   final String workingDirectory;
   final bool prepareQuic;
   final String bypassRules;
+  final String proxyOnlyRules;
+  final String childRules;
+  final bool childRuleInclude;
   final bool includeChildren;
   final bool bypassPrivateNetworks;
   final bool blockUdp;
@@ -100,6 +103,9 @@ class ProcessProxyLaunchRequest {
     this.workingDirectory = '',
     this.prepareQuic = false,
     this.bypassRules = '',
+    this.proxyOnlyRules = '',
+    this.childRules = '',
+    this.childRuleInclude = false,
     this.includeChildren = true,
     this.bypassPrivateNetworks = true,
     this.blockUdp = true,
@@ -115,6 +121,9 @@ class ProcessProxyLaunchRequest {
     'arguments': arguments,
     'workingDirectory': workingDirectory,
     'bypassRules': bypassRules,
+    'proxyOnlyRules': proxyOnlyRules,
+    'childRules': childRules,
+    'childRuleInclude': childRuleInclude,
     'includeChildren': includeChildren,
     'bypassPrivateNetworks': bypassPrivateNetworks,
     'blockUdp': blockUdp,
@@ -128,6 +137,9 @@ class ProcessProxyLaunchRequest {
       arguments: (json['arguments'] as List? ?? []).cast<String>(),
       workingDirectory: json['workingDirectory'] as String? ?? '',
       bypassRules: json['bypassRules'] as String? ?? '',
+      proxyOnlyRules: json['proxyOnlyRules'] as String? ?? '',
+      childRules: json['childRules'] as String? ?? '',
+      childRuleInclude: json['childRuleInclude'] as bool? ?? false,
       includeChildren: json['includeChildren'] as bool? ?? true,
       bypassPrivateNetworks: json['bypassPrivateNetworks'] as bool? ?? true,
       blockUdp: json['blockUdp'] as bool? ?? true,
@@ -155,10 +167,14 @@ class ProcessProxyLaunchRequest {
       throw const ProcessProxyException('quicNeedsUdp');
     }
     compileBypassRules(bypassRules, privateNetworks: bypassPrivateNetworks);
+    compileProxyOnlyRules(proxyOnlyRules);
+    compileChildRules(childRules);
   }
 }
 
 void validateExecutablePath(String path) {
+  if (utf8.encode(path).length > 240)
+    throw const ProcessProxyException('pathTooLong');
   if (!RegExp(r'^[a-zA-Z]:[\\/]').hasMatch(path) ||
       !path.toLowerCase().endsWith('.exe') ||
       path.contains(RegExp(r'[\x00-\x1f"<>|*?]')) ||
@@ -171,6 +187,8 @@ void validateExecutablePath(String path) {
 
 void validateWorkingDirectoryPath(String path) {
   if (path.isEmpty) return;
+  if (utf8.encode(path).length > 240)
+    throw const ProcessProxyException('pathTooLong');
   if (!RegExp(r'^[a-zA-Z]:[\\/]').hasMatch(path) ||
       path.contains(RegExp(r'[\x00-\x1f"<>|*?]')) ||
       path.substring(2).contains(':') ||
@@ -192,9 +210,53 @@ List<String> parseProcessArguments(String value) {
   }
 }
 
-List<String> compileBypassRules(String text, {required bool privateNetworks}) {
+List<String> compileBypassRules(String text, {required bool privateNetworks}) =>
+    _compileDestinationRules(
+      text,
+      privateNetworks: privateNetworks,
+      loopback: true,
+    );
+
+List<String> compileProxyOnlyRules(String text) =>
+    _compileDestinationRules(text, privateNetworks: false, loopback: false);
+
+List<String> compileChildRules(String text) {
   if (text.length > 16384) throw const ProcessProxyException('tooManyRules');
-  final rules = <String>{'localhost:*', '127.*:*', '[::1]:*'};
+  final rules = <String>{};
+  for (final raw in const LineSplitter().convert(text)) {
+    final rule = raw.trim().replaceAll('/', r'\');
+    if (rule.isEmpty || rule.startsWith('#')) continue;
+    if (utf8.encode(rule).length > 240 ||
+        rule.contains(RegExp(r'[\x00-\x1f\x7f"<>|;]')) ||
+        rule.split(r'\').any((part) => part == '.' || part == '..')) {
+      throw const ProcessProxyException('invalidChildRule');
+    }
+    if (rule.contains(r'\')) {
+      if (!RegExp(r'^[a-zA-Z]:\\').hasMatch(rule) ||
+          rule.substring(2).contains(':')) {
+        throw const ProcessProxyException('invalidChildRule');
+      }
+      rules.add(rule);
+    } else {
+      if (rule.contains(':') || !rule.toLowerCase().endsWith('.exe')) {
+        throw const ProcessProxyException('invalidChildRule');
+      }
+      rules.add('*\\$rule');
+    }
+    if (rules.length > 128) throw const ProcessProxyException('tooManyRules');
+  }
+  return rules.toList();
+}
+
+List<String> _compileDestinationRules(
+  String text, {
+  required bool privateNetworks,
+  required bool loopback,
+}) {
+  if (text.length > 16384) throw const ProcessProxyException('tooManyRules');
+  final rules = <String>{
+    if (loopback) ...['localhost:*', '127.*:*', '[::1]:*'],
+  };
   if (privateNetworks) {
     rules.addAll([
       '10.*:*',

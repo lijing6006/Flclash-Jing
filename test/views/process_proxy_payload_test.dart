@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/providers/app.dart';
@@ -24,6 +25,7 @@ const _session = ProcessProxySession(
 class _Service extends ProcessProxyService {
   final requests = <Map<String, dynamic>>[];
   bool fail = false;
+  Completer<Map<String, dynamic>>? pending;
   @override
   Future<Map<String, dynamic>> bridgeRequest(
     String sessionId,
@@ -32,6 +34,7 @@ class _Service extends ProcessProxyService {
   ]) async {
     expect(operation, 'query');
     requests.add(arguments);
+    if (pending case final waiting?) return waiting.future;
     if (fail)
       throw const ProcessProxyException(
         'bridgeOperationFailed',
@@ -124,6 +127,38 @@ void main() {
       expect(service.requests.single['length'], 65535);
     },
   );
+  testWidgets('invalid cache input never sends a request', (tester) async {
+    final service = await _pump(tester);
+    await tester.enterText(find.byType(TextFormField).at(1), '-7');
+    await tester.tap(
+      find.widgetWithText(
+        OutlinedButton,
+        currentAppLocalizations.processProxyPayloadRead,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(service.requests, isEmpty);
+  });
+  testWidgets('leaving during a read never updates disposed widgets', (
+    tester,
+  ) async {
+    final service = await _pump(tester);
+    service.pending = Completer<Map<String, dynamic>>();
+    await tester.tap(
+      find.widgetWithText(
+        OutlinedButton,
+        currentAppLocalizations.processProxyPayloadRead,
+      ),
+    );
+    await tester.pump();
+    await tester.pumpWidget(const SizedBox());
+    service.pending!.complete({
+      'payload': {'data_base64': '', 'offset': 0},
+    });
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('payload failure clears old preview and hides raw error detail', (
     tester,
   ) async {

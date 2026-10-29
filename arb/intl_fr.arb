@@ -1018,9 +1018,9 @@
   "processProxyErrorAuthentication": "Le proxy local a refusé l’authentification. Vérifiez le nom d’utilisateur et le mot de passe dans FlClash. Ils ne sont pas affichés ici.",
   "processProxyErrorListener": "Le proxy local n’a pas répondu à la négociation attendue. Vérifiez FlClash et son port mixed, SOCKS ou HTTP.",
   "processProxyErrorProcessQuery": "Impossible de terminer la recherche des processus Windows. Réessayez ou sélectionnez directement le fichier .exe.",
-  "processProxyErrorRule": "Règle d’exclusion invalide : {rule}. Indiquez une IP, un CIDR pris en charge ou un domaine par ligne, sans URL ni port.",
+  "processProxyErrorRule": "Règle IP/domaine invalide : {rule}. Un IP, CIDR accepté ou motif de domaine par ligne, sans URL ni port.",
   "processProxyErrorCidr": "Ce CIDR ne peut pas être converti sûrement : {rule}. Utilisez une IP exacte ou un préfixe réseau pris en charge.",
-  "processProxyErrorRuleLimit": "La liste est trop grande. Limitez-la à 512 règles et 16 Kio de texte.",
+  "processProxyErrorRuleLimit": "Limite dépassée : 512 règles IP/domaine ou 128 règles enfants, avec 16 Kio de texte maximum par liste.",
   "processProxyErrorQuic": "Le déchiffrement QUIC nécessite UDP. Désactivez explicitement le blocage UDP avant cette option.",
   "processProxyErrorHook": "Le proxy ne peut pas être initialisé dans cette application, peut-être incompatible ou protégée. Ne désactivez pas les protections ; essayez une application compatible.",
   "processProxyErrorGeneric": "L’opération n’a pas pu aboutir. Vérifiez les fichiers et l’état du cœur, puis réessayez. Les détails potentiellement sensibles sont masqués.",
@@ -1112,5 +1112,12 @@
   "processProxyRebuildIndexWarning": "Reconstruit l’index du dossier local explicitement choisi. Écrit les métadonnées sans renvoyer de requêtes réseau. Aucun nouvel essai automatique après échec ou délai dépassé. Vérifiez la sauvegarde et gardez le suivi arrêté.",
   "processProxyStopSession": "Arrêter la session proxy",
   "processProxySessionStopWarning": "Arrêter la surveillance, l’enregistrement et ce proxy ? Les applications restent ouvertes, mais leurs connexions peuvent être interrompues.",
-  "processProxyHex": "Hexadécimal"
+  "processProxyHex": "Hexadécimal",
+  "processProxyOnlyRules": "Ne mandater que ces IP / domaines (facultatif)",
+  "processProxyOnlyRulesHelp": "Un IP, CIDR accepté ou motif de domaine par ligne. Vide : toutes les destinations ; sinon les autres passent en direct. Les exclusions sont prioritaires. Les règles IP nécessitent que l’application expose l’IP ; ajoutez les domaines internes explicitement. Effet au prochain lancement.",
+  "processProxyChildRules": "Règles de chemin / nom des processus enfants",
+  "processProxyChildRulesHelp": "Un chemin local complet/motif ou nom EXE par ligne, 128 règles maximum. Nécessite le proxy des enfants. Par défaut les correspondances sont exclues ; activez ci-dessous pour ne garder qu’elles. Vide : tous les enfants. La racine est inchangée. Sans injection dans un enfant exclu, ses descendants n’héritent pas du proxy ; incluez les lanceurs intermédiaires.",
+  "processProxyChildRuleInclude": "Injecter uniquement dans les enfants correspondants",
+  "processProxyErrorChildRule": "Règle enfant invalide. Utilisez un chemin local complet/motif ou nom EXE par ligne ; UNC, traversée de dossiers et syntaxe de commande sont interdits.",
+  "processProxyErrorPathLength": "Le backend limite les chemins à 240 octets UTF-8. Choisissez un chemin local plus court. Unicode et chemins temporaires restent à valider sous Windows."
 }

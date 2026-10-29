@@ -189,5 +189,49 @@ int main() {
   rejects([&] { reconnect.Check(previous, 4002); });
   check(reconnect.Consume(preparation, 4002) == 1);
   rejects([&] { reconnect.Issue(1, UINT64_MAX); });
+  bad = config;
+  bad["include_targets"] = Json::array({"*.example.com:*", "10.*:*"});
+  bad["child_filter"] = Json::array({R"(*\helper*.exe)", R"(C:\Tools\*)"});
+  bad["child_filter_mode"] = "exclude";
+  ValidateArgs("configure", bad); ++tests;
+  bad["child_filter_mode"] = "include";
+  ValidateArgs("configure", bad); ++tests;
+  bad["child_filter"] = Json::array();
+  ValidateArgs("configure", bad); ++tests;
+  bad["child_filter_mode"] = "other";
+  rejects([&] { ValidateArgs("configure", bad); });
+  for (const auto& pattern : {R"(*\helper?.exe)", R"(C:\Program Files\*\app.exe)", R"(D:\Tools\*)", R"(*\*.exe)"}) {
+    check(CompiledChildPattern(pattern));
+  }
+  for (const auto& pattern : {R"(helper.exe)", R"(\\host\share\*.exe)", R"(\\?\C:\Tools\*)",
+      R"(C:\Tools\..\*)", R"(C:\Tools\.\*)", R"(*\dir\*.exe)", R"(*\..)",
+      R"(C:\Tools\a.exe;*)", R"(C:\Tools\a.exe|b.exe)", R"(C:/Tools/*.exe)", R"(C:\Tools\)",
+      R"(C:\Tools\file:stream)", R"(*\)", "C:\\Tools\\bad\n.exe"}) {
+    check(!CompiledChildPattern(pattern));
+  }
+  check(!CompiledChildPattern(std::string("C:\\") + std::string(238, 'a')));
+  bad = config; bad["child_filter"] = Json::array();
+  for (int i=0;i<129;++i) bad["child_filter"].push_back(R"(*\a.exe)");
+  rejects([&] { ValidateArgs("configure", bad); });
+  bad = config; bad["child_filter"] = Json::array({42});
+  rejects([&] { ValidateArgs("configure", bad); });
+  bad = config; bad["include_targets"] = Json::array({"*:*"});
+  rejects([&] { ValidateArgs("configure", bad); });
+  bad["include_targets"] = Json::array({"example.com:*;evil:*"});
+  rejects([&] { ValidateArgs("configure", bad); });
+  bad["include_targets"] = Json::array();
+  for (int i=0;i<513;++i) bad["include_targets"].push_back("example.com:*");
+  rejects([&] { ValidateArgs("configure", bad); });
+  check(ProxyTargetAllowed(false, false, false));
+  check(ProxyTargetAllowed(false, true, true));
+  check(!ProxyTargetAllowed(false, true, false));
+  check(!ProxyTargetAllowed(true, true, true));
+  check(!ProxyTargetAllowed(true, false, false));
+  check(ProxyChildAllowed(false, true, false));
+  check(ProxyChildAllowed(false, false, true));
+  check(ProxyChildAllowed(true, true, true));
+  check(!ProxyChildAllowed(true, true, false));
+  check(ProxyChildAllowed(true, false, false));
+  check(!ProxyChildAllowed(true, false, true));
   std::cout << tests << " portable bridge protocol checks passed\n";
 }

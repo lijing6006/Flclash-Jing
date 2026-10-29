@@ -1018,9 +1018,9 @@
   "processProxyErrorAuthentication": "The local proxy rejected authentication. Check FlClash’s proxy username and password settings. Credentials are not included in this error.",
   "processProxyErrorListener": "The configured local proxy did not answer the expected protocol handshake. Confirm that FlClash is running and its mixed, SOCKS or HTTP listener is enabled.",
   "processProxyErrorProcessQuery": "Windows could not finish reading the accessible process list. Retry the search, or choose the application’s .exe file directly.",
-  "processProxyErrorRule": "Invalid bypass rule: {rule}. Use one IP, supported CIDR or domain pattern per line; do not enter URLs or ports.",
+  "processProxyErrorRule": "Invalid IP/domain rule: {rule}. Use one IP, supported CIDR or domain pattern per line; do not enter URLs or ports.",
   "processProxyErrorCidr": "This CIDR cannot be translated safely for this backend: {rule}. Use an exact IP or a supported network prefix.",
-  "processProxyErrorRuleLimit": "The bypass list is too large. Keep it within 512 rules and 16 KiB of text.",
+  "processProxyErrorRuleLimit": "Rule lists exceed their limit: up to 512 IP/domain rules or 128 child-process rules, and 16 KiB of text per list.",
   "processProxyErrorQuic": "QUIC decryption requires UDP. Explicitly turn off “Block UDP” before enabling this option.",
   "processProxyErrorHook": "ProxyLane could not initialize proxying in the selected application. It may be incompatible or protected. Do not disable security protections; try a supported application.",
   "processProxyErrorGeneric": "The operation could not be completed. Check the selected files and current core state, then retry. Sensitive diagnostic details are hidden.",
@@ -1112,5 +1112,12 @@
   "processProxyRebuildIndexWarning": "Rebuild the index only for the explicitly selected local recording folder. This writes index metadata but does not resend network requests. Failures and timeouts are never retried automatically. Confirm you have a backup and keep monitoring stopped.",
   "processProxyStopSession": "Stop proxy session",
   "processProxySessionStopWarning": "Stop monitoring, recording and this proxy backend? Running applications will not be terminated; their proxied connections may break.",
-  "processProxyHex": "Hex"
+  "processProxyHex": "Hex",
+  "processProxyOnlyRules": "Only proxy these IPs / domains (optional)",
+  "processProxyOnlyRulesHelp": "One IP, supported CIDR or domain pattern per line. Empty means all destinations; unmatched destinations go direct. Bypass rules always win. IP rules apply only when the application exposes the IP to the backend; add internal domain names explicitly. Changes apply to the next launch.",
+  "processProxyChildRules": "Child-process path / name rules",
+  "processProxyChildRulesHelp": "One local full-path/glob or EXE name per line, at most 128 rules. Requires child-process proxying. By default matching children are excluded; switch below to include only matches. Empty means all children. The root is unaffected. Excluded children are not injected, so their descendants do not inherit proxying automatically; include intermediate launchers.",
+  "processProxyChildRuleInclude": "Only inject children matching these rules",
+  "processProxyErrorChildRule": "Invalid child-process rule. Use one local full path/glob or EXE name per line; UNC paths, traversal and command-line syntax are not allowed.",
+  "processProxyErrorPathLength": "The current backend limits paths to 240 UTF-8 bytes. Choose a shorter local path. Unicode and staging-path compatibility still require Windows validation."
 }

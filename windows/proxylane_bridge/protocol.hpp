@@ -163,6 +163,53 @@ inline void ValidateQuery(const Json& args) {
   Require(args.dump().size() <= 4096, "Backend query exceeds 4 KiB");
 }
 
+inline void ValidateTargetPatterns(const Json& patterns) {
+  Require(patterns.is_array() && patterns.size() <= 512, "Too many target patterns");
+  for (const auto& value : patterns) {
+    Require(value.is_string(), "Invalid target pattern");
+    const auto pattern = value.get<std::string>();
+    const auto colon = pattern.find_last_of(':');
+    const auto host = pattern.substr(0, colon);
+    Require(std::any_of(host.begin(), host.end(), [](unsigned char c) { return std::isalnum(c); }),
+            "A target pattern needs a specific host or network");
+    Require(PlainText(pattern, 255) && !pattern.empty() &&
+                pattern.find_first_of(";|=\\ \t") == std::string::npos &&
+                pattern != "*" && pattern != "*:*" && pattern.find(':') != std::string::npos,
+            "Invalid target pattern");
+  }
+}
+
+inline bool CompiledChildPattern(const std::string& pattern) {
+  if (!PlainText(pattern, 240) || pattern.size() < 3 || pattern.find_first_of(";|\"<>/") != std::string::npos) return false;
+  std::size_t start = 0;
+  if (pattern.rfind("*\\", 0) == 0) {
+    start = 2;
+    if (pattern.find('\\', start) != std::string::npos || pattern.find(':') != std::string::npos) return false;
+  } else {
+    if (pattern.size() < 4 || !((pattern[0] >= 'A' && pattern[0] <= 'Z') ||
+        (pattern[0] >= 'a' && pattern[0] <= 'z')) || pattern[1] != ':' || pattern[2] != '\\' ||
+        pattern.find(':', 2) != std::string::npos) return false;
+    start = 3;
+  }
+  while (start <= pattern.size()) {
+    auto end = pattern.find('\\', start);
+    if (end == std::string::npos) end = pattern.size();
+    const auto component = pattern.substr(start, end - start);
+    if (component.empty() || component == "." || component == "..") return false;
+    if (end == pattern.size()) break;
+    start = end + 1;
+  }
+  return true;
+}
+
+inline bool ProxyTargetAllowed(bool bypass_match, bool has_include_rules, bool include_match) {
+  return !bypass_match && (!has_include_rules || include_match);
+}
+
+inline bool ProxyChildAllowed(bool has_rules, bool include_mode, bool match) {
+  return !has_rules || (include_mode ? match : !match);
+}
+
 inline void ValidateArgs(const std::string& op, const Json& args) {
   if (op == "hello" || op == "status" || op == "monitor.stop" ||
       op == "recording.stop" || op == "replay.close" || op == "ca.query" ||
@@ -171,7 +218,7 @@ inline void ValidateArgs(const std::string& op, const Json& args) {
   } else if (op == "configure") {
     Keys(args, {"backend_directory", "port", "proxy_type", "username", "password",
                 "children", "block_udp", "remote_dns", "bypass", "prepare_quic",
-                "confirm_quic"});
+                "confirm_quic", "include_targets", "child_filter", "child_filter_mode"});
     Require(LocalPath(Text(args, "backend_directory", 240, true)), "Expected a local directory");
     Require(args.contains("port"), "Missing proxy port");
     Number(args, "port", 1, 65535);
@@ -189,20 +236,16 @@ inline void ValidateArgs(const std::string& op, const Json& args) {
       Require(type == "SOCKS5" && !Flag(args, "block_udp", true),
               "QUIC compatibility requires SOCKS5 with UDP enabled");
     }
-    if (args.contains("bypass")) {
-      Require(args["bypass"].is_array() && args["bypass"].size() <= 512,
-              "Too many bypass patterns");
-      for (const auto& value : args["bypass"]) {
-        Require(value.is_string(), "Invalid bypass pattern");
-        const auto pattern = value.get<std::string>();
-        const auto colon = pattern.find_last_of(':');
-        const auto host = pattern.substr(0, colon);
-        Require(std::any_of(host.begin(), host.end(), [](unsigned char c) { return std::isalnum(c); }),
-                "A bypass pattern needs a specific host or network");
-        Require(PlainText(pattern, 255) && !pattern.empty() &&
-                    pattern.find_first_of(";|=\\ \t") == std::string::npos &&
-                    pattern != "*" && pattern != "*:*" && pattern.find(':') != std::string::npos,
-                "Invalid bypass pattern");
+    if (args.contains("bypass")) ValidateTargetPatterns(args["bypass"]);
+    if (args.contains("include_targets")) ValidateTargetPatterns(args["include_targets"]);
+    if (args.contains("child_filter_mode")) {
+      const auto mode = Text(args, "child_filter_mode", 7, true);
+      Require(mode == "include" || mode == "exclude", "Invalid child filter mode");
+    }
+    if (args.contains("child_filter")) {
+      Require(args["child_filter"].is_array() && args["child_filter"].size() <= 128, "Too many child patterns");
+      for (const auto& value : args["child_filter"]) {
+        Require(value.is_string() && CompiledChildPattern(value.get<std::string>()), "Invalid compiled child pattern");
       }
     }
   } else if (op == "launch") {

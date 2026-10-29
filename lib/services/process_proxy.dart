@@ -134,6 +134,15 @@ class ProcessProxyService extends ChangeNotifier {
       final sessionsRoot = await Directory(p.join(root.path, 'sessions'))
           .create(recursive: true);
       sessionDirectory = await sessionsRoot.createTemp('session_');
+      for (final name in [
+        ...processProxyCoreFiles,
+        ...processProxyOptionalFiles.where((name) => name.endsWith('.dll')),
+        'FlClashProxyBridge.exe',
+      ]) {
+        if (utf8.encode(p.join(sessionDirectory.path, name)).length > 240) {
+          throw const ProcessProxyException('pathTooLong');
+        }
+      }
       final id = p
           .basename(sessionDirectory.path)
           .replaceAll(RegExp('[^a-zA-Z0-9_]'), '_');
@@ -191,6 +200,11 @@ class ProcessProxyService extends ChangeNotifier {
             'remote_dns': request.remoteDns,
             'prepare_quic': request.prepareQuic,
             'confirm_quic': request.prepareQuic,
+            'include_targets': compileProxyOnlyRules(request.proxyOnlyRules),
+            'child_filter': compileChildRules(request.childRules),
+            'child_filter_mode': request.childRuleInclude
+                ? 'include'
+                : 'exclude',
             'bypass': compileBypassRules(
               request.bypassRules,
               privateNetworks: request.bypassPrivateNetworks,
@@ -226,7 +240,10 @@ class ProcessProxyService extends ChangeNotifier {
           rethrow;
         }
       } else {
-        if (request.prepareQuic || request.workingDirectory.isNotEmpty) {
+        if (request.prepareQuic ||
+            request.workingDirectory.isNotEmpty ||
+            request.proxyOnlyRules.trim().isNotEmpty ||
+            request.childRules.trim().isNotEmpty) {
           throw const ProcessProxyException('nativeBridgeRequired');
         }
         await File(p.join(sessionDirectory.path, 'ProxyLane.ini'))

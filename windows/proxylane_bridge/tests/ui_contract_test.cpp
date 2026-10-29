@@ -15,6 +15,17 @@ int main() {
       "proxy_type": "SOCKS5", "block_udp": false,
       "prepare_quic": true, "confirm_quic": true
     }],
+    ["configure", {
+      "backend_directory": "C:\\Private\\Backend", "port": 9527,
+      "proxy_type": "SOCKS5", "bypass": ["10.*:*"],
+      "include_targets": ["*.example.com:*"], "child_filter_mode": "exclude",
+      "child_filter": ["*\\helper*.exe", "C:\\Tools\\*"]
+    }],
+    ["configure", {
+      "backend_directory": "C:\\Private\\Backend", "port": 9527,
+      "proxy_type": "SOCKS5", "include_targets": [],
+      "child_filter_mode": "include", "child_filter": []
+    }],
     ["launch", {
       "executable": "C:\\Tools\\App.exe", "arguments": [],
       "working_directory": "", "confirm": true
@@ -99,6 +110,14 @@ int main() {
     ["connections.reconnect", {"preparation_id": "1", "confirm": false}, "confirmation_required"],
     ["connections.reconnect", {"preparation_id": 1, "confirm": true}, "invalid_request"],
     ["connections.reconnect", {"preparation_id": "1", "confirm": true, "pid": 42}, "invalid_request"],
+    ["configure", {
+      "backend_directory": "C:\\Private\\Backend", "port": 9527,
+      "proxy_type": "SOCKS5", "child_filter": ["helper.exe"]
+    }, "invalid_request"],
+    ["configure", {
+      "backend_directory": "C:\\Private\\Backend", "port": 9527,
+      "proxy_type": "SOCKS5", "include_targets": ["*:*"], "child_filter_mode": "include"
+    }, "invalid_request"],
     ["query", {"type": "ca.trust"}, "unsupported_operation"],
     ["ca.trust", {"scope": "machine", "confirm": true}, "invalid_request"],
     ["monitor.start", {

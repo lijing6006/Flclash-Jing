@@ -45,6 +45,7 @@ class _ProcessProxyPayloadViewState extends State<ProcessProxyPayloadView> {
     setState(() {
       _busy = true;
       _error = null;
+      _preview = null;
     });
     try {
       final cacheId = int.tryParse(_cacheId.text);
@@ -74,6 +75,7 @@ class _ProcessProxyPayloadViewState extends State<ProcessProxyPayloadView> {
             'preview_bytes': 16384,
         },
       );
+      if (!mounted) return;
       final preview =
           await (widget.format?.call(response) ??
               compute(formatProcessProxyPayload, response));

@@ -124,6 +124,7 @@ void main() {
   test('working directory and QUIC preparation errors have safe guidance', () {
     for (final entry in {
       'invalidWorkingDirectory': l.processProxyErrorWorkingDirectory,
+      'invalidChildRule': l.processProxyErrorChildRule,
       'nativeBridgeRequired': l.processProxyErrorNativeRequired,
       'quicNeedsSocks': l.processProxyErrorQuicSocks,
     }.entries) {

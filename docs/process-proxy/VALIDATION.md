@@ -11,14 +11,16 @@
 7. `1946f2a`：CI与发布边界：停用上游自动发布/Pages工作流，新增固定SHA、只读权限、无部署/secret的源码与Windows编译检查，补充离线源码契约与中英文能力/验收记录。CI源码已检查，尚未运行。
 
 8. `2288dfb`：多配置、只读应用目录/cwd、QUIC首次准备、Raw/Hex真实载荷、索引恢复与TCP重连快照；完整本地可移植回归284项通过。
-9. 验证与能力说明同步：CI扩展到新增全部focused suites，明确不兼容功能、明文配置备份与会话数据保留。
+9. `89b36b4`：验证与能力说明同步：CI扩展到新增全部focused suites，明确不兼容功能、明文配置备份与会话数据保留。
+
+10. 细粒度过滤与数据绑定：补齐bypass优先的目标白名单、已拥有后代路径include/exclude；修复旧缓存行跨run绑定，补关闭/取消/离页回包测试源码；明确并统一240 UTF-8字节路径预算。
 
 ## 已通过（本地 Linux）
 
-- 36 policy + 12 backend + 14 stdio + 9 application + 42 profile + 7 traffic checks（120项），用已下载 Dart 3.13.5 直接运行，无依赖引导/网络包安装。
+- 45 policy + 12 backend + 14 stdio + 9 application + 48 profile + 8 traffic checks（136项），用已下载 Dart 3.13.5 直接运行，无依赖引导/网络包安装。
 - `dart analyze lib/services/process_proxy`：纯Dart目录无问题（不代表Flutter UI全项目分析）。
-- C++生产协议/参数引用/重连票据126项 + UI请求形状38项检查，通过 `g++ -std=c++17 -Wall -Wextra -Werror` 编译并运行纯协议测试（没有加载后端）。
-- 新Dart文件离线格式化、`git diff --check`、149个新增ARB键×7语/占位符检查。
+- C++生产协议/参数引用/重连票据165项 + UI请求形状42项检查，通过 `g++ -std=c++17 -Wall -Wextra -Werror` 编译并运行纯协议测试（没有加载后端）。
+- 新Dart文件离线格式化、`git diff --check`、156个新增ARB键×7语/占位符检查。
 - 高级集成回归实际发现IPv6原始字符串并未被Dart自动压缩，加入明确规范化与测试；并修复共享服务的保存连点竞争、移除页面对运行时回调的所有权、超时后不重试不确定变更操作。
 - 后端检查仅在 Linux 回环创建测试socket，未运行 ProxyLane/注入/证书操作。
 
@@ -27,6 +29,7 @@
 - Flutter工具依赖引导被auto-review拒绝，因为产生了对云元数据地址169.254.169.254的HTTP请求，存在实例凭据暴露风险。没有重试/绕过此操作。
 - `flutter pub get` 未完成；`intl_utils:generate` 未运行；新增ARB getter尚未生成。
 - 全项目 `flutter analyze --no-fatal-infos`、Flutter/widget/l10n测试未运行。
+- 新增12项真实Windows PathMatchSpecW纯匹配测试已注册CI，本机未运行（不加载ProxyLane）。
 - 本机没有 CMake/ctest；g++执行的协议测试不等同于cmake构建。
 - Windows/MSVC编译、EXE签名、真实程序/子进程流量、QUIC/CA/录制/回放均未运行。Linux通过不替代这些。
 - GitHub仓库/集成安装范围由父任务协调；本文不声明已push或CI通过。
@@ -52,3 +55,5 @@
 - Raw/Hex：7项真实字段解析、截断/缓存失效/压缩/DNS错误检查通过；每次载荷最多64KiB，文本/Hex展示最多16KiB。不是HTTP/2或QUIC原始网络帧，也不伪造完整UDP报文边界。
 - 录制索引恢复/同会话TCP快照重连：原生源码、独立确认与限时一次性票据；不会自动触发。新功能的Flutter/widget与Windows运行仍全部待验收。
 - 启动临时目录不自动递归删除，避免误删用户后来在兼容窗口创建的数据；兼容后端退出后仅尽力删除包含代理认证的临时INI。异常崩溃/文件锁可能留下副本，用户应检查应用支持目录并按自己的保留策略清理。
+
+路径边界：当前原生协议及Dart前置校验统一240 UTF-8字节；上游Attach路径仍有GetModuleFileNameA/MAX_PATH边界，因此不宣称任意Unicode/长路径兼容。短中文路径的策略验证不替代Windows实际启动验证。

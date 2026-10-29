@@ -1018,9 +1018,9 @@
   "processProxyErrorAuthentication": "本地代理认证失败，请检查 FlClash 的代理用户名和密码设置。本提示不会显示凭据。",
   "processProxyErrorListener": "配置中的本地代理未通过协议握手。请确认 FlClash 正在运行，且 mixed、SOCKS 或 HTTP 监听已启用。",
   "processProxyErrorProcessQuery": "Windows 未能完成可访问进程列表查询。请重试搜索，或直接选择程序的 .exe 文件。",
-  "processProxyErrorRule": "排除规则无效：{rule}。每行仅填写一个 IP、受支持的 CIDR 或域名模式，不要填写 URL 或端口。",
+  "processProxyErrorRule": "IP / 域名规则无效：{rule}。每行填写一个 IP、支持的 CIDR 或域名模式，不要输入 URL 或端口。",
   "processProxyErrorCidr": "此 CIDR 无法安全转换为当前后端规则：{rule}。请使用精确 IP 或受支持的网段前缀。",
-  "processProxyErrorRuleLimit": "排除列表过大，请限制在 512 条规则、16 KiB 文本以内。",
+  "processProxyErrorRuleLimit": "规则列表超过限制：IP / 域名最多 512 条、子进程最多 128 条，每个列表文本最多 16 KiB。",
   "processProxyErrorQuic": "QUIC 解密需要 UDP，请先明确关闭“阻止 UDP”再启用此选项。",
   "processProxyErrorHook": "ProxyLane 无法在所选程序中初始化代理，程序可能不兼容或受到保护。请勿关闭安全防护；可改用受支持的程序。",
   "processProxyErrorGeneric": "操作未能完成。请检查所选文件和当前核心状态后重试；可能包含敏感内容的诊断详情已隐藏。",
@@ -1112,5 +1112,12 @@
   "processProxyRebuildIndexWarning": "只为明确选择的本地录制目录重建索引，将写入索引元数据但不重发网络请求；失败或超时不会自动重试。请确认备份，并保持监视停止。",
   "processProxyStopSession": "停止代理会话",
   "processProxySessionStopWarning": "停止本会话的监视、录制和代理后端？不会结束正在运行的应用，但其代理连接可能中断。",
-  "processProxyHex": "十六进制"
+  "processProxyHex": "十六进制",
+  "processProxyOnlyRules": "仅代理这些 IP / 域名（可选）",
+  "processProxyOnlyRulesHelp": "每行一个 IP、支持的 CIDR 或域名模式。留空表示所有目标；未匹配目标直连，绕过规则始终优先。仅当程序向后端提供 IP 时才能按 IP 匹配；内网域名请明确添加。更改于下次启动生效。",
+  "processProxyChildRules": "子进程路径 / 名称规则",
+  "processProxyChildRulesHelp": "每行一个本机完整路径、通配模式或 EXE 文件名，最多 128 条。仅在开启子进程代理时生效；默认排除匹配子进程，开启下方开关则仅包含匹配项。留空表示所有子进程，不影响根进程。被排除的子进程不会注入，其后代也不会自动继承代理；请包含中间启动器。",
+  "processProxyChildRuleInclude": "仅注入匹配规则的子进程",
+  "processProxyErrorChildRule": "子进程规则无效。每行填写本机完整路径、通配模式或 EXE 文件名；不允许 UNC、目录回溯或命令行语法。",
+  "processProxyErrorPathLength": "当前后端路径暂限 UTF-8 编码 240 字节，请选择更短的本地路径；中文及会话暂存路径兼容性仍需 Windows 验证。"
 }

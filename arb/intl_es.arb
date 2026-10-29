@@ -1018,9 +1018,9 @@
   "processProxyErrorAuthentication": "El proxy local rechazó la autenticación. Revisa el usuario y la contraseña en FlClash. No se muestran las credenciales en este error.",
   "processProxyErrorListener": "El proxy local no respondió al protocolo esperado. Comprueba que FlClash y su puerto mixed, SOCKS o HTTP estén activos.",
   "processProxyErrorProcessQuery": "Windows no pudo completar la consulta de procesos accesibles. Reintenta la búsqueda o elige el archivo .exe directamente.",
-  "processProxyErrorRule": "Regla de exclusión no válida: {rule}. Usa una IP, un CIDR compatible o un patrón de dominio por línea, sin URL ni puertos.",
+  "processProxyErrorRule": "Regla IP/dominio no válida: {rule}. Usa una IP, CIDR admitida o patrón de dominio por línea, sin URL ni puertos.",
   "processProxyErrorCidr": "Este CIDR no se puede convertir de forma segura: {rule}. Usa una IP exacta o un prefijo de red compatible.",
-  "processProxyErrorRuleLimit": "La lista es demasiado grande. Limítala a 512 reglas y 16 KiB de texto.",
+  "processProxyErrorRuleLimit": "Límite superado: 512 reglas IP/dominio o 128 de procesos hijos y 16 KiB de texto por lista.",
   "processProxyErrorQuic": "El descifrado QUIC requiere UDP. Desactiva explícitamente el bloqueo UDP antes de habilitarlo.",
   "processProxyErrorHook": "No se pudo inicializar el proxy en la aplicación. Puede ser incompatible o estar protegida. No desactives la seguridad; prueba una aplicación compatible.",
   "processProxyErrorGeneric": "No se pudo completar la operación. Revisa los archivos y el estado del núcleo e inténtalo otra vez. Los detalles potencialmente sensibles están ocultos.",
@@ -1112,5 +1112,12 @@
   "processProxyRebuildIndexWarning": "Reconstruye el índice solo de la carpeta local elegida. Escribe metadatos sin repetir solicitudes de red. Los fallos y tiempos de espera no se reintentan automáticamente. Confirma la copia de seguridad y mantén detenida la supervisión.",
   "processProxyStopSession": "Detener sesión de proxy",
   "processProxySessionStopWarning": "¿Detener la supervisión, grabación y proxy de esta sesión? Las aplicaciones seguirán abiertas, pero sus conexiones pueden interrumpirse.",
-  "processProxyHex": "Hexadecimal"
+  "processProxyHex": "Hexadecimal",
+  "processProxyOnlyRules": "Usar proxy solo para estas IP / dominios",
+  "processProxyOnlyRulesHelp": "Una IP, CIDR admitida o patrón de dominio por línea. Vacío incluye todos los destinos; los demás van directos. Las exclusiones tienen prioridad. Las reglas IP solo funcionan si la aplicación expone la IP; añade dominios internos explícitamente. Se aplica al próximo inicio.",
+  "processProxyChildRules": "Reglas de ruta / nombre de procesos hijos",
+  "processProxyChildRulesHelp": "Una ruta local completa/patrón o nombre EXE por línea, hasta 128 reglas. Requiere proxy de procesos hijos. Por defecto excluye coincidencias; activa abajo para incluir solo coincidencias. Vacío incluye todos; la raíz no cambia. Los hijos excluidos no reciben inyección y sus descendientes no heredan el proxy automáticamente; incluye iniciadores intermedios.",
+  "processProxyChildRuleInclude": "Inyectar solo en hijos que coincidan",
+  "processProxyErrorChildRule": "Regla de hijo no válida. Usa una ruta local completa/patrón o nombre EXE por línea; no se admite UNC, rutas de escape ni sintaxis de comandos.",
+  "processProxyErrorPathLength": "El backend limita las rutas a 240 bytes UTF-8. Elige una ruta local más corta. La compatibilidad Unicode y temporal requiere validación en Windows."
 }
