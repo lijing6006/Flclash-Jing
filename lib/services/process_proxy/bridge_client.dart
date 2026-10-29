@@ -4,6 +4,26 @@ import 'dart:io';
 
 import 'policy.dart';
 
+Future<void> closeOwnedProcessProxyBridge({
+  required Future<void> Function() closeInput,
+  required Future<int> exited,
+  required void Function() terminate,
+  Duration grace = const Duration(seconds: 120),
+}) async {
+  Future<void> drain() async {
+    try {
+      await closeInput();
+    } on Exception {}
+    await exited;
+  }
+
+  try {
+    await drain().timeout(grace);
+  } on TimeoutException {
+    terminate();
+  }
+}
+
 class ProcessProxyBridgeClient {
   static const protocolVersion = 1;
   static const maximumFrameBytes = 1024 * 1024;
@@ -79,14 +99,15 @@ class ProcessProxyBridgeClient {
       processId: process.pid,
       processExit: process.exitCode,
       write: process.stdin.add,
-      closeTransport: () async {
-        await process.stdin.close();
-        try {
-          await process.exitCode.timeout(const Duration(seconds: 5));
-        } on TimeoutException {
+      closeTransport: () => closeOwnedProcessProxyBridge(
+        closeInput: () async {
+          await process.stdin.close();
+        },
+        exited: process.exitCode,
+        terminate: () {
           process.kill();
-        }
-      },
+        },
+      ),
     );
     try {
       await client.handshake();
@@ -135,13 +156,25 @@ class ProcessProxyBridgeClient {
     final completer = Completer<Map<String, dynamic>>();
     _pending[id] = completer;
     try {
-      _write(bytes);
+      try {
+        _write(bytes);
+      } catch (_) {
+        _fail(const ProcessProxyException('bridgeTransportFailed'));
+      }
       return await completer.future.timeout(
         const {
               'ca.initialize',
               'ca.trust',
               'ca.remove',
               'replay.rebuild_index',
+              'monitor.start',
+              'monitor.stop',
+              'recording.start',
+              'recording.stop',
+              'replay.open',
+              'replay.close',
+              'stop',
+              'shutdown',
             }.contains(operation)
             ? interactiveTimeout
             : timeout,
@@ -210,17 +243,19 @@ class ProcessProxyBridgeClient {
       if (!pending.isCompleted) pending.completeError(error);
     }
     _pending.clear();
+    scheduleMicrotask(() => unawaited(close()));
   }
 
   Future<void> close() => _closing ??= _close();
 
   Future<void> _close() async {
     _fail(const ProcessProxyException('bridgeExited'));
-    await _subscription.cancel();
     try {
       await _closeTransport();
     } on Exception {
       // A dead child may reject stdin close; the session is already failed.
+    } finally {
+      await _subscription.cancel();
     }
   }
 }

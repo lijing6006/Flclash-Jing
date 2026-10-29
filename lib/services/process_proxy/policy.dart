@@ -359,6 +359,15 @@ Iterable<String> _ipv4CidrPatterns(String input) sync* {
   }
 }
 
+void validateProcessProxyAuthentication(ProcessProxyEndpoint endpoint) {
+  for (final value in [endpoint.username, endpoint.password]) {
+    if (value.contains(RegExp(r'[\x00-\x1f\x7f]')) ||
+        utf8.encode(value).length > 127) {
+      throw const ProcessProxyException('invalidAuthentication');
+    }
+  }
+}
+
 String buildProcessProxyIni(
   ProcessProxyLaunchRequest request,
   ProcessProxyEndpoint endpoint,
@@ -367,6 +376,7 @@ String buildProcessProxyIni(
   if (!RegExp(r'^FlClash_[a-zA-Z0-9_]+$').hasMatch(profile)) {
     throw const ProcessProxyException('invalidProfile');
   }
+  validateProcessProxyAuthentication(endpoint);
   for (final value in [endpoint.username, endpoint.password]) {
     if (value != value.trim() ||
         value.contains(RegExp(r'''[\r\n\x00"']''')) ||

@@ -121,6 +121,19 @@ void main() {
     expect(processProxyExitMessage(null, l), l.processProxyErrorGeneric);
   });
 
+  test('unconfirmed recording state has safe recovery guidance', () {
+    expect(
+      processProxyErrorMessage(
+        const ProcessProxyException(
+          'bridgeOperationFailed',
+          'recording_options_unconfirmed',
+        ),
+        l,
+      ),
+      l.processProxyErrorRecordingState,
+    );
+  });
+
   test('working directory and QUIC preparation errors have safe guidance', () {
     for (final entry in {
       'invalidWorkingDirectory': l.processProxyErrorWorkingDirectory,

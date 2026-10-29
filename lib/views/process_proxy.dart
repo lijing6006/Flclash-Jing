@@ -28,6 +28,7 @@ ProcessProxyRuntime _processProxyRuntime(ProviderContainer container) {
   final config = container.read(patchClashConfigProvider);
   final network = container.read(networkSettingProvider);
   final authentication = network.authentication;
+  final authenticated = authentication.credentials.isNotEmpty;
   return ProcessProxyRuntime(
     running:
         container.read(coreStatusProvider) == CoreStatus.connected &&
@@ -40,8 +41,8 @@ ProcessProxyRuntime _processProxyRuntime(ProviderContainer container) {
     mixedPort: config.mixedPort,
     socksPort: config.socksPort,
     httpPort: config.port,
-    username: authentication.enable ? authentication.username : '',
-    password: authentication.enable ? authentication.password : '',
+    username: authenticated ? authentication.username : '',
+    password: authenticated ? authentication.password : '',
   );
 }
 

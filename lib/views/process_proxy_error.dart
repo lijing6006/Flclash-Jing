@@ -70,6 +70,7 @@ String _bridgeErrorMessage(String? code, AppLocalizations l) {
     'request_too_large' => l.processProxyErrorResponseLarge,
     'certificate_required' => l.processProxyErrorCaRequired,
     'monitor_active' => l.processProxyErrorMonitoringActive,
+    'recording_options_unconfirmed' => l.processProxyErrorRecordingState,
     'recording_directory' || 'invalid_path' => l.processProxyErrorDirectory,
     'target_architecture' => l.processProxyErrorArchitecture,
     'backend_version' => l.processProxyErrorBackendVersion,

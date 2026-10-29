@@ -135,6 +135,33 @@ final Map<String, Future<void> Function()> processProxyBridgeCases = {
     await _fails(transport.client.request('status'), 'bridgeExited');
     await transport.client.close();
   },
+  'fatal protocol failure closes transport without another user action':
+      () async {
+        final transport = _Transport();
+        await transport.ready();
+        final pending = _fails(
+          transport.client.request('status'),
+          'bridgeProtocolError',
+        );
+        transport.output.add(utf8.encode('not-json\n'));
+        await pending;
+        await Future<void>.delayed(Duration.zero);
+        _check(transport.closeCount == 1);
+        await transport.client.close();
+      },
+  'synchronous pipe write failure closes transport and does not retry':
+      () async {
+        final transport = _Transport();
+        await transport.ready();
+        transport.respond = (_) => throw StateError('closed pipe');
+        await _fails(
+          transport.client.request('status'),
+          'bridgeTransportFailed',
+        );
+        await Future<void>.delayed(Duration.zero);
+        _check(transport.closeCount == 1 && transport.requests.length == 2);
+        await transport.client.close();
+      },
   'bridge rejects oversized reply without JSON parsing': () async {
     final transport = _Transport();
     await transport.ready();
@@ -232,6 +259,64 @@ final Map<String, Future<void> Function()> processProxyBridgeCases = {
         );
         await transport.client.close();
       },
+  'disk and stop operations allow draining beyond the ordinary timeout':
+      () async {
+        final transport = _Transport(timeout: const Duration(milliseconds: 10));
+        await transport.ready();
+        transport.respond = (r) {
+          Timer(
+            const Duration(milliseconds: 25),
+            () => transport.reply(r, {'done': true}),
+          );
+        };
+        for (final operation in [
+          'monitor.start',
+          'monitor.stop',
+          'recording.start',
+          'recording.stop',
+          'replay.open',
+          'replay.close',
+          'stop',
+          'shutdown',
+        ]) {
+          _check((await transport.client.request(operation))['done'] == true);
+        }
+        _check(transport.requests.length == 9 && transport.closeCount == 0);
+        await transport.client.close();
+      },
+  'owned broker cleanup waits for slow drain without termination': () async {
+    var terminated = false;
+    await closeOwnedProcessProxyBridge(
+      closeInput: () async {},
+      exited: Future.delayed(const Duration(milliseconds: 25), () => 0),
+      terminate: () => terminated = true,
+      grace: const Duration(seconds: 1),
+    );
+    _check(!terminated);
+  },
+  'owned broker cleanup bounds a hung input close as well as exit': () async {
+    final input = Completer<void>();
+    final exit = Completer<int>();
+    var kills = 0;
+    await closeOwnedProcessProxyBridge(
+      closeInput: () => input.future,
+      exited: exit.future,
+      terminate: () => kills++,
+      grace: const Duration(milliseconds: 10),
+    );
+    _check(kills == 1);
+    input.complete();
+    exit.complete(1);
+  },
+  'already closed broker input still permits graceful process exit': () async {
+    var terminated = false;
+    await closeOwnedProcessProxyBridge(
+      closeInput: () async => throw const ProcessProxyException('bridgeExited'),
+      exited: Future.value(0),
+      terminate: () => terminated = true,
+    );
+    _check(!terminated);
+  },
   'bridge close is idempotent and resolves in-flight errors': () async {
     final transport = _Transport();
     await transport.ready();

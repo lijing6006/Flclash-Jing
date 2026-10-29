@@ -115,6 +115,7 @@ class ProcessProxyService extends ChangeNotifier {
     try {
       request.validate();
       final endpoint = (await runtime()).endpoint;
+      validateProcessProxyAuthentication(endpoint);
       if (request.prepareQuic && endpoint.type != 'SOCKS5') {
         throw const ProcessProxyException('quicNeedsSocks');
       }
@@ -168,7 +169,6 @@ class ProcessProxyService extends ChangeNotifier {
               .exists()) {
         throw const ProcessProxyException('missingAdvancedModule');
       }
-      final ini = buildProcessProxyIni(request, endpoint, profile);
       final latest = (await runtime()).endpoint;
       if (!endpoint.sameAs(latest)) {
         throw const ProcessProxyException('coreConfigurationChanged');
@@ -246,6 +246,7 @@ class ProcessProxyService extends ChangeNotifier {
             request.childRules.trim().isNotEmpty) {
           throw const ProcessProxyException('nativeBridgeRequired');
         }
+        final ini = buildProcessProxyIni(request, endpoint, profile);
         await File(p.join(sessionDirectory.path, 'ProxyLane.ini'))
             .writeAsBytes(encodeProcessProxyIni(ini), flush: true);
         final executable = p.join(sessionDirectory.path, 'ProxyLane64.exe');

@@ -5,6 +5,7 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/services/process_proxy.dart';
 import 'package:fl_clash/services/process_proxy/traffic.dart';
 import 'package:fl_clash/views/process_proxy/payload.dart';
+import 'package:fl_clash/views/process_proxy/recording_browser.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/views/process_proxy_error.dart';
 import 'package:flutter/foundation.dart' show compute;
@@ -600,6 +601,13 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
         help: l.processProxyReadQueryHelp,
       ),
       _actions([_button(l.processProxyReadDetails, _readQuery)]),
+      ListItem.open(
+        title: Text(l.processProxyRecordingBrowser),
+        widget: ProcessProxyRecordingBrowser(
+          service: widget.service,
+          session: widget.session,
+        ),
+      ),
       ListItem.open(
         title: Text(l.processProxyPayloadViewer),
         widget: ProcessProxyPayloadView(

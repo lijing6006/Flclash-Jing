@@ -321,11 +321,51 @@ inline void ValidateArgs(const std::string& op, const Json& args) {
   }
 }
 
+inline void RequireRecordingOptionState(const Json& reply, bool enabled) {
+  if (!reply.is_object() || !reply.contains("settings") || !reply["settings"].is_object() ||
+      !reply["settings"].contains("recording") || !reply["settings"]["recording"].is_object() ||
+      !reply["settings"]["recording"].contains("enabled") ||
+      !reply["settings"]["recording"]["enabled"].is_boolean() ||
+      reply["settings"]["recording"]["enabled"].get<bool>() != enabled) {
+    throw Error("recording_options_unconfirmed", "Backend did not confirm the requested recording option");
+  }
+}
+
+inline void RequireRecordingOptions(const Json& reply, const Json& requested) {
+  RequireRecordingOptionState(reply, requested.at("enabled").get<bool>());
+  const auto& actual = reply["settings"]["recording"];
+  for (auto it = requested.begin(); it != requested.end(); ++it) {
+    if (!actual.contains(it.key()) || actual[it.key()] != it.value()) {
+      throw Error("recording_options_unconfirmed", "Backend did not confirm the requested recording configuration");
+    }
+  }
+}
+
+inline bool RecordingActive(const Json& status) {
+  return status.is_object() && status.contains("enabled") && status["enabled"].is_boolean() &&
+      status["enabled"].get<bool>() && status.contains("ended") && status["ended"].is_boolean() &&
+      !status["ended"].get<bool>() && status.contains("stopped") && status["stopped"].is_boolean() &&
+      !status["stopped"].get<bool>() && status.contains("directory") && status["directory"].is_string() &&
+      !status["directory"].get<std::string>().empty();
+}
+
+template <typename Reset, typename Start>
+Json StartPlainMonitor(Reset reset, Start start) {
+  RequireRecordingOptionState(reset(), false);
+  return start();
+}
+
 using ProcessIdentityMap = std::map<std::uint32_t, std::uint64_t>;
 
 inline bool OwnsIdentity(const ProcessIdentityMap& identities, std::uint32_t pid, std::uint64_t birth) {
   const auto found = identities.find(pid);
   return pid != 0 && birth != 0 && found != identities.end() && found->second == birth;
+}
+
+inline bool ForgetOwnedIdentity(ProcessIdentityMap& identities, std::uint32_t pid, std::uint64_t birth) {
+  if (!OwnsIdentity(identities, pid, birth)) return false;
+  identities.erase(pid);
+  return true;
 }
 
 class ReconnectPreparation {

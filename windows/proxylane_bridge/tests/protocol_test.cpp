@@ -167,6 +167,13 @@ int main() {
   check(!OwnsIdentity(identities, 124, 456));
   check(!OwnsIdentity(identities, 0, 0));
   check(!OwnsIdentity(identities, 123, 0));
+  ProcessIdentityMap cleanup_identities{{123, 789}, {456, 111}};
+  check(!ForgetOwnedIdentity(cleanup_identities, 123, 456));
+  check(OwnsIdentity(cleanup_identities, 123, 789));
+  check(!ForgetOwnedIdentity(cleanup_identities, 123, 0));
+  check(ForgetOwnedIdentity(cleanup_identities, 123, 789));
+  check(!OwnsIdentity(cleanup_identities, 123, 789));
+  check(OwnsIdentity(cleanup_identities, 456, 111));
   ReconnectPreparation reconnect;
   rejects([&] { reconnect.Check(1, 0); });
   auto preparation = reconnect.Issue(3, 1000);
@@ -233,5 +240,39 @@ int main() {
   check(!ProxyChildAllowed(true, true, false));
   check(ProxyChildAllowed(true, false, false));
   check(!ProxyChildAllowed(true, false, true));
+  bool plain_started = false;
+  auto plain_start = [&] { plain_started = true; return Json{{"monitoring", true}}; };
+  rejects([&] { StartPlainMonitor([&]() -> Json { throw Error("write_failed", "test"); }, plain_start); });
+  check(!plain_started);
+  rejects([&] { StartPlainMonitor([&] { return Json{{"settings", {{"recording", {{"enabled", true}}}}}}; }, plain_start); });
+  check(!plain_started);
+  rejects([&] { StartPlainMonitor([&] { return Json::object(); }, plain_start); });
+  check(!plain_started);
+  check(StartPlainMonitor([&] { return Json{{"settings", {{"recording", {{"enabled", false}}}}}}; }, plain_start)["monitoring"] == true);
+  check(plain_started);
+  const Json recording_options = {{"enabled", true}, {"directory", R"(C:\captures)"}, {"capacity_mib", 8192}, {"reserve_mib", 512}};
+  const Json options_reply = {{"settings", {{"recording", recording_options}}}};
+  RequireRecordingOptions(options_reply, recording_options); ++tests;
+  for (const auto& key : {"directory", "capacity_mib", "reserve_mib"}) {
+    auto changed = options_reply;
+    changed["settings"]["recording"].erase(key);
+    rejects([&] { RequireRecordingOptions(changed, recording_options); });
+    changed["settings"]["recording"][key] = "different";
+    rejects([&] { RequireRecordingOptions(changed, recording_options); });
+  }
+  const Json active_recording = {{"enabled", true}, {"ended", false}, {"stopped", false}, {"directory", R"(C:\captures)"}};
+  check(RecordingActive(active_recording));
+  check(!RecordingActive(Json::object()));
+  for (const auto& key : {"enabled", "ended", "stopped", "directory"}) {
+    auto changed = active_recording;
+    changed.erase(key);
+    check(!RecordingActive(changed));
+    changed[key] = nullptr;
+    check(!RecordingActive(changed));
+  }
+  auto stopped = active_recording; stopped["stopped"] = true; check(!RecordingActive(stopped));
+  stopped = active_recording; stopped["ended"] = true; check(!RecordingActive(stopped));
+  stopped = active_recording; stopped["directory"] = ""; check(!RecordingActive(stopped));
+  stopped = active_recording; stopped["enabled"] = false; check(!RecordingActive(stopped));
   std::cout << tests << " portable bridge protocol checks passed\n";
 }

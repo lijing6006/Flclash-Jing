@@ -360,6 +360,23 @@ final Map<String, void Function()> processProxyPolicyCases = {
     );
     _check(!restored.prepareQuic && !restored.trustedBackend);
   },
+  'native credentials preserve quotes and edge spaces without INI roundtrip':
+      () {
+        validateProcessProxyAuthentication(
+          const ProcessProxyEndpoint('SOCKS5', 9527, ' user ', '"quoted"'),
+        );
+      },
+  'native credentials reject all control bytes and actual backend size overflow':
+      () {
+        for (final password in ['secret\tvalue', 'secret\x7f', 'x' * 128]) {
+          _fails(
+            () => validateProcessProxyAuthentication(
+              ProcessProxyEndpoint('SOCKS5', 9527, 'user', password),
+            ),
+            'invalidAuthentication',
+          );
+        }
+      },
   'settings JSON round trip': () {
     final restored = ProcessProxyLaunchRequest.fromJson(
       jsonDecode(jsonEncode(_request.toJson())) as Map<String, dynamic>,

@@ -111,3 +111,11 @@ g++ -std=c++17 -Wall -Wextra -Werror -I/path/to/ProxyLane-source/third_party win
 ```
 
 Windows compilation, actual owned-process hook startup, child propagation, CA trust prompts, QUIC and recording/replay must be verified on an isolated Windows test account before publishing binaries. No injection, CA installation or capture was executed in this environment.
+
+## Recording-state confirmation / 录制状态确认
+
+The companion compares every requested recording option with the backend's echoed settings. `enabled:true` alone is not active capture: `ended` and `stopped` must be false and `directory` nonempty. Status queries preserve the backend's quality, quota and stop reason. A failed options reset remains conservatively unconfirmed; a later plain monitor start first confirms recording disabled rather than silently resuming disk capture.
+
+FlClash gives monitor/disk/stop operations 120 seconds, then closes the private input and drains output for up to another 120 seconds before terminating only its owned broker. This is bounded cleanup, not a guarantee against data loss on a stalled disk/module. Existing target processes are not terminated, but their connections may break. Fatal framing/write failures also initiate this cleanup without waiting for another UI action. There is no mutation retry after an uncertain timeout.
+
+录制停止不会移除已有TLS桥或已信任CA；现有TLS连接可能需要自然结束或操作者另行明确重连。CA移除仍是独立确认动作。上述行为来自代码核验；尚未进行Windows录制落盘或故障注入验证。

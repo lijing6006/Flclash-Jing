@@ -1,3 +1,6 @@
+#if !defined(_M_X64)
+#error FlClashProxyBridge requires the MSVC x64 target; ARM64 is not supported.
+#endif
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <winsock2.h>
@@ -377,7 +380,7 @@ class Runtime final : public IProxySettings, public IProxyLog {
     Json result = {{"configured", proxy_ != nullptr}, {"pid", GetCurrentProcessId()},
                    {"proxy_running", proxy_ && proxy_->IsProxyEnabled()},
                    {"root_pid", root_pid_}, {"monitoring", monitoring_},
-                   {"recording", recording_}, {"replay_open", replay_open_},
+                   {"recording", recording_}, {"recording_options_may_be_enabled", recording_options_may_be_enabled_}, {"replay_open", replay_open_},
                    {"quic_preparation_requested", Flag(configuration_, "prepare_quic")},
                    {"target_include_rules", include_patterns_.size()}, {"child_filter_rules", child_patterns_.size()},
                    {"child_filter_mode", child_include_mode_ ? "include" : "exclude"},
@@ -408,7 +411,14 @@ class Runtime final : public IProxySettings, public IProxyLog {
     }
     if (monitoring_) {
       const auto actual = Query({{"type", "monitor_status"}});
-      result["monitoring"] = actual.value("monitoring", false);
+      monitoring_ = actual.value("monitoring", false);
+      result["monitoring"] = monitoring_;
+    }
+    if (recording_ || recording_options_may_be_enabled_) {
+      const auto actual = Query({{"type", "recording_status"}});
+      recording_ = RecordingActive(actual);
+      result["recording"] = recording_;
+      result["recording_status"] = actual;
     }
     return result;
   }
@@ -430,8 +440,9 @@ class Runtime final : public IProxySettings, public IProxyLog {
             {"lost_before", logs_.empty() ? 0 : logs_.front()["sequence"].get<std::uint64_t>() - 1}};
   }
 
-  Json MonitorStart(const Json& args) {
+  Json MonitorStart(const Json& args, bool recording_intent = false) {
     EnsureRunning();
+    if (monitoring_) throw Error("monitor_active", "Stop current monitoring before changing its mode");
     const auto https = Flag(args, "decrypt_https");
     const auto quic = Flag(args, "decrypt_quic");
     ValidateMonitorConfiguration(configuration_, args);
@@ -441,7 +452,12 @@ class Runtime final : public IProxySettings, public IProxyLog {
         throw Error("certificate_required", "Initialize and trust the current-user CA explicitly first");
       }
     }
-    auto result = Query({{"type", "monitor_start"}, {"decrypt", https}, {"quic", quic}});
+    auto start = [&] { return Query({{"type", "monitor_start"}, {"decrypt", https}, {"quic", quic}}); };
+    auto result = recording_intent ? start() : StartPlainMonitor([&] {
+      auto settings = settings_;
+      settings["recording"] = {{"enabled", false}};
+      return SetRecordingOptions(settings, false);
+    }, start);
     monitoring_ = true;
     return result;
   }
@@ -449,14 +465,22 @@ class Runtime final : public IProxySettings, public IProxyLog {
   Json MonitorStop() {
     EnsureConfigured();
     auto result = Query({{"type", "monitor_stop"}});
-    const bool was_recording = recording_;
+    const bool reset_recording = recording_options_may_be_enabled_;
     monitoring_ = false;
     recording_ = false;
-    if (was_recording) {
+    if (reset_recording) {
       auto settings = settings_;
       settings["recording"] = {{"enabled", false}};
-      Query({{"type", "mitm_options"}, {"settings", settings}});
+      SetRecordingOptions(settings, false);
     }
+    return result;
+  }
+
+  Json SetRecordingOptions(const Json& settings, bool enabled) {
+    recording_options_may_be_enabled_ = true;
+    auto result = Query({{"type", "mitm_options"}, {"skip_upstream_verify", false}, {"settings", settings}});
+    RequireRecordingOptions(result, settings.at("recording"));
+    recording_options_may_be_enabled_ = enabled;
     return result;
   }
 
@@ -465,7 +489,7 @@ class Runtime final : public IProxySettings, public IProxyLog {
     if (monitoring_) throw Error("monitor_active", "Stop monitoring before changing capture limits");
     auto settings = args["settings"];
     settings["recording"] = {{"enabled", false}};
-    const auto result = Query({{"type", "mitm_options"}, {"skip_upstream_verify", false}, {"settings", settings}});
+    const auto result = SetRecordingOptions(settings, false);
     if (!result.contains("settings")) throw Error("advanced_module_unavailable", "The optional capture module is unavailable");
     settings_ = std::move(settings);
     return result;
@@ -479,17 +503,15 @@ class Runtime final : public IProxySettings, public IProxyLog {
     settings["recording"] = {{"enabled", true}, {"directory", Utf8(path)},
                              {"capacity_mib", Number(args, "capacity_mib", 16, 1048576, 8192)},
                              {"reserve_mib", Number(args, "reserve_mib", 16, 1048576, 512)}};
-    Query({{"type", "mitm_options"}, {"skip_upstream_verify", false}, {"settings", settings}});
     try {
-      MonitorStart(args);
+      SetRecordingOptions(settings, true);
+      MonitorStart(args, true);
       const auto status = Query({{"type", "recording_status"}});
-      if (!status.value("enabled", false)) throw Error("recording_start", "Recording did not become active");
+      if (!RecordingActive(status)) throw Error("recording_start", "Recording did not become active");
       recording_ = true;
       return status;
     } catch (...) {
       try { MonitorStop(); } catch (...) {}
-      settings["recording"]["enabled"] = false;
-      try { Query({{"type", "mitm_options"}, {"settings", settings}}); } catch (...) {}
       throw;
     }
   }
@@ -671,10 +693,11 @@ class Runtime final : public IProxySettings, public IProxyLog {
     AddLog("hook_log", Utf8(std::wstring(log->str, wcsnlen(log->str, count))), log->dwProcessId);
   } catch (...) {  }
   void OnChildInjectionResult(LPHookNewProcessInfo child, BOOL succeeded) override try {
+    if (!child) return;
     AddLog("child_hook", succeeded ? "Child hook accepted" : "Child hook failed", child->dwProcessId);
     if (!succeeded) {
       std::lock_guard<std::mutex> lock(ownership_lock_);
-      owned_.erase(child->dwProcessId);
+      ForgetOwnedIdentity(owned_, child->dwProcessId, child->processCreateTime);
     }
   } catch (...) {  }
   void OnConnectionEvent(ConnectionEvent event, const LPPRCClient client, LPCWSTR) override try {
@@ -841,6 +864,7 @@ class Runtime final : public IProxySettings, public IProxyLog {
   bool winsock_started_ = false;
   bool monitoring_ = false;
   bool recording_ = false;
+  bool recording_options_may_be_enabled_ = false;
   bool replay_open_ = false;
   std::mutex ownership_lock_;
   ProcessIdentityMap owned_;
