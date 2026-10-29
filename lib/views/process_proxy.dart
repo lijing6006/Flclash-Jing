@@ -1,18 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/config.dart' show AuthenticationPropsExt;
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/services/process_proxy.dart';
-import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/ui/ui.dart';
-import 'package:fl_clash/views/process_proxy_error.dart';
-import 'package:fl_clash/views/process_proxy/advanced.dart';
-import 'package:fl_clash/views/process_proxy/applications.dart';
-import 'package:fl_clash/views/process_proxy/profiles.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -102,7 +95,6 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   final _query = TextEditingController();
 
   // 状态与配置选项
-  bool _loaded = false;
   bool _searching = false;
   bool _confirming = false;
   bool _includeChildren = true;
@@ -111,8 +103,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   bool _blockUdp = true;
   bool _remoteDns = true; // 服务器解析
   bool _hookTcp = true;
-  bool _trusted = true;
-  bool _prepareQuic = false;
+  final _prepareQuic = false;
   _ProxyOptionsTab _currentTab = _ProxyOptionsTab.basic;
   String _profileName = '分流';
   String _proxyType = 'SOCKS5';
@@ -156,9 +147,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
         _remoteDns = saved.remoteDns;
       }
     } catch (error) {
-      if (mounted) _error = error;
-    } finally {
-      if (mounted) setState(() => _loaded = true);
+      if (mounted) setState(() => _error = error);
     }
   }
 
@@ -255,7 +244,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   }
 
   Future<void> _openApplicationsSheet() async {
-    await unawaited(_search());
+    await _search();
     if (!mounted) return;
     await showModalBottomSheet(
       context: context,
@@ -272,7 +261,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.between,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
                     '应用与进程',
@@ -314,12 +303,12 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                     ? const Center(child: Text('未找到匹配的运行中进程', style: TextStyle(color: Colors.white38)))
                     : ListView.separated(
                         itemCount: _processes.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white10),
+                        separatorBuilder: (_, _) => const Divider(height: 1, color: Colors.white10),
                         itemBuilder: (_, index) {
                           final item = _processes[index];
                           return ListTile(
                             title: Text(item.name, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-                            subtitle: Text('PID: ${item.processId}  ·  ${item.executable}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                            subtitle: Text('PID: ${item.pid}  ·  ${item.executable}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
                             trailing: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF2563eb),
@@ -345,7 +334,6 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.appLocalizations;
     ref.watch(coreStatusProvider);
     ref.watch(runTimeProvider);
     ref.watch(suspendProvider);
@@ -383,13 +371,28 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                   ),
                   const SizedBox(height: 14),
 
+                  if (_error != null)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0x33F87171),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0x66F87171)),
+                      ),
+                      child: Text(
+                        '$_error',
+                        style: const TextStyle(fontSize: 12, color: Color(0xFFFCA5A5)),
+                      ),
+                    ),
+
                   // 配置选择行 (图一)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1c1d22),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white.withOpacity(0.06)),
+                      border: Border.all(color: const Color(0x0FFFFFFF)),
                     ),
                     child: Row(
                       children: [
@@ -415,7 +418,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                         OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,
-                            side: BorderSide(color: Colors.white.withOpacity(0.15)),
+                            side: const BorderSide(color: Color(0x26FFFFFF)),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                           ),
@@ -426,7 +429,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                         OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             foregroundColor: const Color(0xFFf87171),
-                            side: BorderSide(color: const Color(0xFFf87171).withOpacity(0.4)),
+                            side: const BorderSide(color: Color(0x66F87171)),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                           ),
@@ -449,7 +452,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF1c1d22),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.06)),
+                      border: Border.all(color: const Color(0x0FFFFFFF)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -589,9 +592,9 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF10b981).withOpacity(0.15),
+                                color: const Color(0x2610B981),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFF10b981).withOpacity(0.3)),
+                                border: Border.all(color: const Color(0x4D10B981)),
                               ),
                               child: const Text('✓ 测试通过 · 已保存', style: TextStyle(fontSize: 12, color: Color(0xFF34d399), fontWeight: FontWeight.w500)),
                             ),
@@ -599,7 +602,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                             OutlinedButton(
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.white,
-                                side: BorderSide(color: Colors.white.withOpacity(0.18)),
+                                side: const BorderSide(color: Color(0x2EFFFFFF)),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                               ),
@@ -655,7 +658,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF1c1d22),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.06)),
+                      border: Border.all(color: const Color(0x0FFFFFFF)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -768,7 +771,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF1c1d22),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: Colors.white.withOpacity(0.06)),
+                  border: Border.all(color: const Color(0x0FFFFFFF)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -781,9 +784,9 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10b981).withOpacity(0.14),
+                        color: const Color(0x2410B981),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: const Color(0xFF10b981).withOpacity(0.3)),
+                        border: Border.all(color: const Color(0x4D10B981)),
                       ),
                       child: const Center(
                         child: Text(
@@ -814,7 +817,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                           decoration: BoxDecoration(
                             color: const Color(0xFF15161a),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.white.withOpacity(0.04)),
+                            border: Border.all(color: const Color(0x0AFFFFFF)),
                           ),
                           child: Row(
                             children: [
@@ -823,8 +826,8 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                                 height: 24,
                                 decoration: BoxDecoration(
                                   color: app['name'] == 'Claude'
-                                      ? const Color(0xFFf97316).withOpacity(0.2)
-                                      : const Color(0xFF2563eb).withOpacity(0.2),
+                                      ? const Color(0x33F97316)
+                                      : const Color(0x332563EB),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Center(
