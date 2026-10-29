@@ -2,7 +2,13 @@
 
 An experimental Windows-first FlClash v0.9.2 integration of ProxyLane v1.3.5. A native Process Proxy sidebar page selects a new application and its children, using the current configured local listener and routing rules without enabling system proxy or TUN.
 
-**Not a validated Windows release.** Localization was generated with the pinned SDK; full Flutter analysis and 307 focused Flutter/widget/l10n checks passed on Linux. Four actual mock-widget previews were rendered. MinGW x64 syntax/COFF checks do not establish MSVC ABI, a Windows app build, injection correctness or traffic routing. See [validation](VALIDATION.md), [capabilities](CAPABILITIES.md) and [architecture](ARCHITECTURE.en.md).
+**An unsigned experimental Windows x64 package is available; live runtime acceptance is still incomplete.** The full Flutter release application, Go/Rust assets and MSVC companion built successfully on Windows 2022. Eighteen packaging checks, three native policy suites, and archive CRC/SHA256 checks passed. Earlier Linux validation passed full Flutter analysis and 307 focused Flutter/widget/l10n checks, with four actual mock-widget previews. Compilation is not evidence of injection correctness, certificate behavior or live traffic routing. See [validation](VALIDATION.md), [capabilities](CAPABILITIES.md) and [architecture](ARCHITECTURE.en.md).
+
+## Download
+
+**[Download the Windows x64 portable application (~64.5 MB)](https://github.com/lijing6006/Flclash-Jing/releases/download/windows-preview-27b0c3bdcbc1-40803709620/Flclash-Jing-windows-x64-preview-27b0c3bdcbc1.zip)** · [Release and checksums](https://github.com/lijing6006/Flclash-Jing/releases/tag/windows-preview-27b0c3bdcbc1-40803709620)
+
+Extract the entire ZIP and run **FlClash.exe**. Keep its DLLs, data, Core, Helper and companion beside it; this is the full app, not a bridge-only executable or an installer. The user-selected official **ProxyLane 1.3.5 backend is still required separately**. Back up existing FlClash settings, do not disable security software, and read [package limitations](WINDOWS_PACKAGE.md). Source/dependency ZIPs are for audit or rebuilding, not required to run the application.
 
 The repository provides native configuration/process search, strict core/listener/safe-mode gates, validated bypass rules, isolated external-backend sessions, and an experimental stdio companion/native advanced workspace. The companion owns the same runtime that launches the target; it has no network control listener. Decryption, QUIC decryption, monitoring and recording start off; current-user CA changes require separate explicit confirmation.
 
@@ -13,6 +19,8 @@ Build prerequisites follow upstream Flutter 3.47.6. Run `flutter pub get`, `dart
 IP bypass applies to upstream's IP representation only when no hostname is available. Add corporate domains explicitly; local DNS is the default and private DNS is never redirected to a public resolver. Existing browser singletons can reuse an unproxied instance. Current FlClash rules still determine DIRECT/proxy selection. No anti-cheat/security-product workarounds, no automatic certificate installation, and no claim of fail-closed protection. macOS is out of scope.
 
 GPL-3.0, preserving upstream FlClash notices. ProxyLane's MIT and third-party notices remain separate. [Original upstream README](UPSTREAM_README.en.md).
+
+The published preview already bundles the separately built companion. It does not bundle the external ProxyLane backend.
 
 ## Optional bundled companion
 

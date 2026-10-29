@@ -4,8 +4,16 @@
 
 基于 FlClash **v0.9.2** 的 Windows 优先实验性改造：在侧栏增加「进程代理」，使用当前 FlClash 本地代理监听端口，让明确选择的新启动应用及子进程使用当前节点/规则，而不用开启系统代理或 TUN。
 
-> **开发中，尚未完成 Windows 构建与真实流量验收，不是正式可用发行版。**
+> **Windows x64 实验预览包已发布；完整应用编译与打包验证通过，真实进程/流量/证书运行验收仍未完成，不是稳定发行版。**
 > 不把「已启动后端」当作「已验证目标流量被代理」。高级功能已有原生源码，但仍有明确兼容边界；完整状态见[能力矩阵](docs/process-proxy/CAPABILITIES.md)。
+
+## 下载 Windows 应用
+
+**[下载 Windows x64 便携包（约 64.5 MB）](https://github.com/lijing6006/Flclash-Jing/releases/download/windows-preview-27b0c3bdcbc1-40803709620/Flclash-Jing-windows-x64-preview-27b0c3bdcbc1.zip)** · [发布页与校验值](https://github.com/lijing6006/Flclash-Jing/releases/tag/windows-preview-27b0c3bdcbc1-40803709620)
+
+完整解压后运行 **FlClash.exe**，不要只复制一个 EXE；同目录 DLL、data、Core、Helper 和 companion 都要保留。不是只有桥接程序，也不是安装器。
+
+进程代理仍须自行取得并选择官方 **ProxyLane v1.3.5 完整安装**；后端未随包分发。未签名、未完成真实流量验收，请先备份已有 FlClash 配置，不要关闭安全软件。源码和 dependency-source ZIP 供复核/重建，运行应用不需要下载它们。[详细说明](docs/process-proxy/WINDOWS_PACKAGE.md)。
 
 ## 已实现的源代码
 
@@ -29,7 +37,7 @@ flutter analyze --no-fatal-infos
 flutter test test/services/process_proxy*_test.dart test/views/process_proxy*_test.dart test/l10n
 ```
 
-本轮已正式生成7语本地化代码；Linux完整Flutter分析0问题，307项focused Flutter/widget/l10n检查通过，4个带MOCK标识的真实Widget预览渲染通过。原生bridge通过MinGW x64语法/COFF编译检查，但**不是MSVC/Windows应用构建或真实流量验收**。[安全验证环境](docs/process-proxy/VALIDATION_ENVIRONMENT.md)。
+本轮已正式生成7语本地化代码；Linux完整Flutter分析0问题，307项focused Flutter/widget/l10n检查通过，4个带MOCK标识的真实Widget预览渲染通过。随后 Windows 2022/MSVC 完整 release 应用（含 Go/Rust 资产及 companion）已构建成功，18 项打包检查与 3 个原生策略套件通过，ZIP 内容/CRC/SHA256 校验通过；**这仍不是真实流量、注入或证书运行验收**。[安全验证环境](docs/process-proxy/VALIDATION_ENVIRONMENT.md)。
 
 Windows companion 构建见 `windows/proxylane_bridge/README.md`。不分发 ProxyLane 二进制，用户需要自行取得官方完整 v1.3.5 安装；后端版本不匹配时拒绝启动。默认构建没有 companion 时只提供明确标记的兼容启动路径，不视为全功能原生集成完成。
 

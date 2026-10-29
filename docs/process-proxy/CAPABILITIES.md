@@ -1,6 +1,6 @@
 # 能力矩阵 / Capability matrix
 
-`源代码已实现` ≠ `Windows 实测通过`。所有 Windows runtime 行均待平台验收。
+完整 Windows 应用已编译并打包发布，但 `编译/打包通过` ≠ `Windows 真实流量实测通过`。所有 Windows runtime 行均待平台验收。[下载与构建边界](WINDOWS_PACKAGE.md)。
 
 | ProxyLane 能力 | Flclash-Jing 对应 | 边界 / Status |
 |---|---|---|
@@ -31,4 +31,4 @@ The full upstream feature surface is **not yet completely migrated**. This matri
 - Native companion roots are x64 EXEs. Existing-process attach, UWP/scripts, native ARM64 roots and x86 native advanced sessions are not implemented. Compatibility CLI is explicitly separate.
 - Profiles use strict Flclash-Jing JSON, not upstream INI import/export. No compatibility is implied.
 - Queries are bounded/manual snapshots and paged offline browsing, not a promise of identical upstream automatic-history/visualization behavior.
-- ProxyLane binaries are not bundled; official matching backend files and a built companion are needed. Windows behavior and platform packaging remain unverified.
+- ProxyLane binaries are not bundled; official matching backend files are still needed. The published Windows preview includes the built companion and passed full app compilation/package checks. Windows process/traffic/certificate behavior remains unverified.

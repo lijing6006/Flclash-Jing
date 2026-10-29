@@ -1,5 +1,17 @@
 # 迭代与验证 / Iteration and validation
 
+## 2026-10-29 Windows 应用包 / Actual Windows package
+
+- 公开预览源码 commit：`27b0c3bdcbc16ee88a06d40db96e45ca576954dc`。
+- [完整 Windows 构建与发布 run](https://github.com/lijing6006/Flclash-Jing/actions/runs/40803709620)：两个 job 全部成功；[常规源码/便携/MSVC 检查](https://github.com/lijing6006/Flclash-Jing/actions/runs/40803709656)也全部成功。
+- 真正的 Flutter release **FlClash.exe**、Go Core、Rust Helper/native library、MSVC companion 均构建成功。18 项 Python 打包策略/回归检查通过，C++ 的 protocol/UI-contract/Windows matcher 三个套件通过；完整 Flutter analyze 0 问题。
+- 原生依赖及 225 个 Dart 包来源已收集；字体和依赖许可保留。检查了 x64 PE 标记、必要运行库/资产、逐文件 SHA256、ZIP CRC 和读取后内容哈希；发布 job 再核对 SHA256SUMS，GitHub asset digest 一致。
+- [公开 prerelease](https://github.com/lijing6006/Flclash-Jing/releases/tag/windows-preview-27b0c3bdcbc1-40803709620) 不是 draft。应用 ZIP 64,497,296 字节；SHA256 `b182123a07868c24ea196c3c203f010461d23cbecdb021519d03d39f1ad697e6`。对应项目/Core 源码、依赖源码、manifest 与校验文件同时提供。
+- 真实失败没有被略过：修复 Windows Python 默认编码读中文、测试夹具 8.3 短路径比较，以及依赖文件 1980 年前时间戳的 ZIP 限制；全部回归重新通过。
+- **没有启动主应用/后端或执行注入、抓流量、证书、系统代理/TUN 操作。仍未完成实际 Windows 进程流量验收，未签名。** 外部 ProxyLane 后端继续由用户自行提供，许可未明的可选 EnableLoopback helper 不分发。
+
+The actual Windows application and native components compiled, packaged and published successfully; this supersedes earlier build-only blockers below, not the unrun runtime acceptance items. Download the application ZIP, not source ZIPs. All advanced compatibility and backend-distribution limits still apply.
+
 ## 已完成的真实轮次
 
 以下为各轮当时的验证记录；当前最终结果见下一节。
