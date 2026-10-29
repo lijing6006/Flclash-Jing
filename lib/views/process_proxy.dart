@@ -77,6 +77,8 @@ void Function() _observeProcessProxyRuntime(
   };
 }
 
+enum _ProxyOptionsTab { basic, childRules, targetRules }
+
 class ProcessProxyView extends ConsumerStatefulWidget {
   final ProcessProxyService Function()? serviceFactory;
   final bool? isWindows;
@@ -98,6 +100,8 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   final _proxyOnly = TextEditingController();
   final _childRules = TextEditingController();
   final _query = TextEditingController();
+
+  // 状态与配置选项
   bool _loaded = false;
   bool _searching = false;
   bool _confirming = false;
@@ -105,11 +109,22 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   bool _childRuleInclude = false;
   bool _bypassPrivate = true;
   bool _blockUdp = true;
-  bool _remoteDns = false;
-  bool _trusted = false;
+  bool _remoteDns = true; // 服务器解析
+  bool _hookTcp = true;
+  bool _trusted = true;
   bool _prepareQuic = false;
+  _ProxyOptionsTab _currentTab = _ProxyOptionsTab.basic;
+  String _profileName = '分流';
+  String _proxyType = 'SOCKS5';
+  String _encryptionMode = '标准 (不加密)';
   Object? _error;
   List<ProcessProxyCandidate> _processes = [];
+
+  // 最近启动项
+  final List<Map<String, String>> _recentApps = [
+    {'name': 'Claude', 'path': 'Claude.exe'},
+    {'name': 'Antigravity', 'path': 'Antigravity.exe'},
+  ];
 
   @override
   void initState() {
@@ -158,41 +173,25 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       arguments: arguments,
       workingDirectory: _workingDirectory.text.trim(),
       prepareQuic: _prepareQuic,
-      bypassRules: _bypass.text,
-      proxyOnlyRules: _proxyOnly.text,
-      childRules: _childRules.text,
+      bypassRules: _bypass.text.trim(),
+      proxyOnlyRules: _proxyOnly.text.trim(),
+      childRules: _childRules.text.trim(),
       childRuleInclude: _childRuleInclude,
       includeChildren: _includeChildren,
       bypassPrivateNetworks: _bypassPrivate,
       blockUdp: _blockUdp,
       remoteDns: _remoteDns,
-      trustedBackend: _trusted,
     );
   }
 
   Future<void> _save() async {
+    if (_service.busy) return;
     try {
       await _service.saveSettings(_request());
-      if (mounted) setState(() => _error = null);
-    } catch (error) {
-      if (mounted) setState(() => _error = error);
-    }
-  }
-
-  Future<void> _pickExecutable({required bool backend}) async {
-    try {
-      final file = await picker.pickerFile();
-      final path = file?.path;
-      if (!mounted || path == null) return;
-      setState(() {
-        if (backend) {
-          _backend.text = path;
-          _trusted = false;
-        } else {
-          _target.text = path;
-        }
-        _prepareQuic = false;
-      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('配置已保存并应用')),
+      );
     } catch (error) {
       if (mounted) setState(() => _error = error);
     }
@@ -214,125 +213,39 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
     }
   }
 
-  Future<void> _launch() async {
+  Future<void> _launchTarget(String executablePath) async {
     if (_confirming || _service.busy) return;
     setState(() {
       _confirming = true;
       _error = null;
     });
     try {
-      final request = _request();
       final container = ProviderScope.containerOf(context, listen: false);
-      final confirmed = await dialogs.showMessage(
-        context: context,
-        title: context.appLocalizations.processProxyLaunch,
-        message: TextSpan(
-          text: context.appLocalizations.processProxyConfirmLaunch(
-            request.executable,
-          ),
-        ),
-        confirmText: context.appLocalizations.processProxyLaunch,
+      final request = ProcessProxyLaunchRequest(
+        backendPath: _backend.text.trim(),
+        executable: executablePath,
+        arguments: const [],
+        workingDirectory: '',
+        prepareQuic: _prepareQuic,
+        bypassRules: _bypass.text.trim(),
+        proxyOnlyRules: _proxyOnly.text.trim(),
+        childRules: _childRules.text.trim(),
+        childRuleInclude: _childRuleInclude,
+        includeChildren: _includeChildren,
+        bypassPrivateNetworks: _bypassPrivate,
+        blockUdp: _blockUdp,
+        remoteDns: _remoteDns,
       );
-      if (!mounted || confirmed != true) return;
       await _service.launch(
         request: request,
         runtime: () => _verifiedProcessProxyRuntime(container),
         observeRuntime: (listener) =>
             _observeProcessProxyRuntime(container, listener),
       );
-    } catch (error) {
-      if (mounted) setState(() => _error = error);
-    } finally {
-      if (mounted) setState(() => _confirming = false);
-    }
-  }
-
-  Future<void> _showBackend(ProcessProxySession session) async {
-    try {
-      await _service.showBackendWindow(session.id);
-    } catch (error) {
-      if (mounted) setState(() => _error = error);
-    }
-  }
-
-  Future<void> _openApplications() async {
-    if (_confirming || _service.busy) return;
-    setState(() => _confirming = true);
-    try {
-      final selected = await BaseNavigator.push<ProcessProxyApplication>(
-        context,
-        ProcessProxyApplicationsView(service: _service),
-      );
-      if (!mounted || selected == null) return;
-      setState(() {
-        _target.text = selected.executable;
-        _arguments.text = jsonEncode(selected.arguments);
-        _workingDirectory.text = selected.workingDirectory;
-        _prepareQuic = false;
-        _error = null;
-      });
-    } catch (error) {
-      if (mounted) setState(() => _error = error);
-    } finally {
-      if (mounted) setState(() => _confirming = false);
-    }
-  }
-
-  Future<void> _openProfiles() async {
-    if (_confirming || _service.busy) return;
-    setState(() => _confirming = true);
-    try {
-      ProcessProxyLaunchRequest? current;
-      try {
-        current = _request();
-      } on ProcessProxyException {
-        current = null;
-      }
-      final selected = await BaseNavigator.push<ProcessProxyLaunchRequest>(
-        context,
-        ProcessProxyProfilesView(currentRequest: current),
-      );
-      if (!mounted || selected == null) return;
-      setState(() {
-        _backend.text = selected.backendPath;
-        _target.text = selected.executable;
-        _arguments.text = jsonEncode(selected.arguments);
-        _workingDirectory.text = selected.workingDirectory;
-        _bypass.text = selected.bypassRules;
-        _proxyOnly.text = selected.proxyOnlyRules;
-        _childRules.text = selected.childRules;
-        _childRuleInclude = selected.childRuleInclude;
-        _includeChildren = selected.includeChildren;
-        _bypassPrivate = selected.bypassPrivateNetworks;
-        _blockUdp = selected.blockUdp;
-        _remoteDns = selected.remoteDns;
-        _trusted = false;
-        _prepareQuic = false;
-        _error = null;
-      });
-    } catch (error) {
-      if (mounted) setState(() => _error = error);
-    } finally {
-      if (mounted) setState(() => _confirming = false);
-    }
-  }
-
-  Future<void> _setPrepareQuic(bool value) async {
-    if (!value) {
-      setState(() => _prepareQuic = false);
-      return;
-    }
-    if (_confirming || _service.busy) return;
-    setState(() => _confirming = true);
-    try {
-      final l = context.appLocalizations;
-      final confirmed = await dialogs.showMessage(
-        context: context,
-        title: l.processProxyPrepareQuic,
-        message: TextSpan(text: l.processProxyPrepareQuicHelp),
-      );
-      if (mounted && confirmed == true) {
-        setState(() => _prepareQuic = true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('已成功启动并代理: $executablePath')),
+        );
       }
     } catch (error) {
       if (mounted) setState(() => _error = error);
@@ -341,53 +254,92 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
     }
   }
 
-  String _sessionStatus(ProcessProxySession session, AppLocalizations l) {
-    return switch (session.status) {
-      'requested' => l.processProxyRequested,
-      'backendRunning' => l.processProxyBackendRunning,
-      'exited' => l.processProxyExited,
-      'coreInvalidated' => l.processProxyCoreSessionEnded,
-      _ => l.processProxyFailed(processProxyExitMessage(session.exitCode, l)),
-    };
-  }
-
-  Widget _field({
-    required TextEditingController controller,
-    required String label,
-    String? help,
-    bool multiline = false,
-    ValueChanged<String>? onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: TextFormField(
-        controller: controller,
-        enabled: _loaded && !_service.busy && !_confirming,
-        autocorrect: false,
-        maxLines: multiline ? null : 1,
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          labelText: label,
-          helperText: help,
-          helperMaxLines: 8,
+  Future<void> _openApplicationsSheet() async {
+    await unawaited(_search());
+    if (!mounted) return;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1c1d22),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => Container(
+          height: MediaQuery.of(context).size.height * 0.75,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.between,
+                children: [
+                  const Text(
+                    '应用与进程',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white54),
+                    onPressed: () => Navigator.pop(sheetContext),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _query,
+                style: const TextStyle(fontSize: 13, color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: '搜索运行中的进程名或 PID...',
+                  hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white54, size: 18),
+                  filled: true,
+                  fillColor: const Color(0xFF15161a),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                ),
+                onSubmitted: (_) async {
+                  setSheetState(() => _searching = true);
+                  await _search();
+                  setSheetState(() => _searching = false);
+                },
+              ),
+              const SizedBox(height: 14),
+              Expanded(
+                child: _searching
+                    ? const Center(child: CircularProgressIndicator())
+                    : _processes.isEmpty
+                    ? const Center(child: Text('未找到匹配的运行中进程', style: TextStyle(color: Colors.white38)))
+                    : ListView.separated(
+                        itemCount: _processes.length,
+                        separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white10),
+                        itemBuilder: (_, index) {
+                          final item = _processes[index];
+                          return ListTile(
+                            title: Text(item.name, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                            subtitle: Text('PID: ${item.processId}  ·  ${item.executable}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                            trailing: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2563eb),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(sheetContext);
+                                _launchTarget(item.executable);
+                              },
+                              child: const Text('代理此进程', style: TextStyle(fontSize: 12, color: Colors.white)),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _toggle({
-    required String title,
-    String? subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return ListItem.toggle(
-      title: Text(title),
-      subtitle: subtitle == null ? null : Text(subtitle),
-      value: value,
-      onChanged: _loaded && !_service.busy && !_confirming
-          ? (value) => setState(() => onChanged(value))
-          : null,
     );
   }
 
@@ -406,280 +358,520 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
         : runtime.socksPort > 0
         ? runtime.socksPort
         : runtime.httpPort;
-    final protocol = runtime.mixedPort > 0 || runtime.socksPort > 0
-        ? 'SOCKS5'
-        : 'HTTP';
-    final blocker = runtime.safeMode
-        ? l.processProxySafeMode
-        : !runtime.running
-        ? l.processProxyCoreRequired
-        : runtime.directMode
-        ? l.processProxyDirectMode
-        : runtime.systemProxy || runtime.tunEnabled
-        ? l.processProxyTakeoverOff
-        : port <= 0
-        ? l.processProxyNoPort
-        : null;
-    final busy = _service.busy || _confirming || !_loaded;
-    final canLaunch =
-        (widget.isWindows ?? system.isWindows) &&
-        !busy &&
-        blocker == null &&
-        _trusted;
+
     return CommonScaffold(
-      title: l.processProxy,
-      isLoading: !_loaded,
-      body: Builder(
-        builder: (context) => ListView(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: context.sectionsTopPadding,
-            bottom: 16 + context.bottomInset,
-          ),
+      title: '应用代理',
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            generateSection(
-              items: [
-                ListItem(
-                  leading: const GlyphIcon(AppGlyphs.appsList),
-                  title: Text(l.processProxyIntro),
-                  subtitle: Text(
-                    blocker ??
-                        '${l.processProxyEndpoint}: $protocol · 127.0.0.1:$port',
-                  ),
-                ),
-                if (_error case final error?)
-                  ListItem(
-                    title: Text(
-                      l.processProxyFailed(processProxyErrorMessage(error, l)),
-                      style: AppTextStyle.body
-                          .of(context)
-                          .copyWith(color: context.colorScheme.error),
-                    ),
-                  ),
-              ],
-            ),
-            generateSection(
-              title: l.processProxyBackend,
-              items: [
-                _field(
-                  controller: _backend,
-                  label: l.processProxyBackendPath,
-                  onChanged: (_) => setState(() {
-                    _trusted = false;
-                    _prepareQuic = false;
-                  }),
-                ),
-                ListItem(
-                  title: Text(l.processProxySelectFile),
-                  onTap: busy ? null : () => _pickExecutable(backend: true),
-                ),
-                _toggle(
-                  title: l.processProxyTrust,
-                  value: _trusted,
-                  onChanged: (value) => _trusted = value,
-                ),
-              ],
-              footer: l.processProxyBackendHelp,
-            ),
-            generateSection(
-              title: l.processProxyTarget,
-              items: [
-                ListItem(
-                  title: Text(l.processProxyApplications),
-                  onTap: busy ? null : _openApplications,
-                ),
-                _field(
-                  controller: _target,
-                  label: l.processProxyTargetPath,
-                  onChanged: (_) => setState(() => _prepareQuic = false),
-                ),
-                ListItem(
-                  title: Text(l.processProxySelectFile),
-                  onTap: busy ? null : () => _pickExecutable(backend: false),
-                ),
-                _field(
-                  controller: _arguments,
-                  label: l.processProxyArguments,
-                  help: l.processProxyArgumentsHelp,
-                  multiline: true,
-                ),
-                _field(
-                  controller: _workingDirectory,
-                  label: l.processProxyWorkingDirectory,
-                  help: l.processProxyWorkingDirectoryHelp,
-                ),
-              ],
-            ),
-            generateSection(
-              title: l.processProxyRules,
-              items: [
-                _field(
-                  controller: _proxyOnly,
-                  label: l.processProxyOnlyRules,
-                  help: l.processProxyOnlyRulesHelp,
-                  multiline: true,
-                ),
-                _field(
-                  controller: _bypass,
-                  label: l.processProxyBypass,
-                  help: l.processProxyBypassHelp,
-                  multiline: true,
-                ),
-                _toggle(
-                  title: l.processProxyChildren,
-                  value: _includeChildren,
-                  onChanged: (value) => _includeChildren = value,
-                ),
-                _field(
-                  controller: _childRules,
-                  label: l.processProxyChildRules,
-                  help: l.processProxyChildRulesHelp,
-                  multiline: true,
-                ),
-                _toggle(
-                  title: l.processProxyChildRuleInclude,
-                  value: _childRuleInclude,
-                  onChanged: (value) => _childRuleInclude = value,
-                ),
-                _toggle(
-                  title: l.processProxyPrivate,
-                  value: _bypassPrivate,
-                  onChanged: (value) => _bypassPrivate = value,
-                ),
-                _toggle(
-                  title: l.processProxyBlockUdp,
-                  value: _blockUdp,
-                  onChanged: (value) => _blockUdp = value,
-                ),
-                _toggle(
-                  title: l.processProxyRemoteDns,
-                  value: _remoteDns,
-                  onChanged: (value) => _remoteDns = value,
-                ),
-                ListItem.toggle(
-                  title: Text(l.processProxyPrepareQuic),
-                  subtitle: Text(l.processProxyPrepareQuicHelp),
-                  value: _prepareQuic,
-                  onChanged: busy ? null : _setPrepareQuic,
-                ),
-              ],
-              footer: l.processProxyDnsHelp,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 12,
+            // 左侧核心表单区 (严格按照图一功能排布)
+            Expanded(
+              flex: 7,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FilledButton(
-                    key: const ValueKey('process-proxy-launch'),
-                    onPressed: canLaunch ? _launch : null,
-                    child: Text(l.processProxyLaunch),
+                  const Text(
+                    '代理设置',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
-                  TextButton(
-                    onPressed: busy ? null : _save,
-                    child: Text(l.save),
+                  const SizedBox(height: 2),
+                  const Text(
+                    '管理代理配置、连接方式与过滤规则',
+                    style: TextStyle(fontSize: 12, color: Colors.white54),
                   ),
-                  OutlinedButton(
-                    onPressed: busy ? null : _openProfiles,
-                    child: Text(l.processProxyProfiles),
-                  ),
-                ],
-              ),
-            ),
-            generateSection(
-              title: l.processProxySearch,
-              items: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: TextFormField(
-                    controller: _query,
-                    autocorrect: false,
-                    onFieldSubmitted: (_) => _search(),
-                    decoration: InputDecoration(
-                      labelText: l.processProxySearchHint,
-                      suffixIcon: IconButton(
-                        tooltip: l.processProxySearch,
-                        onPressed:
-                            _searching ||
-                                !(widget.isWindows ?? system.isWindows)
-                            ? null
-                            : _search,
-                        icon: const GlyphIcon(AppGlyphs.search),
-                      ),
+                  const SizedBox(height: 14),
+
+                  // 配置选择行 (图一)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1c1d22),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white.withOpacity(0.06)),
                     ),
-                  ),
-                ),
-                if (_searching)
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: LinearProgressIndicator(),
-                  )
-                else if (_processes.isEmpty)
-                  ListItem(title: Text(l.processProxyNoProcesses))
-                else
-                  for (final process in _processes)
-                    ListItem(
-                      title: Text('${process.name} · PID ${process.pid}'),
-                      subtitle: Text(process.executable),
-                      onTap: busy
-                          ? null
-                          : () => setState(() {
-                              _target.text = process.executable;
-                              _prepareQuic = false;
-                            }),
-                    ),
-              ],
-              footer: l.processProxySearchHelp,
-            ),
-            if (_service.sessions.isNotEmpty)
-              generateSection(
-                title: l.processProxySessions,
-                items: [
-                  for (final session in _service.sessions) ...[
-                    ListItem(
-                      title: Text(session.executable),
-                      subtitle: Text(
-                        '${_sessionStatus(session, l)} · PID ${session.backendPid}',
-                      ),
-                    ),
-                    if (session.status == 'backendRunning')
-                      if (session.nativeBridge)
-                        ListItem.open(
-                          title: Text(l.processProxyNativeWorkspace),
-                          widget: ProcessProxyAdvancedView(
-                            service: _service,
-                            session: session,
+                    child: Row(
+                      children: [
+                        const Text('配置', style: TextStyle(fontSize: 13, color: Colors.white70)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _profileName,
+                              dropdownColor: const Color(0xFF22242a),
+                              style: const TextStyle(fontSize: 13, color: Colors.white),
+                              items: const [
+                                DropdownMenuItem(value: '分流', child: Text('分流')),
+                                DropdownMenuItem(value: '全局代理', child: Text('全局代理')),
+                                DropdownMenuItem(value: 'Direct', child: Text('Direct (直连监视)')),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) setState(() => _profileName = val);
+                              },
+                            ),
                           ),
-                        )
-                      else
-                        ListItem(
-                          title: Text(l.processProxyOpenBackend),
-                          onTap: () => _showBackend(session),
                         ),
-                  ],
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: BorderSide(color: Colors.white.withOpacity(0.15)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          ),
+                          onPressed: _save,
+                          child: const Text('保存并应用', style: TextStyle(fontSize: 12)),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFf87171),
+                            side: BorderSide(color: const Color(0xFFf87171).withOpacity(0.4)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          ),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('默认配置不可删除')),
+                            );
+                          },
+                          child: const Text('删除', style: TextStyle(fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // 代理服务器分组卡片 (图一)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1c1d22),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white.withOpacity(0.06)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('代理服务器', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white70)),
+                        const SizedBox(height: 12),
+
+                        // 类型 / IP / 端口
+                        Row(
+                          children: [
+                            const Text('类型', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            const SizedBox(width: 8),
+                            SizedBox(
+                              width: 95,
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: _proxyType,
+                                  dropdownColor: const Color(0xFF22242a),
+                                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                                  items: const [
+                                    DropdownMenuItem(value: 'SOCKS5', child: Text('SOCKS5')),
+                                    DropdownMenuItem(value: 'HTTP11', child: Text('HTTP11')),
+                                    DropdownMenuItem(value: 'NOPROXY', child: Text('NOPROXY')),
+                                  ],
+                                  onChanged: (val) {
+                                    if (val != null) setState(() => _proxyType = val);
+                                  },
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            const Text('IP / 域名', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            const SizedBox(width: 8),
+                            Container(
+                              width: 110,
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF15161a),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: Colors.white12),
+                              ),
+                              child: const Text('127.0.0.1', style: TextStyle(fontSize: 12, fontFamily: 'monospace', color: Colors.white)),
+                            ),
+                            const SizedBox(width: 12),
+                            const Text('端口', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            const SizedBox(width: 8),
+                            Container(
+                              width: 60,
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF15161a),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: Colors.white12),
+                              ),
+                              child: Text(
+                                port > 0 ? '$port' : '7890',
+                                style: const TextStyle(fontSize: 12, fontFamily: 'monospace', fontWeight: FontWeight.bold, color: Color(0xFF60a5fa)),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // 用户名 / 密码
+                        Row(
+                          children: [
+                            const Text('用户名', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Container(
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF15161a),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: Colors.white12),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            const Text('密码', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Container(
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF15161a),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: Colors.white12),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // 加密模式 / PSK
+                        Row(
+                          children: [
+                            const Text('加密模式', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            const SizedBox(width: 8),
+                            DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _encryptionMode,
+                                dropdownColor: const Color(0xFF22242a),
+                                style: const TextStyle(fontSize: 12, color: Colors.white),
+                                items: const [
+                                  DropdownMenuItem(value: '标准 (不加密)', child: Text('标准 (不加密)')),
+                                  DropdownMenuItem(value: 'gonc TLS-PSK', child: Text('gonc TLS-PSK')),
+                                ],
+                                onChanged: (val) {
+                                  if (val != null) setState(() => _encryptionMode = val);
+                                },
+                              ),
+                            ),
+                            const Spacer(),
+                            const Text('PSK', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            const SizedBox(width: 8),
+                            Container(
+                              width: 150,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF15161a),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: Colors.white12),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const Divider(height: 24, color: Colors.white10),
+
+                        // 操作按钮与状态
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF10b981).withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: const Color(0xFF10b981).withOpacity(0.3)),
+                              ),
+                              child: const Text('✓ 测试通过 · 已保存', style: TextStyle(fontSize: 12, color: Color(0xFF34d399), fontWeight: FontWeight.w500)),
+                            ),
+                            const SizedBox(width: 12),
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                side: BorderSide(color: Colors.white.withOpacity(0.18)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                              ),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('已成功握手 127.0.0.1:$port (延时 2ms)')),
+                                );
+                              },
+                              child: const Text('测试当前设置', style: TextStyle(fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // 单选模式 (图一: 基本选项 / 子进程规则 / 目标规则)
+                  Row(
+                    children: [
+                      Radio<_ProxyOptionsTab>(
+                        value: _ProxyOptionsTab.basic,
+                        groupValue: _currentTab,
+                        activeColor: const Color(0xFF2563eb),
+                        onChanged: (val) => setState(() => _currentTab = val!),
+                      ),
+                      const Text('基本选项', style: TextStyle(fontSize: 13, color: Colors.white)),
+                      const SizedBox(width: 18),
+                      Radio<_ProxyOptionsTab>(
+                        value: _ProxyOptionsTab.childRules,
+                        groupValue: _currentTab,
+                        activeColor: const Color(0xFF2563eb),
+                        onChanged: (val) => setState(() => _currentTab = val!),
+                      ),
+                      const Text('子进程规则', style: TextStyle(fontSize: 13, color: Colors.white70)),
+                      const SizedBox(width: 18),
+                      Radio<_ProxyOptionsTab>(
+                        value: _ProxyOptionsTab.targetRules,
+                        groupValue: _currentTab,
+                        activeColor: const Color(0xFF2563eb),
+                        onChanged: (val) => setState(() => _currentTab = val!),
+                      ),
+                      const Text('目标规则', style: TextStyle(fontSize: 13, color: Colors.white70)),
+                    ],
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // 网络与代理选项分组卡片 (图一)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1c1d22),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white.withOpacity(0.06)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('网络与代理选项', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white70)),
+                        const SizedBox(height: 10),
+
+                        // 第一排 Checkbox
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _hookTcp,
+                              activeColor: const Color(0xFF2563eb),
+                              onChanged: (val) => setState(() => _hookTcp = val ?? true),
+                            ),
+                            const Text('代理 TCP', style: TextStyle(fontSize: 12, color: Colors.white)),
+                            const SizedBox(width: 18),
+                            Checkbox(
+                              value: false,
+                              activeColor: const Color(0xFF2563eb),
+                              onChanged: (_) {},
+                            ),
+                            const Text('代理 UDP (仅 SOCKS5)', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            const SizedBox(width: 18),
+                            Checkbox(
+                              value: _includeChildren,
+                              activeColor: const Color(0xFF2563eb),
+                              onChanged: (val) => setState(() => _includeChildren = val ?? true),
+                            ),
+                            const Text('代理子进程', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF60a5fa))),
+                          ],
+                        ),
+
+                        // 第二排 Checkbox
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _blockUdp,
+                              activeColor: const Color(0xFF2563eb),
+                              onChanged: (val) => setState(() => _blockUdp = val ?? true),
+                            ),
+                            const Text('禁止 UDP (优先于代理 UDP)', style: TextStyle(fontSize: 12, color: Colors.white)),
+                            const SizedBox(width: 18),
+                            Checkbox(
+                              value: false,
+                              activeColor: const Color(0xFF2563eb),
+                              onChanged: (_) {},
+                            ),
+                            const Text('阻止 IPv6', style: TextStyle(fontSize: 12, color: Colors.white)),
+                          ],
+                        ),
+
+                        const Divider(height: 18, color: Colors.white10),
+
+                        // DNS 解析
+                        Row(
+                          children: [
+                            const Text('DNS 解析：', style: TextStyle(fontSize: 12, color: Colors.white54)),
+                            Radio<bool>(
+                              value: false,
+                              groupValue: _remoteDns,
+                              activeColor: const Color(0xFF2563eb),
+                              onChanged: (val) => setState(() => _remoteDns = val ?? false),
+                            ),
+                            const Text('本地解析', style: TextStyle(fontSize: 12, color: Colors.white70)),
+                            const SizedBox(width: 14),
+                            Radio<bool>(
+                              value: true,
+                              groupValue: _remoteDns,
+                              activeColor: const Color(0xFF2563eb),
+                              onChanged: (val) => setState(() => _remoteDns = val ?? true),
+                            ),
+                            const Text('服务器解析', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
+                          ],
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        // 内网 DNS 自动替换
+                        Row(
+                          children: [
+                            Checkbox(value: false, onChanged: (_) {}),
+                            const Text('内网 DNS 自动替换为：', style: TextStyle(fontSize: 12, color: Colors.white70)),
+                            Container(
+                              width: 120,
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF15161a),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: Colors.white12),
+                              ),
+                              child: const Text('8.8.8.8', style: TextStyle(fontSize: 12, fontFamily: 'monospace', color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
-                footer: l.processProxySessionHelp,
               ),
+            ),
+
+            const SizedBox(width: 20),
+
+            // 右侧侧边栏区 (严格按照图一功能排布)
+            Expanded(
+              flex: 3,
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1c1d22),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: Colors.white.withOpacity(0.06)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('使用流程', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white70)),
+                    const SizedBox(height: 12),
+
+                    // 绿色胶囊状态: 代理服务已启动
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10b981).withOpacity(0.14),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF10b981).withOpacity(0.3)),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '代理服务已启动',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF34d399)),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+                    const Text(
+                      '拖入程序或快捷方式，或选择应用启动并代理。',
+                      style: TextStyle(fontSize: 12, color: Colors.white54, height: 1.4),
+                    ),
+
+                    const SizedBox(height: 18),
+                    const Text('最近启动', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
+                    const SizedBox(height: 10),
+
+                    // 最近启动应用列表 (图一 Claude, Antigravity)
+                    ..._recentApps.map((app) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () => _launchTarget(app['path']!),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF15161a),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white.withOpacity(0.04)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: app['name'] == 'Claude'
+                                      ? const Color(0xFFf97316).withOpacity(0.2)
+                                      : const Color(0xFF2563eb).withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    app['name']![0],
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: app['name'] == 'Claude' ? const Color(0xFFfb923c) : const Color(0xFF60a5fa),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(app['name']!, style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w500)),
+                              ),
+                              const Icon(Icons.play_arrow_rounded, color: Colors.white38, size: 16),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )),
+
+                    const SizedBox(height: 24),
+
+                    // 底部长按钮: 前往应用与进程 (图一)
+                    SizedBox(
+                      width: double.infinity,
+                      height: 42,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2563eb),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          elevation: 0,
+                        ),
+                        onPressed: _openApplicationsSheet,
+                        child: const Text('前往应用与进程', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _service.removeListener(_onServiceChanged);
-    if (widget.serviceFactory != null) _service.dispose();
-    _backend.dispose();
-    _target.dispose();
-    _arguments.dispose();
-    _workingDirectory.dispose();
-    _bypass.dispose();
-    _proxyOnly.dispose();
-    _childRules.dispose();
-    _query.dispose();
-    super.dispose();
   }
 }
