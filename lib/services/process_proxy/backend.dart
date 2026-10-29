@@ -146,7 +146,7 @@ $names = 'ProxyLane.exe','ProxyLane64.exe','ProxyLaneHook32.dll','ProxyLaneHook6
   final versions = jsonDecode(data);
   if (versions is! List ||
       versions.length != processProxyCoreFiles.length ||
-      versions.any((v) => v != processProxyBackendVersion)) {
+      versions.any((v) => !RegExp(r'^1\.[23]\.').hasMatch(v.toString()))) {
     throw const ProcessProxyException('backendVersionMismatch');
   }
 }
