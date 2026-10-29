@@ -18,7 +18,9 @@ const _settings = ProcessProxyLaunchRequest(
   backendPath: r'C:\ProxyLane\ProxyLane64.exe',
   executable: r'C:\Apps\Example.exe',
   arguments: ['--profile', 'Work'],
+  workingDirectory: r'C:\Work',
   trustedBackend: true,
+  prepareQuic: true,
   decryptHttps: true,
 );
 
@@ -59,6 +61,19 @@ class _FakeService extends ProcessProxyService {
       ),
     ];
   }
+
+  @override
+  Future<List<ProcessProxyApplication>> searchApplications(
+    String query,
+  ) async => const [
+    ProcessProxyApplication(
+      name: 'Shortcut App',
+      executable: r'C:\Apps\Shortcut.exe',
+      arguments: ['--work', 'Profile A'],
+      workingDirectory: r'C:\Work',
+      source: 'start-menu',
+    ),
+  ];
 
   @override
   Future<void> launch({
@@ -140,7 +155,18 @@ void main() {
     );
     expect(target.controller!.text, _settings.executable);
     expect(
+      tester
+          .widget<TextFormField>(find.byType(TextFormField).at(3))
+          .controller!
+          .text,
+      _settings.workingDirectory,
+    );
+    expect(
       tester.widget<CommonSwitch>(find.byType(CommonSwitch).first).value,
+      isFalse,
+    );
+    expect(
+      tester.widget<CommonSwitch>(find.byType(CommonSwitch).last).value,
       isFalse,
     );
     expect(
@@ -192,6 +218,40 @@ void main() {
     expect(service.launches, 0);
   });
 
+  testWidgets(
+    'installed app selection preserves arguments and cwd without launch',
+    (tester) async {
+      final service = _FakeService();
+      await _pump(tester, service);
+      await tester.tap(
+        find.text(currentAppLocalizations.processProxyApplications),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Shortcut App'));
+      await tester.pumpAndSettle();
+      final fields = tester.widgetList<TextFormField>(
+        find.byType(TextFormField),
+      );
+      expect(
+        fields.any(
+          (field) => field.controller?.text == r'C:\Apps\Shortcut.exe',
+        ),
+        isTrue,
+      );
+      expect(
+        fields.any((field) => field.controller?.text == r'C:\Work'),
+        isTrue,
+      );
+      expect(
+        fields.any(
+          (field) => field.controller?.text == '["--work","Profile A"]',
+        ),
+        isTrue,
+      );
+      expect(service.launches, 0);
+    },
+  );
+
   testWidgets('malformed argument JSON is rejected before saving', (
     tester,
   ) async {
@@ -227,6 +287,46 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'QUIC preparation needs separate consent and resets for a new target',
+    (tester) async {
+      final service = _FakeService();
+      await _pump(tester, service);
+      final l = currentAppLocalizations;
+      await tester.tap(find.byType(CommonSwitch).last);
+      await tester.pumpAndSettle();
+      expect(service.launches, 0);
+      expect(
+        tester.widget<CommonSwitch>(find.byType(CommonSwitch).last).value,
+        isFalse,
+      );
+      await tester.tap(find.text(l.cancel));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<CommonSwitch>(find.byType(CommonSwitch).last).value,
+        isFalse,
+      );
+      await tester.tap(find.byType(CommonSwitch).last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.confirm));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<CommonSwitch>(find.byType(CommonSwitch).last).value,
+        isTrue,
+      );
+      await tester.enterText(
+        find.byType(TextFormField).at(1),
+        r'C:\Apps\Different.exe',
+      );
+      await tester.pump();
+      expect(
+        tester.widget<CommonSwitch>(find.byType(CommonSwitch).last).value,
+        isFalse,
+      );
+      expect(service.launches, 0);
+    },
+  );
 
   testWidgets(
     'confirmed launch verifies applied inputs and survives navigation',

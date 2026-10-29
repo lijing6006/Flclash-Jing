@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'policy.dart';
+import 'applications.dart';
 
 const processProxyBackendVersion = '1.3.5';
 const processProxyCoreFiles = [
@@ -119,6 +120,13 @@ $session = (Get-Process -Id $PID).SessionId
   Select-Object -First 10000 ProcessId,Name,ExecutablePath) | ConvertTo-Json -Compress
 ''');
   return parseProcessCandidates(data, query);
+}
+
+Future<List<ProcessProxyApplication>> searchWindowsApplications(
+  String query,
+) async {
+  final data = await _runPowerShell(processProxyApplicationQuery);
+  return parseApplicationCandidates(data, query);
 }
 
 Future<void> verifyBackendVersion(String directory) async {

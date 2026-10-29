@@ -22,6 +22,10 @@ class ProcessProxyBridgeClient {
     'recording.stop',
     'replay.open',
     'replay.close',
+    'replay.rebuild_index',
+    'connections.prepare_reconnect',
+    'connections.reconnect',
+    'connections.cancel_reconnect',
     'ca.query',
     'ca.initialize',
     'ca.trust',
@@ -33,7 +37,7 @@ class ProcessProxyBridgeClient {
   final void Function(List<int> bytes) _write;
   final Future<void> Function() _closeTransport;
   final Duration timeout;
-  final Duration certificateTimeout;
+  final Duration interactiveTimeout;
   final int processId;
   final Future<int>? processExit;
   Future<void>? _closing;
@@ -50,7 +54,7 @@ class ProcessProxyBridgeClient {
     required void Function(List<int>) write,
     required Future<void> Function() closeTransport,
     this.timeout = const Duration(seconds: 15),
-    this.certificateTimeout = const Duration(seconds: 120),
+    this.interactiveTimeout = const Duration(seconds: 120),
     this.processId = 0,
     this.processExit,
   }) : _write = write,
@@ -133,8 +137,13 @@ class ProcessProxyBridgeClient {
     try {
       _write(bytes);
       return await completer.future.timeout(
-        const {'ca.initialize', 'ca.trust', 'ca.remove'}.contains(operation)
-            ? certificateTimeout
+        const {
+              'ca.initialize',
+              'ca.trust',
+              'ca.remove',
+              'replay.rebuild_index',
+            }.contains(operation)
+            ? interactiveTimeout
             : timeout,
       );
     } on TimeoutException {

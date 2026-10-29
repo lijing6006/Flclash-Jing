@@ -6,6 +6,23 @@ using namespace flclash_bridge;
 int main() {
   // Mirror advanced.dart's requests without loading a DLL or starting a process.
   const Json accepted = Json::parse(R"JSON([
+    ["configure", {
+      "backend_directory": "C:\\Private\\Backend", "port": 9527,
+      "proxy_type": "SOCKS5", "prepare_quic": false, "confirm_quic": false
+    }],
+    ["configure", {
+      "backend_directory": "C:\\Private\\Backend", "port": 9527,
+      "proxy_type": "SOCKS5", "block_udp": false,
+      "prepare_quic": true, "confirm_quic": true
+    }],
+    ["launch", {
+      "executable": "C:\\Tools\\App.exe", "arguments": [],
+      "working_directory": "", "confirm": true
+    }],
+    ["launch", {
+      "executable": "C:\\Tools\\App.exe", "arguments": ["argument with spaces"],
+      "working_directory": "C:\\Work", "confirm": true
+    }],
     ["status", {}],
     ["logs", {"after": 0, "limit": 64}],
     ["query", {"type": "stats"}],
@@ -32,6 +49,10 @@ int main() {
     ["query", {"type": "recording_status"}],
     ["replay.open", {"directory": "C:\\Private\\Recordings", "confirm": true}],
     ["replay.close", {}],
+    ["replay.rebuild_index", {"directory": "C:\\Private\\Recordings", "confirm": true}],
+    ["connections.prepare_reconnect", {}],
+    ["connections.reconnect", {"preparation_id": "1", "confirm": true}],
+    ["connections.cancel_reconnect", {"preparation_id": "1"}],
     ["query", {"type": "recording_page", "offset": 0, "limit": 16}],
     ["ca.query", {}],
     ["ca.initialize", {"scope": "current-user", "confirm": true}],
@@ -51,6 +72,33 @@ int main() {
   }
 
   const Json rejected = Json::parse(R"JSON([
+    ["configure", {
+      "backend_directory": "C:\\Private\\Backend", "port": 9527,
+      "proxy_type": "SOCKS5", "block_udp": false,
+      "prepare_quic": true, "confirm_quic": false
+    }, "confirmation_required"],
+    ["configure", {
+      "backend_directory": "C:\\Private\\Backend", "port": 9527,
+      "proxy_type": "SOCKS5", "block_udp": true,
+      "prepare_quic": true, "confirm_quic": true
+    }, "invalid_request"],
+    ["configure", {
+      "backend_directory": "C:\\Private\\Backend", "port": 9527,
+      "proxy_type": "HTTP11", "block_udp": false,
+      "prepare_quic": true, "confirm_quic": true
+    }, "invalid_request"],
+    ["launch", {
+      "executable": "C:\\Tools\\App.exe", "arguments": [],
+      "working_directory": "\\\\server\\share", "confirm": true
+    }, "invalid_request"],
+    ["launch", {
+      "executable": "C:\\Tools\\App.exe", "arguments": [],
+      "working_directory": "..\\Work", "confirm": true
+    }, "invalid_request"],
+    ["replay.rebuild_index", {"directory": "C:\\Private\\Recordings", "confirm": false}, "confirmation_required"],
+    ["connections.reconnect", {"preparation_id": "1", "confirm": false}, "confirmation_required"],
+    ["connections.reconnect", {"preparation_id": 1, "confirm": true}, "invalid_request"],
+    ["connections.reconnect", {"preparation_id": "1", "confirm": true, "pid": 42}, "invalid_request"],
     ["query", {"type": "ca.trust"}, "unsupported_operation"],
     ["ca.trust", {"scope": "machine", "confirm": true}, "invalid_request"],
     ["monitor.start", {

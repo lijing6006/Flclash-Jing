@@ -45,6 +45,8 @@ class _BridgeService extends ProcessProxyService {
       'operation': operation,
       'next': 7,
       'run_id': runId,
+      'preparation_id': '7',
+      'count': 2,
     };
   }
 }
@@ -228,6 +230,45 @@ void main() {
     await tester.pumpAndSettle();
     expect(service.calls.last.arguments['after'], 0);
   });
+
+  testWidgets(
+    'reconnect snapshot requires separate confirmation and cancel clears it',
+    (tester) async {
+      final service = await _pump(tester);
+      final l = currentAppLocalizations;
+      await tester.tap(
+        find.widgetWithText(OutlinedButton, l.processProxyReconnect),
+      );
+      await tester.pumpAndSettle();
+      expect(service.calls.last.operation, 'connections.prepare_reconnect');
+      await tester.tap(find.text(l.cancel));
+      await tester.pumpAndSettle();
+      expect(service.calls.last.operation, 'connections.cancel_reconnect');
+      expect(
+        service.calls.where((c) => c.operation == 'connections.reconnect'),
+        isEmpty,
+      );
+    },
+  );
+
+  testWidgets(
+    'reconnect confirms exact snapshot and does not report completion',
+    (tester) async {
+      final service = await _pump(tester);
+      final l = currentAppLocalizations;
+      await tester.tap(
+        find.widgetWithText(OutlinedButton, l.processProxyReconnect),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.confirm));
+      await tester.pumpAndSettle();
+      expect(service.calls.last.operation, 'connections.reconnect');
+      expect(service.calls.last.arguments, {
+        'preparation_id': '7',
+        'confirm': true,
+      });
+    },
+  );
 
   testWidgets('bridge failures hide diagnostics and allow retry', (
     tester,

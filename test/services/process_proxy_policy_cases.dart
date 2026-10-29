@@ -62,6 +62,33 @@ final Map<String, void Function()> processProxyPolicyCases = {
       _fails(() => validateExecutablePath(path), 'invalidExecutable');
     }
   },
+  'working directory is local and explicit with no network or dot paths': () {
+    validateWorkingDirectoryPath(r'C:\Apps\Profile');
+    validateWorkingDirectoryPath('');
+    for (final path in [
+      r'\\server\share',
+      r'C:\Apps\..',
+      r'C:\*',
+      'relative',
+      r'C:\Apps:other',
+    ]) {
+      _fails(
+        () => validateWorkingDirectoryPath(path),
+        'invalidWorkingDirectory',
+      );
+    }
+  },
+  'QUIC preparation consent is never persisted and requires UDP': () {
+    const request = ProcessProxyLaunchRequest(
+      backendPath: r'C:\Tools\ProxyLane64.exe',
+      executable: r'C:\Apps\app.exe',
+      prepareQuic: true,
+      trustedBackend: true,
+    );
+    _fails(request.validate, 'quicNeedsUdp');
+    _check(!request.toJson().containsKey('prepareQuic'));
+    _check(!ProcessProxyLaunchRequest.fromJson(request.toJson()).prepareQuic);
+  },
   'uses SOCKS fallback before HTTP': () {
     _check(_runtime(mixed: 0, socks: 1085, http: 8888).endpoint.port == 1085);
   },

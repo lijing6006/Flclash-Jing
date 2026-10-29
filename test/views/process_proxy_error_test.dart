@@ -120,4 +120,30 @@ void main() {
     expect(processProxyExitMessage(999, l), l.processProxyErrorGeneric);
     expect(processProxyExitMessage(null, l), l.processProxyErrorGeneric);
   });
+
+  test('working directory and QUIC preparation errors have safe guidance', () {
+    for (final entry in {
+      'invalidWorkingDirectory': l.processProxyErrorWorkingDirectory,
+      'nativeBridgeRequired': l.processProxyErrorNativeRequired,
+      'quicNeedsSocks': l.processProxyErrorQuicSocks,
+    }.entries) {
+      expect(
+        processProxyErrorMessage(
+          ProcessProxyException(entry.key, 'private'),
+          l,
+        ),
+        entry.value,
+      );
+    }
+    expect(
+      processProxyErrorMessage(
+        const ProcessProxyException(
+          'bridgeOperationFailed',
+          'quic_preparation_required',
+        ),
+        l,
+      ),
+      l.processProxyErrorQuicPrepare,
+    );
+  });
 }

@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/services/process_proxy.dart';
+import 'package:fl_clash/services/process_proxy/traffic.dart';
+import 'package:fl_clash/views/process_proxy/payload.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/views/process_proxy_error.dart';
 import 'package:flutter/foundation.dart' show compute;
@@ -57,6 +59,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
         '"pending_requests":8,"udp_packets":256,"handshake_seconds":15}',
   );
   final Map<_Panel, _Reply> _responses = {};
+  List<ProcessProxyTrafficRow> _trafficRows = [];
   bool _busy = false;
   bool _decryptHttps = false;
   bool _decryptQuic = false;
@@ -92,6 +95,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
     Map<String, dynamic> arguments = const {},
     String? confirmAction,
     bool certificateChange = false,
+    String? confirmationMessage,
   }) async {
     if (_busy) return;
     setState(() {
@@ -108,9 +112,11 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
           context: context,
           title: confirmAction,
           message: TextSpan(
-            text: certificateChange
-                ? '${l.processProxyConfirmCa(confirmAction)}\n\n${l.processProxyCaWarning}'
-                : l.processProxyConfirmAdvanced(confirmAction),
+            text:
+                confirmationMessage ??
+                (certificateChange
+                    ? '${l.processProxyConfirmCa(confirmAction)}\n\n${l.processProxyCaWarning}'
+                    : l.processProxyConfirmAdvanced(confirmAction)),
           ),
           confirmText: l.confirm,
           destructive: certificateChange,
@@ -129,6 +135,9 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
       if (!mounted) return;
       setState(() {
         _responses[panel] = formatted;
+        if (operation == 'query' && arguments['type'] == 'poll') {
+          _trafficRows = processProxyTrafficRows(response);
+        }
         if (operation == 'monitor.start' || operation == 'recording.start') {
           _after = 0;
           _runId = null;
@@ -150,9 +159,73 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
           }
         }
       });
+      if (operation == 'shutdown' && mounted) Navigator.of(context).pop();
     } catch (error) {
       if (mounted) setState(() => _error = error);
     } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _reconnect() async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    Object? preparation;
+    var consumed = false;
+    try {
+      final prepared = await widget.service.bridgeRequest(
+        widget.session.id,
+        'connections.prepare_reconnect',
+      );
+      preparation = prepared['preparation_id'];
+      final count = prepared['count'];
+      if (preparation is! String || count is! int || count < 0) {
+        throw const ProcessProxyException('bridgeProtocolError');
+      }
+      if (!mounted) return;
+      final l = context.appLocalizations;
+      if (count == 0) {
+        setState(
+          () => _responses[_Panel.overview] = (
+            text: l.processProxyReconnectNone,
+            truncated: false,
+          ),
+        );
+        return;
+      }
+      final confirmed = await dialogs.showMessage(
+        context: context,
+        title: l.processProxyReconnect,
+        message: TextSpan(text: l.processProxyReconnectConfirm(count)),
+        confirmText: l.confirm,
+        destructive: true,
+      );
+      if (!mounted || confirmed != true) return;
+      consumed = true;
+      final reply = await widget.service.bridgeRequest(
+        widget.session.id,
+        'connections.reconnect',
+        {'preparation_id': preparation, 'confirm': true},
+      );
+      final formatted =
+          await (widget.formatResponse?.call(reply) ??
+              compute(_formatReply, reply));
+      if (mounted) setState(() => _responses[_Panel.overview] = formatted);
+    } catch (error) {
+      if (mounted) setState(() => _error = error);
+    } finally {
+      if (!consumed && preparation is String) {
+        try {
+          await widget.service.bridgeRequest(
+            widget.session.id,
+            'connections.cancel_reconnect',
+            {'preparation_id': preparation},
+          );
+        } on Exception {}
+      }
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -293,6 +366,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
     final l = context.appLocalizations;
     return _page(context, [
       SelectableText(widget.session.executable),
+      Text(l.processProxyGoncUnsupported),
       Text('PID ${widget.session.targetPid ?? widget.session.backendPid}'),
       _actions([
         _button(
@@ -313,6 +387,19 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
             'query',
             panel: _Panel.overview,
             arguments: {'type': 'stats'},
+          ),
+        ),
+      ]),
+      _actions([
+        _button(l.processProxyReconnect, _reconnect),
+        _button(
+          l.processProxyStopSession,
+          () => _run(
+            'shutdown',
+            panel: _Panel.overview,
+            arguments: {'confirm': true},
+            confirmAction: l.processProxyStopSession,
+            confirmationMessage: l.processProxySessionStopWarning,
           ),
         ),
       ]),
@@ -387,6 +474,24 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
           ),
         ),
       ]),
+      ListItem.open(
+        title: Text(l.processProxyPayloadViewer),
+        widget: ProcessProxyPayloadView(
+          service: widget.service,
+          session: widget.session,
+          runId: _runId,
+        ),
+      ),
+      for (final row in _trafficRows)
+        ListItem.open(
+          title: Text(row.label),
+          widget: ProcessProxyPayloadView(
+            service: widget.service,
+            session: widget.session,
+            runId: _runId,
+            cacheId: row.cacheId,
+          ),
+        ),
       _result(_Panel.traffic),
       const SizedBox(height: 16),
       _field(_capture, l.processProxyCaptureOptions, multiline: true),
@@ -459,6 +564,19 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
           ),
         ),
         _button(
+          l.processProxyRebuildIndex,
+          () => _run(
+            'replay.rebuild_index',
+            panel: _Panel.recording,
+            arguments: {
+              'directory': _replayDirectory.text.trim(),
+              'confirm': true,
+            },
+            confirmAction: l.processProxyRebuildIndex,
+            confirmationMessage: l.processProxyRebuildIndexWarning,
+          ),
+        ),
+        _button(
           l.processProxyCloseReplay,
           () => _run(
             'replay.close',
@@ -474,6 +592,14 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
         help: l.processProxyReadQueryHelp,
       ),
       _actions([_button(l.processProxyReadDetails, _readQuery)]),
+      ListItem.open(
+        title: Text(l.processProxyPayloadViewer),
+        widget: ProcessProxyPayloadView(
+          service: widget.service,
+          session: widget.session,
+          runId: _runId,
+        ),
+      ),
       _result(_Panel.recording),
     ]);
   }

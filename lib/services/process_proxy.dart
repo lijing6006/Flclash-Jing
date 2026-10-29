@@ -7,10 +7,12 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'process_proxy/backend.dart';
+import 'process_proxy/applications.dart';
 import 'process_proxy/bridge_client.dart';
 import 'process_proxy/policy.dart';
 
 export 'process_proxy/backend.dart' show ProcessProxyCandidate;
+export 'process_proxy/applications.dart' show ProcessProxyApplication;
 export 'process_proxy/policy.dart';
 
 class ProcessProxySession {
@@ -92,6 +94,11 @@ class ProcessProxyService extends ChangeNotifier {
     return searchWindowsProcesses(query);
   }
 
+  Future<List<ProcessProxyApplication>> searchApplications(String query) async {
+    if (!Platform.isWindows) return [];
+    return searchWindowsApplications(query);
+  }
+
   Future<void> launch({
     required ProcessProxyLaunchRequest request,
     required Future<ProcessProxyRuntime> Function() runtime,
@@ -108,6 +115,9 @@ class ProcessProxyService extends ChangeNotifier {
     try {
       request.validate();
       final endpoint = (await runtime()).endpoint;
+      if (request.prepareQuic && endpoint.type != 'SOCKS5') {
+        throw const ProcessProxyException('quicNeedsSocks');
+      }
       final source = p.windows.dirname(request.backendPath);
       for (final path in [
         request.executable,
@@ -142,7 +152,9 @@ class ProcessProxyService extends ChangeNotifier {
         }
         await File(original).copy(p.join(sessionDirectory.path, name));
       }
-      if ((request.decryptHttps || request.decryptQuic) &&
+      if ((request.decryptHttps ||
+              request.decryptQuic ||
+              request.prepareQuic) &&
           !await File(p.join(sessionDirectory.path, 'ProxyLaneMitm64.dll'))
               .exists()) {
         throw const ProcessProxyException('missingAdvancedModule');
@@ -177,6 +189,8 @@ class ProcessProxyService extends ChangeNotifier {
             'children': request.includeChildren,
             'block_udp': request.blockUdp,
             'remote_dns': request.remoteDns,
+            'prepare_quic': request.prepareQuic,
+            'confirm_quic': request.prepareQuic,
             'bypass': compileBypassRules(
               request.bypassRules,
               privateNetworks: request.bypassPrivateNetworks,
@@ -188,6 +202,7 @@ class ProcessProxyService extends ChangeNotifier {
           final launched = await bridge.request('launch', {
             'executable': request.executable,
             'arguments': request.arguments,
+            'working_directory': request.workingDirectory,
             'confirm': true,
           });
           started = true;
@@ -211,6 +226,9 @@ class ProcessProxyService extends ChangeNotifier {
           rethrow;
         }
       } else {
+        if (request.prepareQuic || request.workingDirectory.isNotEmpty) {
+          throw const ProcessProxyException('nativeBridgeRequired');
+        }
         await File(p.join(sessionDirectory.path, 'ProxyLane.ini'))
             .writeAsBytes(encodeProcessProxyIni(ini), flush: true);
         final executable = p.join(sessionDirectory.path, 'ProxyLane64.exe');
@@ -260,7 +278,7 @@ class ProcessProxyService extends ChangeNotifier {
     _sessions.insert(0, session);
     _changed();
     unawaited(
-      exit.then((code) {
+      exit.then((code) async {
         final index = _sessions.indexWhere((s) => s.id == session.id);
         if (index < 0) return;
         _sessions[index] = ProcessProxySession(
@@ -277,6 +295,17 @@ class ProcessProxyService extends ChangeNotifier {
         if (bridge != null) unawaited(bridge.close());
         _runtimeChecks.remove(session.id);
         _endpoints.remove(session.id);
+        if (!session.nativeBridge) {
+          final ini = File(
+            p.join(p.dirname(session.backendExecutable), 'ProxyLane.ini'),
+          );
+          try {
+            if (await FileSystemEntity.type(ini.path, followLinks: false) ==
+                FileSystemEntityType.file) {
+              await ini.delete();
+            }
+          } on FileSystemException {}
+        }
         _changed();
       }),
     );
@@ -289,7 +318,12 @@ class ProcessProxyService extends ChangeNotifier {
   ]) async {
     final bridge = _bridges[sessionId];
     if (bridge == null) throw const ProcessProxyException('sessionUnavailable');
-    if (operation == 'monitor.start' || operation == 'recording.start') {
+    if (const {
+      'monitor.start',
+      'recording.start',
+      'connections.prepare_reconnect',
+      'connections.reconnect',
+    }.contains(operation)) {
       final check = _runtimeChecks[sessionId];
       final endpoint = _endpoints[sessionId];
       if (check == null ||

@@ -10,6 +10,8 @@ import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/views/process_proxy_error.dart';
 import 'package:fl_clash/views/process_proxy/advanced.dart';
+import 'package:fl_clash/views/process_proxy/applications.dart';
+import 'package:fl_clash/views/process_proxy/profiles.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -59,6 +61,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   final _backend = TextEditingController();
   final _target = TextEditingController();
   final _arguments = TextEditingController(text: '[]');
+  final _workingDirectory = TextEditingController();
   final _bypass = TextEditingController();
   final _query = TextEditingController();
   bool _loaded = false;
@@ -69,6 +72,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   bool _blockUdp = true;
   bool _remoteDns = false;
   bool _trusted = false;
+  bool _prepareQuic = false;
   Object? _error;
   List<ProcessProxyCandidate> _processes = [];
 
@@ -91,6 +95,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
         _backend.text = saved.backendPath;
         _target.text = saved.executable;
         _arguments.text = jsonEncode(saved.arguments);
+        _workingDirectory.text = saved.workingDirectory;
         _bypass.text = saved.bypassRules;
         _includeChildren = saved.includeChildren;
         _bypassPrivate = saved.bypassPrivateNetworks;
@@ -113,6 +118,8 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       backendPath: _backend.text.trim(),
       executable: _target.text.trim(),
       arguments: arguments,
+      workingDirectory: _workingDirectory.text.trim(),
+      prepareQuic: _prepareQuic,
       bypassRules: _bypass.text,
       includeChildren: _includeChildren,
       bypassPrivateNetworks: _bypassPrivate,
@@ -143,6 +150,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
         } else {
           _target.text = path;
         }
+        _prepareQuic = false;
       });
     } catch (error) {
       if (mounted) setState(() => _error = error);
@@ -201,6 +209,89 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       await _service.showBackendWindow(session.id);
     } catch (error) {
       if (mounted) setState(() => _error = error);
+    }
+  }
+
+  Future<void> _openApplications() async {
+    if (_confirming || _service.busy) return;
+    setState(() => _confirming = true);
+    try {
+      final selected = await BaseNavigator.push<ProcessProxyApplication>(
+        context,
+        ProcessProxyApplicationsView(service: _service),
+      );
+      if (!mounted || selected == null) return;
+      setState(() {
+        _target.text = selected.executable;
+        _arguments.text = jsonEncode(selected.arguments);
+        _workingDirectory.text = selected.workingDirectory;
+        _prepareQuic = false;
+        _error = null;
+      });
+    } catch (error) {
+      if (mounted) setState(() => _error = error);
+    } finally {
+      if (mounted) setState(() => _confirming = false);
+    }
+  }
+
+  Future<void> _openProfiles() async {
+    if (_confirming || _service.busy) return;
+    setState(() => _confirming = true);
+    try {
+      ProcessProxyLaunchRequest? current;
+      try {
+        current = _request();
+      } on ProcessProxyException {
+        current = null;
+      }
+      final selected = await BaseNavigator.push<ProcessProxyLaunchRequest>(
+        context,
+        ProcessProxyProfilesView(currentRequest: current),
+      );
+      if (!mounted || selected == null) return;
+      setState(() {
+        _backend.text = selected.backendPath;
+        _target.text = selected.executable;
+        _arguments.text = jsonEncode(selected.arguments);
+        _workingDirectory.text = selected.workingDirectory;
+        _bypass.text = selected.bypassRules;
+        _includeChildren = selected.includeChildren;
+        _bypassPrivate = selected.bypassPrivateNetworks;
+        _blockUdp = selected.blockUdp;
+        _remoteDns = selected.remoteDns;
+        _trusted = false;
+        _prepareQuic = false;
+        _error = null;
+      });
+    } catch (error) {
+      if (mounted) setState(() => _error = error);
+    } finally {
+      if (mounted) setState(() => _confirming = false);
+    }
+  }
+
+  Future<void> _setPrepareQuic(bool value) async {
+    if (!value) {
+      setState(() => _prepareQuic = false);
+      return;
+    }
+    if (_confirming || _service.busy) return;
+    setState(() => _confirming = true);
+    try {
+      final l = context.appLocalizations;
+      final confirmed = await dialogs.showMessage(
+        context: context,
+        title: l.processProxyPrepareQuic,
+        message: TextSpan(text: l.processProxyPrepareQuicHelp),
+      );
+      if (mounted && confirmed == true) {
+        setState(() => _prepareQuic = true);
+      }
+    } catch (error) {
+      if (mounted) setState(() => _error = error);
+    } finally {
+      if (mounted) setState(() => _confirming = false);
     }
   }
 
@@ -327,7 +418,10 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                 _field(
                   controller: _backend,
                   label: l.processProxyBackendPath,
-                  onChanged: (_) => setState(() => _trusted = false),
+                  onChanged: (_) => setState(() {
+                    _trusted = false;
+                    _prepareQuic = false;
+                  }),
                 ),
                 ListItem(
                   title: Text(l.processProxySelectFile),
@@ -344,7 +438,15 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
             generateSection(
               title: l.processProxyTarget,
               items: [
-                _field(controller: _target, label: l.processProxyTargetPath),
+                ListItem(
+                  title: Text(l.processProxyApplications),
+                  onTap: busy ? null : _openApplications,
+                ),
+                _field(
+                  controller: _target,
+                  label: l.processProxyTargetPath,
+                  onChanged: (_) => setState(() => _prepareQuic = false),
+                ),
                 ListItem(
                   title: Text(l.processProxySelectFile),
                   onTap: busy ? null : () => _pickExecutable(backend: false),
@@ -354,6 +456,11 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                   label: l.processProxyArguments,
                   help: l.processProxyArgumentsHelp,
                   multiline: true,
+                ),
+                _field(
+                  controller: _workingDirectory,
+                  label: l.processProxyWorkingDirectory,
+                  help: l.processProxyWorkingDirectoryHelp,
                 ),
               ],
             ),
@@ -386,6 +493,12 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                   value: _remoteDns,
                   onChanged: (value) => _remoteDns = value,
                 ),
+                ListItem.toggle(
+                  title: Text(l.processProxyPrepareQuic),
+                  subtitle: Text(l.processProxyPrepareQuicHelp),
+                  value: _prepareQuic,
+                  onChanged: busy ? null : _setPrepareQuic,
+                ),
               ],
               footer: l.processProxyDnsHelp,
             ),
@@ -402,6 +515,10 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                   TextButton(
                     onPressed: busy ? null : _save,
                     child: Text(l.save),
+                  ),
+                  OutlinedButton(
+                    onPressed: busy ? null : _openProfiles,
+                    child: Text(l.processProxyProfiles),
                   ),
                 ],
               ),
@@ -443,9 +560,10 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                       subtitle: Text(process.executable),
                       onTap: busy
                           ? null
-                          : () => setState(
-                              () => _target.text = process.executable,
-                            ),
+                          : () => setState(() {
+                              _target.text = process.executable;
+                              _prepareQuic = false;
+                            }),
                     ),
               ],
               footer: l.processProxySearchHelp,
@@ -492,6 +610,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
     _backend.dispose();
     _target.dispose();
     _arguments.dispose();
+    _workingDirectory.dispose();
     _bypass.dispose();
     _query.dispose();
     super.dispose();

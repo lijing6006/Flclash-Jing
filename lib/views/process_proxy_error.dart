@@ -10,6 +10,9 @@ String processProxyErrorMessage(Object error, AppLocalizations l) {
     'globalProxyEnabled' => l.processProxyTakeoverOff,
     'noListener' => l.processProxyNoPort,
     'invalidArguments' => l.processProxyInvalidArguments,
+    'invalidWorkingDirectory' => l.processProxyErrorWorkingDirectory,
+    'nativeBridgeRequired' => l.processProxyErrorNativeRequired,
+    'quicNeedsSocks' => l.processProxyErrorQuicSocks,
     'invalidQuery' => l.processProxyJsonObjectRequired,
     'backendNotTrusted' => l.processProxyErrorTrust,
     'backendName' ||
@@ -79,6 +82,7 @@ String _bridgeErrorMessage(String? code, AppLocalizations l) {
     'listener_unavailable' ||
     'proxy_start' => l.processProxyErrorListener,
     'quic_requires_udp' => l.processProxyErrorQuic,
+    'quic_preparation_required' => l.processProxyErrorQuicPrepare,
     'invalid_arguments' => l.processProxyInvalidArguments,
     'invalid_request' => l.processProxyJsonObjectRequired,
     _ => l.processProxyErrorBridge,

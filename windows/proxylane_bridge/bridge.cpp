@@ -107,8 +107,9 @@ std::wstring Canonical(const std::wstring& input) {
   const auto length = GetFullPathNameW(input.c_str(), 32768, output, nullptr);
   if (!length || length >= 32768) throw Error("invalid_path", "Cannot resolve local path");
   std::wstring result(output, length);
+  std::replace(result.begin(), result.end(), L'/', L'\\');
   while (result.size() > 3 && result.back() == L'\\') result.pop_back();
-  Require(LocalPath(Utf8(result)), "Path must be local and absolute");
+  Require(LocalPath(Utf8(result), true), "Path must be local and absolute");
   return result;
 }
 
@@ -138,8 +139,16 @@ Handle OpenLocalFile(const std::wstring& path) {
   return file;
 }
 
-std::wstring LocalDirectory(const std::string& input) {
+std::wstring LocalDirectory(const std::string& input, bool allow_root = false) {
+  Require(LocalPath(input, allow_root), "Directory must be local and absolute");
   const auto path = Canonical(Wide(input));
+  for (auto separator = path.find(L'\\', 3); separator != std::wstring::npos;
+       separator = path.find(L'\\', separator + 1)) {
+    const auto prefix_attributes = GetFileAttributesW(path.substr(0, separator).c_str());
+    if (prefix_attributes == INVALID_FILE_ATTRIBUTES || (prefix_attributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
+      throw Error("invalid_directory", "Directory ancestors must not be reparse points");
+    }
+  }
   const auto attributes = GetFileAttributesW(path.c_str());
   if (attributes == INVALID_FILE_ATTRIBUTES || !(attributes & FILE_ATTRIBUTE_DIRECTORY) ||
       (attributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
@@ -154,7 +163,7 @@ std::wstring LocalDirectory(const std::string& input) {
   if (!length || length >= 32768) throw Error("invalid_directory", "Cannot resolve selected directory");
   std::wstring final_path(resolved, length);
   if (final_path.rfind(L"\\\\?\\", 0) == 0) final_path.erase(0, 4);
-  Require(LocalPath(Utf8(final_path)), "Remote and device directories are not accepted");
+  Require(LocalPath(Utf8(final_path), allow_root), "Remote and device directories are not accepted");
   return path;
 }
 
@@ -215,6 +224,26 @@ std::string SessionToken() {
   return result;
 }
 
+class TaskOwnershipAudit final : public IProxyTaskMgr {
+ public:
+  explicit TaskOwnershipAudit(ProcessIdentityMap identities) : identities_(std::move(identities)) {}
+  void OnAddTask(const LPPRCClient, const LPProxyInfo) override {}
+  void OnDelTask(const LPPRCClient) override {}
+  void EnumTask(IProxyTaskMgr*) override {}
+  void OnEachTask(const LPPRCClient client, const LPProxyInfo) override {
+    if (++count_ > 65536 || !client || !OwnsIdentity(identities_, client->dwPid, client->processCreateTime)) {
+      all_owned_ = false;
+    }
+  }
+  BOOL GetTaskCount(DWORD* count) override { if (!count) return FALSE; *count = count_; return TRUE; }
+  bool all_owned() const { return all_owned_; }
+
+ private:
+  ProcessIdentityMap identities_;
+  DWORD count_ = 0;
+  bool all_owned_ = true;
+};
+
 class Runtime final : public IProxySettings, public IProxyLog {
  public:
   ~Runtime() override {
@@ -240,6 +269,10 @@ class Runtime final : public IProxySettings, public IProxyLog {
       const auto path = directory + L"\\" + name;
       if (GetFileAttributesW(path.c_str()) != INVALID_FILE_ATTRIBUTES) file_locks_.push_back(OpenLocalFile(path));
     }
+    if (Flag(args, "prepare_quic") &&
+        GetFileAttributesW((directory + L"\\ProxyLaneMitm64.dll").c_str()) == INVALID_FILE_ATTRIBUTES) {
+      throw Error("advanced_module_unavailable", "QUIC preparation requires the selected backend's compatible MITM module");
+    }
     if (!SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)) {
       throw Error("dll_policy", "Secure DLL search policy is unavailable");
     }
@@ -263,7 +296,7 @@ class Runtime final : public IProxySettings, public IProxyLog {
     proxy_->GetLogInstance()->AddInstance(this);
     proxy_->GetMonitorInstance()->SetEnabled(FALSE);
     proxy_->GetTlsControl()->SetEnabled(FALSE, nullptr, 0);
-    Query({{"type", "quic_injection_policy"}, {"enabled", false}});
+    Query({{"type", "quic_injection_policy"}, {"enabled", Flag(configuration_, "prepare_quic")}});
     return Status();
   }
 
@@ -276,6 +309,10 @@ class Runtime final : public IProxySettings, public IProxyLog {
     if (_wcsicmp(executable.c_str(), (ExecutableDirectory() + L"\\FlClashProxyBridge.exe").c_str()) == 0) {
       throw Error("invalid_target", "The broker cannot proxy itself");
     }
+    const auto requested_working = Text(args, "working_directory", 240);
+    const auto working = requested_working.empty()
+        ? LocalDirectory(Utf8(ParentDirectory(executable)), true)
+        : LocalDirectory(requested_working, true);
     ProbeListener();
     if (!proxy_->EnableProxy()) throw Error("proxy_start", "Backend refused to start");
     std::string pipe(MAX_PATH, '\0');
@@ -289,7 +326,6 @@ class Runtime final : public IProxySettings, public IProxyLog {
     if (command.size() >= 32767) throw Error("invalid_arguments", "Windows command line is too long");
     StartupJob startup;
     PROCESS_INFORMATION child = {};
-    const auto working = executable.substr(0, executable.find_last_of(L"\\/"));
     if (!CreateProcessW(executable.c_str(), command.data(), nullptr, nullptr, FALSE,
                         CREATE_SUSPENDED | CREATE_UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT,
                         nullptr, working.c_str(), &startup.startup.StartupInfo, &child)) {
@@ -335,7 +371,12 @@ class Runtime final : public IProxySettings, public IProxyLog {
                    {"proxy_running", proxy_ && proxy_->IsProxyEnabled()},
                    {"root_pid", root_pid_}, {"monitoring", monitoring_},
                    {"recording", recording_}, {"replay_open", replay_open_},
+                   {"quic_preparation_requested", Flag(configuration_, "prepare_quic")},
                    {"upload_bytes", 0}, {"download_bytes", 0}};
+    if (reconnect_.id()) {
+      result["reconnect_preparation"] = {{"preparation_id", std::to_string(reconnect_.id())}, {"count", reconnect_.count()},
+                                           {"expires_in_ms", reconnect_.remaining(GetTickCount64())}};
+    }
     if (!proxy_) return result;
     ULONGLONG upload = 0, download = 0;
     if (proxy_->IsProxyEnabled()) proxy_->GetPRCInstance()->GetTrafficTotals(upload, download);
@@ -384,16 +425,13 @@ class Runtime final : public IProxySettings, public IProxyLog {
     EnsureRunning();
     const auto https = Flag(args, "decrypt_https");
     const auto quic = Flag(args, "decrypt_quic");
-    if (quic && (Flag(configuration_, "block_udp", true) || configuration_["proxy_type"] != "SOCKS5")) {
-      throw Error("quic_requires_udp", "QUIC decryption requires SOCKS5 UDP and UDP enabled");
-    }
+    ValidateMonitorConfiguration(configuration_, args);
     if (https || quic) {
       const auto ca = Certificate("ca.query");
       if (!ca["initialized"].get<bool>() || !ca["trusted"].get<bool>()) {
         throw Error("certificate_required", "Initialize and trust the current-user CA explicitly first");
       }
     }
-    Query({{"type", "quic_injection_policy"}, {"enabled", quic}});
     auto result = Query({{"type", "monitor_start"}, {"decrypt", https}, {"quic", quic}});
     monitoring_ = true;
     return result;
@@ -457,6 +495,65 @@ class Runtime final : public IProxySettings, public IProxyLog {
     return result;
   }
 
+  Json ReplayRebuildIndex(const Json& args) {
+    EnsureConfigured();
+    if (monitoring_) throw Error("monitor_active", "Stop monitoring before restoring a recording index");
+    if (replay_open_) throw Error("replay_active", "Close the current recording view before restoring its index");
+    const auto path = LocalDirectory(args["directory"].get<std::string>());
+    const auto result = Query({{"type", "recording_open"}, {"path", Utf8(path)}, {"rebuild_index", true}});
+    if (!result.contains("run_id")) throw Error("advanced_module_unavailable", "The optional recording reader is unavailable");
+    replay_open_ = true;
+    return result;
+  }
+
+  Json PrepareReconnect() {
+    auto manager = TcpManager();
+    CancelPreparedReconnect();
+    AuditTasks(manager);
+    const auto count = manager->PrepareReconnect(TRUE);
+    try {
+      AuditTasks(manager);
+      const auto id = reconnect_.Issue(count, GetTickCount64());
+      return {{"preparation_id", std::to_string(id)}, {"count", count}, {"expires_in_ms", ReconnectPreparation::kLifetimeMs},
+              {"scope", "session_tcp"}, {"automatic_reconnect", false}};
+    } catch (...) {
+      manager->CompleteReconnect(FALSE);
+      reconnect_.Clear();
+      throw;
+    }
+  }
+
+  Json Reconnect(const Json& args) {
+    auto manager = TcpManager();
+    const auto id = PreparationId(args);
+    try {
+      reconnect_.Check(id, GetTickCount64());
+    } catch (const Error& error) {
+      if (error.code == "reconnect_preparation_expired") CancelPreparedReconnect();
+      throw;
+    }
+    std::uint64_t count = 0;
+    try {
+      AuditTasks(manager);
+      count = reconnect_.Consume(id, GetTickCount64());
+    } catch (...) {
+      CancelPreparedReconnect();
+      throw;
+    }
+    manager->CompleteReconnect(TRUE);
+    return {{"scheduled", true}, {"selected_count", count}, {"completed", false},
+            {"scope", "session_tcp"}, {"automatic_reconnect", false}};
+  }
+
+  Json CancelReconnect(const Json& args) {
+    TcpManager();
+    if (PreparationId(args) != reconnect_.id()) {
+      throw Error("reconnect_preparation_stale", "This reconnect preparation is no longer pending");
+    }
+    CancelPreparedReconnect();
+    return {{"cancelled", true}};
+  }
+
   Json ReplayClose() {
     EnsureConfigured();
     const auto result = Query({{"type", "recording_close"}});
@@ -505,14 +602,15 @@ class Runtime final : public IProxySettings, public IProxyLog {
 
   void Stop() {
     if (!proxy_) return;
-    std::exception_ptr monitor_error;
+    std::exception_ptr cleanup_error;
+    try { CancelPreparedReconnect(); } catch (...) { cleanup_error = std::current_exception(); }
     if (monitoring_) {
-      try { MonitorStop(); } catch (...) { monitor_error = std::current_exception(); }
+      try { MonitorStop(); } catch (...) { if (!cleanup_error) cleanup_error = std::current_exception(); }
     }
     if (proxy_->IsProxyEnabled() && !proxy_->DisableProxy()) {
       throw Error("proxy_stop", "Backend did not confirm stop");
     }
-    if (monitor_error) std::rethrow_exception(monitor_error);
+    if (cleanup_error) std::rethrow_exception(cleanup_error);
   }
 
   BOOL GetProxySettings(LPProxySettingsInfo settings) override try {
@@ -530,8 +628,7 @@ class Runtime final : public IProxySettings, public IProxyLog {
   BOOL GetProxyInfo(const LPPRCClient client, LPProxyInfo info) override try {
     {
       std::lock_guard<std::mutex> lock(ownership_lock_);
-      const auto found = owned_.find(client->dwPid);
-      if (found == owned_.end() || found->second != client->processCreateTime) return FALSE;
+      if (!OwnsIdentity(owned_, client->dwPid, client->processCreateTime)) return FALSE;
     }
     ZeroMemory(info, sizeof(*info));
     info->strProxyType = Wide(configuration_["proxy_type"].get<std::string>()).c_str();
@@ -612,6 +709,32 @@ class Runtime final : public IProxySettings, public IProxyLog {
     EnsureConfigured();
     if (!proxy_->IsProxyEnabled()) throw Error("proxy_not_running", "Launch the selected application first");
   }
+  IProxyTaskMgr* TcpManager() const {
+    EnsureRunning();
+    if (!root_pid_) throw Error("target_not_launched", "Launch an owned process tree before preparing TCP connections");
+    auto manager = proxy_->GetPRCInstance()->GetPTMInstance(0);
+    if (!manager) throw Error("reconnect_unavailable", "This session has no TCP task manager");
+    return manager;
+  }
+  void AuditTasks(IProxyTaskMgr* manager) {
+    ProcessIdentityMap identities;
+    {
+      std::lock_guard<std::mutex> lock(ownership_lock_);
+      identities = owned_;
+    }
+    TaskOwnershipAudit audit(std::move(identities));
+    manager->EnumTask(&audit);
+    if (!audit.all_owned()) {
+      throw Error("reconnect_ownership", "TCP task identities are not confined to this owned process tree");
+    }
+  }
+  void CancelPreparedReconnect() {
+    if (reconnect_.id() && proxy_ && proxy_->IsProxyEnabled()) {
+      auto manager = proxy_->GetPRCInstance()->GetPTMInstance(0);
+      if (manager) manager->CompleteReconnect(FALSE);
+    }
+    reconnect_.Clear();
+  }
   void ProbeListener() {
     SOCKET socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket == INVALID_SOCKET) throw Error("listener_unavailable", "Cannot probe loopback listener");
@@ -689,7 +812,8 @@ class Runtime final : public IProxySettings, public IProxyLog {
   bool recording_ = false;
   bool replay_open_ = false;
   std::mutex ownership_lock_;
-  std::map<DWORD, ULONGLONG> owned_;
+  ProcessIdentityMap owned_;
+  ReconnectPreparation reconnect_;
   std::mutex log_lock_;
   std::deque<Json> logs_;
   std::uint64_t log_sequence_ = 0;
@@ -703,8 +827,10 @@ Json Dispatch(Runtime& runtime, const Json& request, const std::string& token) {
             {"backend_version", "1.3.5"}, {"capabilities", {
                 {"native_runtime", true}, {"root_architectures", Json::array({"x64"})},
                 {"launch", true}, {"children", true}, {"traffic", true}, {"logs", true},
-                {"https_decryption", true}, {"quic_decryption", true}, {"recording", true},
-                {"replay", true}, {"current_user_ca", true}, {"attach_existing", false},
+                {"https_decryption", true}, {"quic_decryption", true}, {"quic_prelaunch_preparation", true},
+                {"working_directory", true}, {"recording", true},
+                {"replay", true}, {"recording_index_rebuild", true}, {"owned_tcp_reconnect", true},
+                {"current_user_ca", true}, {"attach_existing", false},
                 {"terminate_target", false}, {"packaged_apps", false}}}};
   }
   if (op == "configure") return runtime.Configure(args);
@@ -716,6 +842,10 @@ Json Dispatch(Runtime& runtime, const Json& request, const std::string& token) {
   if (op == "capture.options") return runtime.CaptureOptions(args);
   if (op == "recording.start") return runtime.RecordingStart(args);
   if (op == "replay.open") return runtime.ReplayOpen(args);
+  if (op == "replay.rebuild_index") return runtime.ReplayRebuildIndex(args);
+  if (op == "connections.prepare_reconnect") return runtime.PrepareReconnect();
+  if (op == "connections.reconnect") return runtime.Reconnect(args);
+  if (op == "connections.cancel_reconnect") return runtime.CancelReconnect(args);
   if (op == "replay.close") return runtime.ReplayClose();
   if (op == "query") return runtime.Query(args);
   if (op.rfind("ca.", 0) == 0) return runtime.Certificate(op);

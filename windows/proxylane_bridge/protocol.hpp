@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cctype>
 #include <initializer_list>
+#include <map>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -34,8 +35,8 @@ inline bool PlainText(const std::string& text, std::size_t max) {
          });
 }
 
-inline bool LocalPath(const std::string& path) {
-  if (path.size() < 4 || path.size() > 240 || !PlainText(path, 240)) return false;
+inline bool LocalPath(const std::string& path, bool allow_root = false) {
+  if (path.size() < (allow_root ? 3u : 4u) || path.size() > 240 || !PlainText(path, 240)) return false;
   const auto first = path[0];
   if (!((first >= 'A' && first <= 'Z') || (first >= 'a' && first <= 'z')) ||
       path[1] != ':' || (path[2] != '\\' && path[2] != '/')) return false;
@@ -84,6 +85,16 @@ inline bool Flag(const Json& object, const char* key, bool fallback = false) {
   if (!object.contains(key)) return fallback;
   Require(object[key].is_boolean(), "Expected a boolean");
   return object[key].get<bool>();
+}
+
+inline std::uint64_t PreparationId(const Json& args) {
+  const auto text = Text(args, "preparation_id", 16, true);
+  Require(text.front() != '0' && std::all_of(text.begin(), text.end(), [](unsigned char c) {
+    return c >= '0' && c <= '9';
+  }), "Invalid reconnect preparation identity");
+  const auto id = std::stoull(text);
+  Require(id <= kMaxId, "Reconnect preparation identity is too large");
+  return id;
 }
 
 inline void Confirmed(const Json& args) {
@@ -154,11 +165,13 @@ inline void ValidateQuery(const Json& args) {
 
 inline void ValidateArgs(const std::string& op, const Json& args) {
   if (op == "hello" || op == "status" || op == "monitor.stop" ||
-      op == "recording.stop" || op == "replay.close" || op == "ca.query") {
+      op == "recording.stop" || op == "replay.close" || op == "ca.query" ||
+      op == "connections.prepare_reconnect") {
     Keys(args, {});
   } else if (op == "configure") {
     Keys(args, {"backend_directory", "port", "proxy_type", "username", "password",
-                "children", "block_udp", "remote_dns", "bypass"});
+                "children", "block_udp", "remote_dns", "bypass", "prepare_quic",
+                "confirm_quic"});
     Require(LocalPath(Text(args, "backend_directory", 240, true)), "Expected a local directory");
     Require(args.contains("port"), "Missing proxy port");
     Number(args, "port", 1, 65535);
@@ -169,6 +182,13 @@ inline void ValidateArgs(const std::string& op, const Json& args) {
     Flag(args, "children", true);
     Flag(args, "block_udp", true);
     Flag(args, "remote_dns");
+    const bool prepare_quic = Flag(args, "prepare_quic");
+    const bool confirm_quic = Flag(args, "confirm_quic");
+    if (prepare_quic) {
+      if (!confirm_quic) throw Error("confirmation_required", "QUIC compatibility requires separate confirmation");
+      Require(type == "SOCKS5" && !Flag(args, "block_udp", true),
+              "QUIC compatibility requires SOCKS5 with UDP enabled");
+    }
     if (args.contains("bypass")) {
       Require(args["bypass"].is_array() && args["bypass"].size() <= 512,
               "Too many bypass patterns");
@@ -186,8 +206,10 @@ inline void ValidateArgs(const std::string& op, const Json& args) {
       }
     }
   } else if (op == "launch") {
-    Keys(args, {"executable", "arguments", "confirm"});
+    Keys(args, {"executable", "arguments", "working_directory", "confirm"});
     Confirmed(args);
+    const auto working_directory = Text(args, "working_directory", 240);
+    Require(working_directory.empty() || LocalPath(working_directory, true), "Invalid working directory");
     const auto path = Text(args, "executable", 240, true);
     Require(LocalPath(path) && path.size() > 4, "Invalid executable path");
     auto suffix = path.substr(path.size() - 4);
@@ -230,10 +252,18 @@ inline void ValidateArgs(const std::string& op, const Json& args) {
     Number(args, "reserve_mib", 16, 1048576, 512);
     Flag(args, "decrypt_https");
     Flag(args, "decrypt_quic");
-  } else if (op == "replay.open") {
+  } else if (op == "replay.open" || op == "replay.rebuild_index") {
     Keys(args, {"directory", "confirm"});
     Confirmed(args);
     Require(LocalPath(Text(args, "directory", 240, true)), "Replay requires a local directory");
+  } else if (op == "connections.reconnect" || op == "connections.cancel_reconnect") {
+    if (op == "connections.reconnect") {
+      Keys(args, {"preparation_id", "confirm"});
+      Confirmed(args);
+    } else {
+      Keys(args, {"preparation_id"});
+    }
+    PreparationId(args);
   } else if (op == "query") {
     ValidateQuery(args);
   } else if (op == "ca.initialize" || op == "ca.trust" || op == "ca.remove") {
@@ -246,6 +276,65 @@ inline void ValidateArgs(const std::string& op, const Json& args) {
   } else {
     throw Error("unsupported_operation", "Operation is not implemented");
   }
+}
+
+using ProcessIdentityMap = std::map<std::uint32_t, std::uint64_t>;
+
+inline bool OwnsIdentity(const ProcessIdentityMap& identities, std::uint32_t pid, std::uint64_t birth) {
+  const auto found = identities.find(pid);
+  return pid != 0 && birth != 0 && found != identities.end() && found->second == birth;
+}
+
+class ReconnectPreparation {
+ public:
+  static constexpr std::uint64_t kLifetimeMs = 60000;
+
+  std::uint64_t Issue(std::uint64_t count, std::uint64_t now) {
+    Require(sequence_ < kMaxId && now <= UINT64_MAX - kLifetimeMs, "Reconnect sequence is exhausted");
+    id_ = ++sequence_;
+    count_ = count;
+    expires_at_ = now + kLifetimeMs;
+    return id_;
+  }
+
+  std::uint64_t Check(std::uint64_t id, std::uint64_t now) const {
+    if (!id_ || id_ != id) throw Error("reconnect_preparation_stale", "Prepare connections again before confirming");
+    if (now >= expires_at_) throw Error("reconnect_preparation_expired", "Reconnect confirmation expired; prepare again");
+    return count_;
+  }
+
+  std::uint64_t Consume(std::uint64_t id, std::uint64_t now) {
+    const auto count = Check(id, now);
+    Clear();
+    return count;
+  }
+
+  void Clear() { id_ = 0; count_ = 0; expires_at_ = 0; }
+  std::uint64_t id() const { return id_; }
+  std::uint64_t count() const { return count_; }
+  std::uint64_t remaining(std::uint64_t now) const { return now < expires_at_ ? expires_at_ - now : 0; }
+
+ private:
+  std::uint64_t sequence_ = 0;
+  std::uint64_t id_ = 0;
+  std::uint64_t count_ = 0;
+  std::uint64_t expires_at_ = 0;
+};
+
+inline void ValidateMonitorConfiguration(const Json& configuration, const Json& args) {
+  if (!Flag(args, "decrypt_quic")) return;
+  if (!Flag(configuration, "prepare_quic")) {
+    throw Error("quic_preparation_required", "Start a new explicitly QUIC-prepared session; existing targets are not modified");
+  }
+  if (Flag(configuration, "block_udp", true) || configuration["proxy_type"] != "SOCKS5") {
+    throw Error("quic_requires_udp", "QUIC decryption requires SOCKS5 UDP and UDP enabled");
+  }
+}
+
+inline std::wstring ParentDirectory(const std::wstring& executable) {
+  const auto separator = executable.find_last_of(L"\\/");
+  Require(separator != std::wstring::npos, "Executable has no parent directory");
+  return executable.substr(0, separator == 2 ? 3 : separator);
 }
 
 inline std::wstring QuoteArgument(const std::wstring& value) {

@@ -212,6 +212,26 @@ final Map<String, Future<void> Function()> processProxyBridgeCases = {
     _check(result['trusted'] == true && transport.requests.length == 2);
     await transport.client.close();
   },
+  'maintenance operations use authenticated allowlist without shell access':
+      () async {
+        final transport = _Transport();
+        await transport.ready();
+        transport.respond = (r) =>
+            transport.reply(r, {'preparation_id': '7', 'count': 2});
+        for (final operation in [
+          'connections.prepare_reconnect',
+          'connections.cancel_reconnect',
+          'connections.reconnect',
+          'replay.rebuild_index',
+        ]) {
+          await transport.client.request(operation);
+        }
+        _check(
+          transport.requests.length == 5 &&
+              transport.requests.skip(1).every((r) => r['token'] == 'a' * 64),
+        );
+        await transport.client.close();
+      },
   'bridge close is idempotent and resolves in-flight errors': () async {
     final transport = _Transport();
     await transport.ready();

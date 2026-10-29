@@ -82,6 +82,8 @@ class ProcessProxyLaunchRequest {
   final String backendPath;
   final String executable;
   final List<String> arguments;
+  final String workingDirectory;
+  final bool prepareQuic;
   final String bypassRules;
   final bool includeChildren;
   final bool bypassPrivateNetworks;
@@ -95,6 +97,8 @@ class ProcessProxyLaunchRequest {
     required this.backendPath,
     required this.executable,
     this.arguments = const [],
+    this.workingDirectory = '',
+    this.prepareQuic = false,
     this.bypassRules = '',
     this.includeChildren = true,
     this.bypassPrivateNetworks = true,
@@ -109,6 +113,7 @@ class ProcessProxyLaunchRequest {
     'backendPath': backendPath,
     'executable': executable,
     'arguments': arguments,
+    'workingDirectory': workingDirectory,
     'bypassRules': bypassRules,
     'includeChildren': includeChildren,
     'bypassPrivateNetworks': bypassPrivateNetworks,
@@ -121,6 +126,7 @@ class ProcessProxyLaunchRequest {
       backendPath: json['backendPath'] as String? ?? '',
       executable: json['executable'] as String? ?? '',
       arguments: (json['arguments'] as List? ?? []).cast<String>(),
+      workingDirectory: json['workingDirectory'] as String? ?? '',
       bypassRules: json['bypassRules'] as String? ?? '',
       includeChildren: json['includeChildren'] as bool? ?? true,
       bypassPrivateNetworks: json['bypassPrivateNetworks'] as bool? ?? true,
@@ -133,6 +139,7 @@ class ProcessProxyLaunchRequest {
     if (!trustedBackend) throw const ProcessProxyException('backendNotTrusted');
     validateExecutablePath(backendPath);
     validateExecutablePath(executable);
+    validateWorkingDirectoryPath(workingDirectory);
     if (!backendPath
         .replaceAll('/', r'\')
         .toLowerCase()
@@ -144,7 +151,7 @@ class ProcessProxyLaunchRequest {
         arguments.any((a) => a.contains('\x00'))) {
       throw const ProcessProxyException('invalidArguments');
     }
-    if (decryptQuic && blockUdp) {
+    if ((decryptQuic || prepareQuic) && blockUdp) {
       throw const ProcessProxyException('quicNeedsUdp');
     }
     compileBypassRules(bypassRules, privateNetworks: bypassPrivateNetworks);
@@ -159,6 +166,17 @@ void validateExecutablePath(String path) {
       path.split(RegExp(r'[\\/]')).any((part) => part == '.' || part == '..') ||
       path.length > 240) {
     throw const ProcessProxyException('invalidExecutable');
+  }
+}
+
+void validateWorkingDirectoryPath(String path) {
+  if (path.isEmpty) return;
+  if (!RegExp(r'^[a-zA-Z]:[\\/]').hasMatch(path) ||
+      path.contains(RegExp(r'[\x00-\x1f"<>|*?]')) ||
+      path.substring(2).contains(':') ||
+      path.split(RegExp(r'[\\/]')).any((part) => part == '.' || part == '..') ||
+      path.length > 240) {
+    throw const ProcessProxyException('invalidWorkingDirectory');
   }
 }
 
