@@ -152,61 +152,99 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m61(port) => "포트 ${port}";
 
-  static String m62(days) => "${Intl.plural(days, other: '${days}일 남음')}";
+  static String m62(action) =>
+      "이 세션에 “${action}” 작업을 적용할까요? 모니터링과 기록에 자격 증명이나 개인 정보가 포함될 수 있습니다. 페이지를 닫아도 수집은 중지되지 않습니다.";
 
-  static String m63(date, days) =>
+  static String m63(action) =>
+      "현재 Windows 사용자에 대해서만 “${action}”을 실행할까요? 로컬 CA 자료 또는 신뢰가 변경됩니다. 앱 재연결이 필요할 수 있으며 컴퓨터 전체 인증서 저장소는 변경되지 않습니다.";
+
+  static String m64(application) =>
+      "${application}의 새 인스턴스를 실행할까요? 작업을 저장하고 기존 인스턴스를 직접 종료하세요. 단일 인스턴스 앱은 프록시가 없는 기존 프로세스를 재사용할 수 있습니다. 기존 프로세스를 자동으로 종료하지 않습니다.";
+
+  static String m65(rule) =>
+      "이 CIDR을 안전하게 변환할 수 없습니다: ${rule}. 정확한 IP 또는 지원되는 네트워크 접두사를 사용하세요.";
+
+  static String m66(rule) =>
+      "잘못된 IP/도메인 규칙: ${rule}. 줄마다 IP, 지원 CIDR 또는 도메인 패턴을 사용하고 URL이나 포트를 입력하지 마세요.";
+
+  static String m67(error) => "작업 실패: ${error}";
+
+  static String m68(count) => "보고된 패킷 수: ${count}";
+
+  static String m69(number, offset, length) =>
+      "데이터그램 ${number}: 오프셋 ${offset}, ${length}바이트";
+
+  static String m70(length) => "읽기 전용 접두부는 최대 ${length}바이트이며 범위와 방향은 잠겨 있습니다.";
+
+  static String m71(count) =>
+      "프로필 ${count}개를 추가할까요? 기존 항목을 유지하고 이름이나 ID 충돌은 거부합니다. 프로그램을 실행하지 않습니다. 아래 실행 경로를 확인하세요.";
+
+  static String m72(name) =>
+      "“${name}”을 양식에 불러올까요? 실행하지 않으며 신뢰 및 민감한 기능 동의가 초기화됩니다.";
+
+  static String m73(count) =>
+      "선택한 기존 TCP 연결 ${count}개(직접 연결 포함)를 끊을까요? 업로드나 세션이 중단될 수 있습니다. 앱이 직접 재연결해야 하며 성공은 보장되지 않습니다. UDP에는 영향이 없습니다.";
+
+  static String m74(start, end, total, all) =>
+      "일치 ${total}개 중 ${start}–${end} (전체 녹화 ${all}개)";
+
+  static String m75(count) => "녹화 경고: ${count}";
+
+  static String m76(days) => "${Intl.plural(days, other: '${days}일 남음')}";
+
+  static String m77(date, days) =>
       "${date} 만료, ${Intl.plural(days, other: '${days}일')} 남음";
 
-  static String m64(time) => "${time} 업데이트";
+  static String m78(time) => "${time} 업데이트";
 
-  static String m65(label, profiles) =>
+  static String m79(label, profiles) =>
       "${label}은(는) 아직 ${profiles}에서 사용 중이며, 삭제하면 해당 프로필이 제대로 작동하지 않습니다. 삭제하시겠습니까?";
 
-  static String m66(count, label) =>
+  static String m80(count, label) =>
       "${Intl.plural(count, other: '프록시 ${label}개')}";
 
-  static String m67(name, count) => "${name} 외 (프록시 ${count}개)";
+  static String m81(name, count) => "${name} 외 (프록시 ${count}개)";
 
-  static String m68(removed) =>
+  static String m82(removed) =>
       "다음 프록시가 삭제됩니다: ${removed}. 이름이 바뀐 줄은 새 프록시로 간주되며, 삭제된 프록시를 지정한 사용자 지정 프로필에는 누락으로 표시됩니다. 그래도 적용하시겠습니까?";
 
-  static String m69(removed, added) =>
+  static String m83(removed, added) =>
       "다음 프록시가 삭제됩니다: ${removed}. 다음 프록시가 추가됩니다: ${added}. 이름이 바뀐 줄은 새 프록시로 간주되며, 삭제된 프록시를 지정한 사용자 지정 프로필에는 누락으로 표시됩니다. 그래도 적용하시겠습니까?";
 
-  static String m70(label) =>
+  static String m84(label) =>
       "${label}은(는) 이 프로필의 규칙, 프록시 그룹, 다이얼러 프록시, DNS 또는 NTP에서 아직 참조 중이며, 삭제하면 작동하지 않게 됩니다. 삭제하시겠습니까?";
 
-  static String m71(count, label) =>
+  static String m85(count, label) =>
       "${Intl.plural(count, other: '프록시 그룹 ${label}개')}";
 
-  static String m72(count, label) =>
+  static String m86(count, label) =>
       "${Intl.plural(count, other: '규칙 ${label}개')}";
 
-  static String m73(appName) => "${appName} (안전 모드)";
+  static String m87(appName) => "${appName} (안전 모드)";
 
-  static String m74(count) => "${Intl.plural(count, other: '${count}초')}";
+  static String m88(count) => "${Intl.plural(count, other: '${count}초')}";
 
-  static String m75(count) => "${count}개 적용 중";
+  static String m89(count) => "${count}개 적용 중";
 
-  static String m76(count) => "${Intl.plural(count, other: '문제 ${count}건')}";
+  static String m90(count) => "${Intl.plural(count, other: '문제 ${count}건')}";
 
-  static String m77(count) => "${Intl.plural(count, other: '설정 ${count}개')}";
+  static String m91(count) => "${Intl.plural(count, other: '설정 ${count}개')}";
 
-  static String m78(link) => "읽을 수 있는 프록시가 없습니다: ${link}";
+  static String m92(link) => "읽을 수 있는 프록시가 없습니다: ${link}";
 
-  static String m79(label) => "${label}은(는) 하나만 입력해야 합니다";
+  static String m93(label) => "${label}은(는) 하나만 입력해야 합니다";
 
-  static String m80(value) => "최고 ${value}";
+  static String m94(value) => "최고 ${value}";
 
-  static String m81(value) => "합계 ${value}";
+  static String m95(value) => "합계 ${value}";
 
-  static String m82(transport) => "${transport} 요청 헤더";
+  static String m96(transport) => "${transport} 요청 헤더";
 
-  static String m83(label) => "${label}은(는) URL이어야 합니다";
+  static String m97(label) => "${label}은(는) URL이어야 합니다";
 
-  static String m84(count) => "${Intl.plural(count, other: '${count}년 전')}";
+  static String m98(count) => "${Intl.plural(count, other: '${count}년 전')}";
 
-  static String m85(count) => "${Intl.plural(count, other: '${count}년 전')}";
+  static String m99(count) => "${Intl.plural(count, other: '${count}년 전')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1116,13 +1154,460 @@ class MessageLookup extends MessageLookupByLibrary {
     "privateKey": MessageLookupByLibrary.simpleMessage("개인 키"),
     "privateKeyPassphrase": MessageLookupByLibrary.simpleMessage("개인 키 암호"),
     "process": MessageLookupByLibrary.simpleMessage("프로세스"),
+    "processProxy": MessageLookupByLibrary.simpleMessage("프로세스 프록시"),
+    "processProxyAdvanced": MessageLookupByLibrary.simpleMessage("고급 기능 · 실험적"),
+    "processProxyAdvancedHelp": MessageLookupByLibrary.simpleMessage(
+      "HTTPS/QUIC 복호화, CA 신뢰, 모니터링, 기록 및 재생은 아직 FlClash로 완전히 이전되지 않았습니다. 기본적으로 모두 꺼져 있으며 복호화 설정만으로 인증서 설치나 모니터링을 시작하지 않습니다.",
+    ),
+    "processProxyApplications": MessageLookupByLibrary.simpleMessage("설치된 앱"),
+    "processProxyApplicationsHelp": MessageLookupByLibrary.simpleMessage(
+      "App Paths와 시작 메뉴의 로컬 EXE를 읽기 전용으로 검색합니다. 바로가기 인수와 작업 폴더를 보존합니다. 기존 프로세스를 실행, 연결 또는 종료하지 않습니다. UWP와 스크립트는 지원하지 않습니다.",
+    ),
+    "processProxyApplyCapture": MessageLookupByLibrary.simpleMessage(
+      "수집 제한 적용",
+    ),
+    "processProxyArguments": MessageLookupByLibrary.simpleMessage(
+      "인수 (JSON 문자열 배열)",
+    ),
+    "processProxyArgumentsHelp": MessageLookupByLibrary.simpleMessage(
+      "예: [\"--profile\", \"Work\"]. 셸을 사용하지 않습니다. 암호나 토큰을 입력하지 마세요.",
+    ),
+    "processProxyBackend": MessageLookupByLibrary.simpleMessage(
+      "ProxyLane 백엔드",
+    ),
+    "processProxyBackendHelp": MessageLookupByLibrary.simpleMessage(
+      "신뢰할 수 있는 전체 ProxyLane v1.3.5 설치를 선택하세요. 격리된 세션 복사본을 사용하며 원래 설정은 덮어쓰지 않습니다.",
+    ),
+    "processProxyBackendPath": MessageLookupByLibrary.simpleMessage(
+      "공식 ProxyLane64.exe 경로",
+    ),
+    "processProxyBackendRunning": MessageLookupByLibrary.simpleMessage(
+      "백엔드 실행 중 · 트래픽 확인 필요",
+    ),
+    "processProxyBlockUdp": MessageLookupByLibrary.simpleMessage(
+      "UDP 차단 (지원되는 경우 QUIC가 TCP로 전환)",
+    ),
+    "processProxyBypass": MessageLookupByLibrary.simpleMessage(
+      "제외할 IP, CIDR 및 도메인 — 한 줄에 하나",
+    ),
+    "processProxyBypassHelp": MessageLookupByLibrary.simpleMessage(
+      "제외된 대상은 직접 연결합니다. 내부 도메인을 명시적으로 추가하세요. IP 규칙은 대상 IP를 알 때 적용되며 호스트 이름이 우선합니다.",
+    ),
+    "processProxyCaWarning": MessageLookupByLibrary.simpleMessage(
+      "인증서는 자동으로 설치되지 않습니다. 로컬 CA를 신뢰하면 현재 사용자의 가로챈 TLS 연결에 신뢰 인증서를 발급할 수 있습니다. 권한이 있는 앱과 트래픽만 검사하세요.",
+    ),
+    "processProxyCacheId": MessageLookupByLibrary.simpleMessage("캐시 ID"),
+    "processProxyCaptureOptions": MessageLookupByLibrary.simpleMessage(
+      "수집 제한 (JSON 객체)",
+    ),
+    "processProxyCapturePrivacy": MessageLookupByLibrary.simpleMessage(
+      "복호화와 녹화는 기본적으로 꺼져 있습니다. 권한이 있는 앱 트래픽만 검사하세요. 녹화는 선택한 로컬 디렉터리에 저장되므로 필요에 따라 보호하고 삭제하세요. 모니터링을 중지하면 캡처와 새 연결 복호화가 꺼지지만 기존 TLS 브리지는 연결이 끝나거나 명시적으로 다시 연결할 때까지 유지될 수 있습니다. 신뢰된 CA는 별도로 제거해야 합니다. 다시 연결하면 전송이 중단될 수 있으며 자동으로 실행되지 않습니다.",
+    ),
+    "processProxyCertificates": MessageLookupByLibrary.simpleMessage("인증서"),
+    "processProxyChildRuleInclude": MessageLookupByLibrary.simpleMessage(
+      "규칙과 일치하는 자식만 주입",
+    ),
+    "processProxyChildRules": MessageLookupByLibrary.simpleMessage(
+      "자식 프로세스 경로 / 이름 규칙",
+    ),
+    "processProxyChildRulesHelp": MessageLookupByLibrary.simpleMessage(
+      "줄마다 로컬 전체 경로/패턴 또는 EXE 이름을 최대 128개 입력합니다. 자식 프록시가 켜져 있어야 합니다. 기본은 일치 항목 제외이며 아래 스위치를 켜면 일치 항목만 포함합니다. 빈 값은 모든 자식이며 루트에는 영향이 없습니다. 제외된 자식에는 주입하지 않아 그 하위도 자동 상속하지 않으므로 중간 실행기를 포함하세요.",
+    ),
+    "processProxyChildren": MessageLookupByLibrary.simpleMessage("자식 프로세스 포함"),
+    "processProxyClient": MessageLookupByLibrary.simpleMessage("클라이언트 → 서버"),
+    "processProxyCloseReplay": MessageLookupByLibrary.simpleMessage("재생 닫기"),
+    "processProxyConfirmAdvanced": m62,
+    "processProxyConfirmCa": m63,
+    "processProxyConfirmLaunch": m64,
+    "processProxyCoreRequired": MessageLookupByLibrary.simpleMessage(
+      "앱을 실행하기 전에 대시보드에서 FlClash를 시작하세요.",
+    ),
+    "processProxyCoreSessionEnded": MessageLookupByLibrary.simpleMessage(
+      "코어 상태 또는 리스너 설정이 변경되어 이 프로세스 프록시 세션이 무효화되었습니다. 백엔드나 코어가 중지된 후에도 주입된 후크가 남아 새 연결이 실패할 수 있습니다. 깨끗한 상태로 돌아가려면 선택한 앱을 수동으로 다시 시작하세요. 앱을 자동 종료하거나 재시작하지 않으며 직접 연결 복구나 킬 스위치를 보장하지 않습니다.",
+    ),
+    "processProxyDataTruncated": MessageLookupByLibrary.simpleMessage(
+      "처음 48KiB만 표시합니다. 쿼리를 좁히거나 다른 페이지를 읽으세요.",
+    ),
+    "processProxyDatagrams": MessageLookupByLibrary.simpleMessage("데이터그램 경계"),
+    "processProxyDatagramsHelp": MessageLookupByLibrary.simpleMessage(
+      "백엔드가 제공한 바이트 오프셋과 길이만 표시합니다. 캡처된 페이로드 데이터그램이며 IP 패킷이나 추정 경계가 아닙니다. 비어 있지 않은 항목을 선택한 후 명시적으로 제한된 접두부를 읽으세요.",
+    ),
+    "processProxyDecryptHttps": MessageLookupByLibrary.simpleMessage(
+      "모니터링을 명시적으로 시작할 때 HTTPS 복호화 허용",
+    ),
+    "processProxyDecryptQuic": MessageLookupByLibrary.simpleMessage(
+      "모니터링을 명시적으로 시작할 때 QUIC 복호화 허용",
+    ),
+    "processProxyDirectMode": MessageLookupByLibrary.simpleMessage(
+      "직접 연결 모드입니다. 규칙 또는 전역 모드와 프록시를 선택한 후 실행하세요. 이 페이지는 모드를 자동 변경하지 않습니다.",
+    ),
+    "processProxyDirectory": MessageLookupByLibrary.simpleMessage(
+      "로컬 디렉터리 전체 경로",
+    ),
+    "processProxyDnsHelp": MessageLookupByLibrary.simpleMessage(
+      "로컬 및 회사 분할 DNS를 유지하도록 기본적으로 꺼져 있습니다. 로컬 DNS 쿼리는 네트워크에 보일 수 있습니다. 사설 DNS는 강제로 리디렉션하지 않습니다.",
+    ),
+    "processProxyEmptyPacket": MessageLookupByLibrary.simpleMessage(
+      "길이가 0인 데이터그램으로 페이로드를 읽지 않습니다.",
+    ),
+    "processProxyEncryptedPayload": MessageLookupByLibrary.simpleMessage(
+      "암호화된 TLS/QUIC 페이로드입니다. 이 스냅샷에 평문이 없으며 Raw/Hex도 복호화하지 않습니다.",
+    ),
+    "processProxyEndpoint": MessageLookupByLibrary.simpleMessage("현재 로컬 엔드포인트"),
+    "processProxyErrorArchitecture": MessageLookupByLibrary.simpleMessage(
+      "실험적 기본 브리지는 현재 x64 루트 앱만 지원합니다. 지원되는 x64 실행 파일을 선택하세요. 기존 프로세스에 자동으로 연결하지 않습니다.",
+    ),
+    "processProxyErrorAuthentication": MessageLookupByLibrary.simpleMessage(
+      "로컬 프록시 인증에 실패했습니다. FlClash의 사용자 이름과 암호 설정을 확인하세요. 이 오류에는 자격 증명이 표시되지 않습니다.",
+    ),
+    "processProxyErrorBackendVersion": MessageLookupByLibrary.simpleMessage(
+      "전체 ProxyLane v1.3.5 설치의 공식 ProxyLane64.exe를 선택하세요. 선택한 버전은 지원되지 않습니다.",
+    ),
+    "processProxyErrorBridge": MessageLookupByLibrary.simpleMessage(
+      "기본 브리지가 없거나 작업을 거부했습니다. 호환되는 Windows 브리지 빌드와 백엔드를 확인한 후 새 세션을 시작하세요.",
+    ),
+    "processProxyErrorBusy": MessageLookupByLibrary.simpleMessage(
+      "이미 실행 작업이 진행 중입니다. 완료된 후 다시 시도하세요.",
+    ),
+    "processProxyErrorCaRequired": MessageLookupByLibrary.simpleMessage(
+      "복호화에는 초기화되고 현재 사용자가 명시적으로 신뢰한 CA가 필요합니다. 인증서 탭을 확인하세요. 신뢰를 자동 설치하지 않습니다.",
+    ),
+    "processProxyErrorChildRule": MessageLookupByLibrary.simpleMessage(
+      "자식 규칙이 잘못되었습니다. 줄마다 로컬 전체 경로/패턴 또는 EXE 이름을 사용하세요. UNC, 상위 경로 이동, 명령줄 문법은 허용되지 않습니다.",
+    ),
+    "processProxyErrorCidr": m65,
+    "processProxyErrorComponents": MessageLookupByLibrary.simpleMessage(
+      "필수 ProxyLane 구성 요소가 없습니다. 공식 전체 패키지를 한 폴더에 풀고 ProxyLane64.exe를 다시 선택하세요.",
+    ),
+    "processProxyErrorCoreChanged": MessageLookupByLibrary.simpleMessage(
+      "실행 중 FlClash가 중지되었거나 프록시 설정이 변경되었습니다. 상태를 확인한 후 새 세션을 시작하세요.",
+    ),
+    "processProxyErrorDirectory": MessageLookupByLibrary.simpleMessage(
+      "전체 경로로 존재하는 로컬 디렉터리를 선택하세요. 네트워크 공유 및 링크는 허용되지 않습니다.",
+    ),
+    "processProxyErrorExecutable": MessageLookupByLibrary.simpleMessage(
+      "전체 경로로 존재하는 로컬 .exe 파일을 선택하세요. 바로 가기, 네트워크 경로 및 명령 문자열은 지원되지 않습니다.",
+    ),
+    "processProxyErrorGeneric": MessageLookupByLibrary.simpleMessage(
+      "작업을 완료하지 못했습니다. 선택한 파일과 코어 상태를 확인한 후 다시 시도하세요. 민감할 수 있는 진단 정보는 숨겨집니다.",
+    ),
+    "processProxyErrorHook": MessageLookupByLibrary.simpleMessage(
+      "선택한 앱에서 프록시를 초기화하지 못했습니다. 호환되지 않거나 보호된 앱일 수 있습니다. 보안 보호를 끄지 말고 지원되는 앱을 사용하세요.",
+    ),
+    "processProxyErrorListener": MessageLookupByLibrary.simpleMessage(
+      "설정된 로컬 프록시의 프로토콜 확인에 실패했습니다. FlClash 실행 상태와 mixed, SOCKS 또는 HTTP 수신 포트를 확인하세요.",
+    ),
+    "processProxyErrorMonitoringActive": MessageLookupByLibrary.simpleMessage(
+      "수집 제한 변경, 재생 열기 또는 인증서 신뢰 변경 전에 모니터링과 기록을 중지하세요.",
+    ),
+    "processProxyErrorNativeRequired": MessageLookupByLibrary.simpleMessage(
+      "이 옵션에는 FlClashProxyBridge.exe가 필요합니다. 호환 실행기는 안전하게 적용할 수 없습니다.",
+    ),
+    "processProxyErrorPathLength": MessageLookupByLibrary.simpleMessage(
+      "현재 백엔드는 경로를 UTF-8 240바이트로 제한합니다. 더 짧은 로컬 경로를 선택하세요. 유니코드와 임시 경로는 Windows 검증이 필요합니다.",
+    ),
+    "processProxyErrorProcessQuery": MessageLookupByLibrary.simpleMessage(
+      "Windows에서 접근 가능한 프로세스 목록을 읽지 못했습니다. 다시 검색하거나 .exe 파일을 직접 선택하세요.",
+    ),
+    "processProxyErrorQuic": MessageLookupByLibrary.simpleMessage(
+      "QUIC 복호화에는 UDP가 필요합니다. 먼저 UDP 차단을 명시적으로 끄세요.",
+    ),
+    "processProxyErrorQuicPrepare": MessageLookupByLibrary.simpleMessage(
+      "이 앱은 QUIC 검사 준비 없이 시작되었습니다. 직접 종료한 뒤 QUIC 준비에 동의하고 다시 실행한 후 QUIC 복호화를 켜세요.",
+    ),
+    "processProxyErrorQuicSocks": MessageLookupByLibrary.simpleMessage(
+      "QUIC 준비에는 실행 중인 코어의 SOCKS5 또는 혼합 포트가 필요합니다. HTTP 전용은 지원하지 않습니다.",
+    ),
+    "processProxyErrorRecordingState": MessageLookupByLibrary.simpleMessage(
+      "백엔드가 요청한 녹화 상태를 확인하지 않았습니다. 녹화가 시작되거나 중지되었다고 가정하지 마세요. 이 세션을 중지하고 로컬 녹화 디렉터리를 확인한 뒤 새 세션에서 모니터링 또는 녹화를 다시 켜세요.",
+    ),
+    "processProxyErrorResponseLarge": MessageLookupByLibrary.simpleMessage(
+      "요청 또는 응답이 안전한 크기 제한을 넘었습니다. 기록 수, 미리 보기 크기 또는 입력 길이를 줄인 후 다시 시도하세요.",
+    ),
+    "processProxyErrorRule": m66,
+    "processProxyErrorRuleLimit": MessageLookupByLibrary.simpleMessage(
+      "규칙 제한을 초과했습니다. IP/도메인은 최대 512개, 자식 프로세스는 128개이며 각 목록은 16 KiB 이하여야 합니다.",
+    ),
+    "processProxyErrorSession": MessageLookupByLibrary.simpleMessage(
+      "이 백엔드 세션을 사용할 수 없습니다. 필요한 경우 대상 앱을 직접 닫고 새 세션을 시작하세요.",
+    ),
+    "processProxyErrorSettings": MessageLookupByLibrary.simpleMessage(
+      "저장된 설정을 읽지 못했습니다. 설정을 다시 입력하고 저장하세요.",
+    ),
+    "processProxyErrorTrust": MessageLookupByLibrary.simpleMessage(
+      "백엔드 경로를 확인하고 신뢰 여부를 명시적으로 선택하세요.",
+    ),
+    "processProxyErrorWindows": MessageLookupByLibrary.simpleMessage(
+      "현재 Windows 및 기본 로컬 프로세스 조회 도구가 필요합니다.",
+    ),
+    "processProxyErrorWorkingDirectory": MessageLookupByLibrary.simpleMessage(
+      "존재하는 로컬 절대 경로를 사용하세요. UNC, 상위 경로 이동, 대체 데이터 스트림은 허용되지 않습니다.",
+    ),
+    "processProxyExited": MessageLookupByLibrary.simpleMessage("백엔드 종료됨"),
+    "processProxyExperimentalHint": MessageLookupByLibrary.simpleMessage(
+      "실험적 기능: Windows 실기기 검증이 필요합니다. 이 세션의 실제 백엔드 응답만 표시하며 수동으로 새로 고칩니다.",
+    ),
+    "processProxyFailed": m67,
+    "processProxyGoncUnsupported": MessageLookupByLibrary.simpleMessage(
+      "GONC TLS-PSK 암호화 프록시는 일반 로컬 FlClash 포트와 호환되지 않습니다. 선택한 노드를 우회하도록 원격 서버로 전환하지 않습니다.",
+    ),
+    "processProxyHeaders": MessageLookupByLibrary.simpleMessage(
+      "헤더 (순서 및 중복 유지)",
+    ),
+    "processProxyHeadersUnavailable": MessageLookupByLibrary.simpleMessage(
+      "이 스냅샷에 헤더 메타데이터가 없습니다.",
+    ),
+    "processProxyHex": MessageLookupByLibrary.simpleMessage("16진수"),
+    "processProxyInformational": MessageLookupByLibrary.simpleMessage("정보 응답"),
+    "processProxyInitializeCa": MessageLookupByLibrary.simpleMessage(
+      "CA 자료 초기화",
+    ),
+    "processProxyIntro": MessageLookupByLibrary.simpleMessage(
+      "선택한 앱만 현재 FlClash 프록시로 실행합니다. 시스템 프록시와 TUN은 끈 상태로 유지합니다.",
+    ),
+    "processProxyInvalidArguments": MessageLookupByLibrary.simpleMessage(
+      "인수는 문자열만 포함하는 JSON 배열이어야 합니다.",
+    ),
+    "processProxyJsonObjectRequired": MessageLookupByLibrary.simpleMessage(
+      "지정된 필드를 포함하는 올바른 JSON 객체를 입력하세요.",
+    ),
+    "processProxyLaunch": MessageLookupByLibrary.simpleMessage("프록시로 실행"),
+    "processProxyMessageIncomplete": MessageLookupByLibrary.simpleMessage(
+      "메시지 완료가 확인되지 않았습니다.",
+    ),
+    "processProxyMonitor": MessageLookupByLibrary.simpleMessage("트래픽 모니터링"),
+    "processProxyNativeWorkspace": MessageLookupByLibrary.simpleMessage(
+      "기본 고급 작업 공간",
+    ),
+    "processProxyNoData": MessageLookupByLibrary.simpleMessage(
+      "아직 응답이 없습니다. 읽기 또는 새로 고침을 선택하세요.",
+    ),
+    "processProxyNoPort": MessageLookupByLibrary.simpleMessage(
+      "사용 가능한 로컬 프록시 포트가 없습니다.",
+    ),
+    "processProxyNoProcesses": MessageLookupByLibrary.simpleMessage(
+      "일치하는 접근 가능한 앱이 없습니다. .exe 파일을 선택할 수 있습니다.",
+    ),
+    "processProxyOffset": MessageLookupByLibrary.simpleMessage("바이트 오프셋"),
+    "processProxyOnlyRules": MessageLookupByLibrary.simpleMessage(
+      "이 IP / 도메인만 프록시 (선택)",
+    ),
+    "processProxyOnlyRulesHelp": MessageLookupByLibrary.simpleMessage(
+      "줄마다 IP, 지원 CIDR 또는 도메인 패턴을 입력하세요. 비우면 모든 대상이며 불일치 대상은 직접 연결합니다. 우회 규칙이 항상 우선합니다. 앱이 IP를 제공할 때만 IP 규칙이 적용되므로 내부 도메인을 명시하세요. 다음 실행부터 적용됩니다.",
+    ),
+    "processProxyOpenBackend": MessageLookupByLibrary.simpleMessage(
+      "고급 작업 공간 (ProxyLane 기본 창)",
+    ),
+    "processProxyOpenReplay": MessageLookupByLibrary.simpleMessage(
+      "기록 디렉터리 열기",
+    ),
+    "processProxyOverview": MessageLookupByLibrary.simpleMessage("개요"),
+    "processProxyPacketCount": m68,
+    "processProxyPacketLimit": MessageLookupByLibrary.simpleMessage(
+      "방향별 인덱스의 처음 128개만 표시합니다. 추가 또는 미인덱싱 패킷이 있을 수 있습니다.",
+    ),
+    "processProxyPacketMetadata": m69,
+    "processProxyPacketPrefix": m70,
+    "processProxyPacketsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "데이터그램 인덱스가 없어 경계를 재구성할 수 없습니다.",
+    ),
+    "processProxyPayloadDecode": MessageLookupByLibrary.simpleMessage(
+      "디코딩 미리보기 읽기",
+    ),
+    "processProxyPayloadDns": MessageLookupByLibrary.simpleMessage("DNS 해석"),
+    "processProxyPayloadDoh": MessageLookupByLibrary.simpleMessage("DoH 해석"),
+    "processProxyPayloadHelp": MessageLookupByLibrary.simpleMessage(
+      "캡처되었거나 재생 중인 데이터만 요청당 최대 64 KiB 읽습니다. 본문/스트림 데이터이며 HTTP/2 또는 QUIC 원본 네트워크 프레임은 아닙니다.",
+    ),
+    "processProxyPayloadRead": MessageLookupByLibrary.simpleMessage("원본 본문 읽기"),
+    "processProxyPayloadUnavailable": MessageLookupByLibrary.simpleMessage(
+      "본문이 준비되지 않았거나 캐시에서 제거되었거나 불완전합니다. 아래 상태와 경고를 확인하세요.",
+    ),
+    "processProxyPayloadViewer": MessageLookupByLibrary.simpleMessage(
+      "본문 Raw / Hex 미리보기",
+    ),
+    "processProxyPrepareQuic": MessageLookupByLibrary.simpleMessage(
+      "이번 실행의 QUIC 검사 준비",
+    ),
+    "processProxyPrepareQuicHelp": MessageLookupByLibrary.simpleMessage(
+      "실행 전 별도 동의가 필요하며 네이티브 브리지, SOCKS5 및 허용된 UDP가 필요합니다. 해당 프로세스 트리의 브라우저 호환 설정은 프로그램 종료까지 유지됩니다. 모니터링, 복호화, 인증서 설치는 시작하지 않습니다.",
+    ),
+    "processProxyPrivate": MessageLookupByLibrary.simpleMessage("사설 네트워크 제외"),
+    "processProxyProfiles": MessageLookupByLibrary.simpleMessage("실행 프로필"),
+    "processProxyProfilesConflict": MessageLookupByLibrary.simpleMessage(
+      "이름 또는 ID가 중복됩니다. 충돌하는 프로필을 변경하거나 삭제하세요. 덮어쓰지 않았습니다.",
+    ),
+    "processProxyProfilesEmpty": MessageLookupByLibrary.simpleMessage(
+      "저장된 실행 프로필이 없습니다.",
+    ),
+    "processProxyProfilesExport": MessageLookupByLibrary.simpleMessage(
+      "프로필 내보내기",
+    ),
+    "processProxyProfilesExportConfirm": MessageLookupByLibrary.simpleMessage(
+      "현재 인수 옵션에 따라 평문 JSON으로 내보낼까요? 공유 전 경로와 인수의 비밀 정보를 확인하세요. 신뢰, 프록시 자격 증명, 민감한 기능 동의는 내보내지 않습니다.",
+    ),
+    "processProxyProfilesExportHelp": MessageLookupByLibrary.simpleMessage(
+      "기본적으로 모든 인수를 제외합니다. 경로, 이름, 우회 규칙은 평문입니다. 인수에는 암호나 토큰이 포함될 수 있으니 신뢰할 수 있는 위치에만 저장하세요.",
+    ),
+    "processProxyProfilesHelp": MessageLookupByLibrary.simpleMessage(
+      "최대 32개 실행 프로필을 로컬에 저장합니다. 설정과 백업은 평문이며 인수에 비밀이 포함될 수 있습니다. 불러오기는 양식만 채우며 프로그램이나 기존 세션을 변경하지 않습니다. 신뢰 및 캡처/QUIC 동의는 초기화됩니다.",
+    ),
+    "processProxyProfilesImport": MessageLookupByLibrary.simpleMessage(
+      "프로필 가져오기",
+    ),
+    "processProxyProfilesImportConfirm": m71,
+    "processProxyProfilesIncludeArguments":
+        MessageLookupByLibrary.simpleMessage("내보내기에 실행 인수 포함"),
+    "processProxyProfilesInvalid": MessageLookupByLibrary.simpleMessage(
+      "JSON, 버전, 이름 또는 필드 형식이 잘못되었습니다. 기존 프로필은 변경하지 않았습니다.",
+    ),
+    "processProxyProfilesLimit": MessageLookupByLibrary.simpleMessage(
+      "최대 32개까지 가능합니다. 먼저 사용하지 않는 프로필을 삭제하세요.",
+    ),
+    "processProxyProfilesLoadConfirm": m72,
+    "processProxyProfilesSaveCurrent": MessageLookupByLibrary.simpleMessage(
+      "현재 양식을 프로필로 저장",
+    ),
+    "processProxyProfilesStorage": MessageLookupByLibrary.simpleMessage(
+      "로컬 파일을 읽거나 저장할 수 없습니다. 권한과 여유 공간을 확인 후 다시 시도하세요.",
+    ),
+    "processProxyProfilesTooLarge": MessageLookupByLibrary.simpleMessage(
+      "파일은 256 KiB 이하여야 합니다. 기존 프로필은 변경하지 않았습니다.",
+    ),
+    "processProxyReadDetails": MessageLookupByLibrary.simpleMessage("상세 정보 읽기"),
+    "processProxyReadNext": MessageLookupByLibrary.simpleMessage("다음 기록 읽기"),
+    "processProxyReadQuery": MessageLookupByLibrary.simpleMessage(
+      "읽기 전용 상세 쿼리 (JSON 객체)",
+    ),
+    "processProxyReadQueryHelp": MessageLookupByLibrary.simpleMessage(
+      "응답에 있는 ID를 사용하세요. poll, stats, cache_read, cache_decode, dns_read, recording_page, recording_detail 등의 읽기 전용 쿼리를 지원하며 명령은 실행할 수 없습니다.",
+    ),
+    "processProxyRebuildIndex": MessageLookupByLibrary.simpleMessage(
+      "녹화 인덱스 복구",
+    ),
+    "processProxyRebuildIndexWarning": MessageLookupByLibrary.simpleMessage(
+      "명시적으로 선택한 로컬 녹화 폴더의 인덱스만 재구성합니다. 메타데이터를 기록하지만 네트워크 요청을 다시 보내지 않습니다. 실패나 시간 초과는 자동 재시도하지 않습니다. 백업을 확인하고 모니터링을 중지해 두세요.",
+    ),
+    "processProxyReconnect": MessageLookupByLibrary.simpleMessage(
+      "이 세션의 TCP 연결 재구성",
+    ),
+    "processProxyReconnectConfirm": m73,
+    "processProxyReconnectNone": MessageLookupByLibrary.simpleMessage(
+      "이 세션에 재구성할 TCP 연결이 없습니다.",
+    ),
+    "processProxyRecording": MessageLookupByLibrary.simpleMessage("기록"),
+    "processProxyRecordingAll": MessageLookupByLibrary.simpleMessage("모든 프로토콜"),
+    "processProxyRecordingBrowser": MessageLookupByLibrary.simpleMessage(
+      "오프라인 녹화 탐색",
+    ),
+    "processProxyRecordingBrowserHelp": MessageLookupByLibrary.simpleMessage(
+      "먼저 녹화 작업 공간에서 로컬 녹화를 여세요. 이 화면은 읽기 전용이며 캡처된 요청을 재전송하거나 모니터링을 시작하지 않습니다. 필터 설정 후 새로고침하세요. 페이지는 실시간 커서가 아닌 레코드 오프셋을 사용합니다.",
+    ),
+    "processProxyRecordingCapacity": MessageLookupByLibrary.simpleMessage(
+      "기록 용량 제한 (MiB)",
+    ),
+    "processProxyRecordingChanged": MessageLookupByLibrary.simpleMessage(
+      "페이지 이동 중 열린 녹화가 바뀌었습니다. 이전 행을 지웠으니 첫 페이지부터 새로고침한 후 상세 정보를 읽으세요.",
+    ),
+    "processProxyRecordingDetails": MessageLookupByLibrary.simpleMessage(
+      "녹화 세션 상세",
+    ),
+    "processProxyRecordingNext": MessageLookupByLibrary.simpleMessage("다음 페이지"),
+    "processProxyRecordingNoPayload": MessageLookupByLibrary.simpleMessage(
+      "이 연결 전용 레코드에는 본문 캐시 ID가 없습니다. 아래에 메타데이터를 표시합니다.",
+    ),
+    "processProxyRecordingPageSize": MessageLookupByLibrary.simpleMessage(
+      "페이지당 레코드",
+    ),
+    "processProxyRecordingPageSummary": m74,
+    "processProxyRecordingPrevious": MessageLookupByLibrary.simpleMessage(
+      "이전 페이지",
+    ),
+    "processProxyRecordingQueryInvalid": MessageLookupByLibrary.simpleMessage(
+      "제어 문자 없는 256 UTF-8 바이트 이하 필터, 페이지당 1–64개 레코드, 0 이상의 오프셋을 사용하세요.",
+    ),
+    "processProxyRecordingReserve": MessageLookupByLibrary.simpleMessage(
+      "최소 디스크 여유 공간 (MiB)",
+    ),
+    "processProxyRecordingStalled": MessageLookupByLibrary.simpleMessage(
+      "표시된 끝 이전에 빈 페이지가 반환되었습니다. 누락이나 반복을 방지하려고 페이지 이동을 중지했습니다. 새로고침하거나 녹화 상태를 확인하세요.",
+    ),
+    "processProxyRecordingWarnings": m75,
+    "processProxyRefresh": MessageLookupByLibrary.simpleMessage("새로 고침"),
+    "processProxyRemoteDns": MessageLookupByLibrary.simpleMessage(
+      "공개 도메인을 프록시로 확인",
+    ),
+    "processProxyRemoveCa": MessageLookupByLibrary.simpleMessage(
+      "현재 사용자 CA 신뢰 제거",
+    ),
+    "processProxyReplay": MessageLookupByLibrary.simpleMessage("오프라인 재생"),
+    "processProxyRequested": MessageLookupByLibrary.simpleMessage("실행 요청됨"),
+    "processProxyRules": MessageLookupByLibrary.simpleMessage("라우팅 및 제외"),
+    "processProxyRunId": MessageLookupByLibrary.simpleMessage("실행 ID"),
+    "processProxySafeMode": MessageLookupByLibrary.simpleMessage(
+      "안전 모드에서는 실행할 수 없습니다.",
+    ),
+    "processProxySearch": MessageLookupByLibrary.simpleMessage("실행 중인 앱 검색"),
+    "processProxySearchHelp": MessageLookupByLibrary.simpleMessage(
+      "선택하면 새 실행에 사용할 경로만 입력됩니다. 기존 프로세스에 연결하거나 중지 또는 재시작하지 않습니다.",
+    ),
+    "processProxySearchHint": MessageLookupByLibrary.simpleMessage(
+      "이름, PID 또는 실행 파일 경로로 검색",
+    ),
+    "processProxySelectFile": MessageLookupByLibrary.simpleMessage("실행 파일 선택"),
+    "processProxySemanticDetails": MessageLookupByLibrary.simpleMessage(
+      "프로토콜 상세",
+    ),
+    "processProxySemanticHelp": MessageLookupByLibrary.simpleMessage(
+      "선택한 실행 및 기록의 읽기 전용 스냅샷입니다. HTTP 필드는 원본 전송 바이트가 아닌 의미 메타데이터입니다. 이 페이지를 열어도 페이로드를 읽거나 캡처를 시작하지 않습니다.",
+    ),
+    "processProxySemanticUnavailable": MessageLookupByLibrary.simpleMessage(
+      "지원되는 HTTP 헤더나 데이터그램 상세가 없습니다. 앱 메시지 경계를 추정하지 말고 기존 메타데이터 및 페이로드 보기를 사용하세요.",
+    ),
+    "processProxyServer": MessageLookupByLibrary.simpleMessage("서버 → 클라이언트"),
+    "processProxySessionHelp": MessageLookupByLibrary.simpleMessage(
+      "상태는 백엔드 프로세스만 나타내며 앱 트래픽 검증을 뜻하지 않습니다. 페이지를 닫아도 앱은 종료되지 않습니다. 코어 중지 또는 포트 변경 후에는 앱을 닫고 새 세션을 만드세요.",
+    ),
+    "processProxySessionStopWarning": MessageLookupByLibrary.simpleMessage(
+      "이 세션의 모니터링, 녹화 및 프록시를 중지할까요? 앱은 종료되지 않지만 연결이 끊길 수 있습니다. 백엔드나 코어가 중지된 후에도 주입된 후크가 남아 새 연결이 실패할 수 있습니다. 깨끗한 상태로 돌아가려면 선택한 앱을 수동으로 다시 시작하세요. 앱을 자동 종료하거나 재시작하지 않으며 직접 연결 복구나 킬 스위치를 보장하지 않습니다.",
+    ),
+    "processProxySessions": MessageLookupByLibrary.simpleMessage("이 창의 세션"),
+    "processProxyStartMonitor": MessageLookupByLibrary.simpleMessage("모니터링 시작"),
+    "processProxyStartRecording": MessageLookupByLibrary.simpleMessage("기록 시작"),
+    "processProxyStats": MessageLookupByLibrary.simpleMessage("트래픽 통계"),
+    "processProxyStatus": MessageLookupByLibrary.simpleMessage("백엔드 상태"),
+    "processProxyStopMonitor": MessageLookupByLibrary.simpleMessage("모니터링 중지"),
+    "processProxyStopRecording": MessageLookupByLibrary.simpleMessage(
+      "기록 및 모니터링 중지",
+    ),
+    "processProxyStopSession": MessageLookupByLibrary.simpleMessage(
+      "프록시 세션 중지",
+    ),
+    "processProxyTakeoverOff": MessageLookupByLibrary.simpleMessage(
+      "선택한 프로세스만 프록시하려면 시스템 프록시와 TUN을 끄세요.",
+    ),
+    "processProxyTarget": MessageLookupByLibrary.simpleMessage("실행할 앱"),
+    "processProxyTargetPath": MessageLookupByLibrary.simpleMessage("앱 .exe 경로"),
+    "processProxyTrailers": MessageLookupByLibrary.simpleMessage("트레일러"),
+    "processProxyTrust": MessageLookupByLibrary.simpleMessage(
+      "이 백엔드를 신뢰하며 직접 실행한 앱의 프록시 사용을 허용합니다.",
+    ),
+    "processProxyTrustCa": MessageLookupByLibrary.simpleMessage(
+      "현재 사용자에 대해 CA 신뢰",
+    ),
+    "processProxyWorkingDirectory": MessageLookupByLibrary.simpleMessage(
+      "작업 디렉터리 (선택)",
+    ),
+    "processProxyWorkingDirectoryHelp": MessageLookupByLibrary.simpleMessage(
+      "로컬 절대 경로입니다. 비워 두면 실행 파일 폴더를 사용합니다. 지정 시 네이티브 브리지가 필요합니다.",
+    ),
     "profile": MessageLookupByLibrary.simpleMessage("프로필"),
     "profileAutoUpdateIntervalInvalidValidationDesc":
         MessageLookupByLibrary.simpleMessage("올바른 간격을 입력하세요"),
     "profileAutoUpdateIntervalNullValidationDesc":
         MessageLookupByLibrary.simpleMessage("자동 업데이트 간격을 입력하세요"),
-    "profileDaysLeft": m62,
-    "profileExpiresIn": m63,
+    "profileDaysLeft": m76,
+    "profileExpiresIn": m77,
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "프로필이 수정되었습니다. 자동 업데이트를 끄시겠습니까?",
     ),
@@ -1135,7 +1620,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileTunSettingsDesc": MessageLookupByLibrary.simpleMessage(
       "이 프로필에만 적용되며 네트워크 설정의 TUN 덮어쓰기 항목보다 우선합니다.",
     ),
-    "profileUpdatedAt": m64,
+    "profileUpdatedAt": m78,
     "profileUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
       "올바른 프로필 URL을 입력하세요",
     ),
@@ -1148,22 +1633,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "protocol": MessageLookupByLibrary.simpleMessage("프로토콜"),
     "protocolParam": MessageLookupByLibrary.simpleMessage("프로토콜 매개변수"),
     "protocolVersion": MessageLookupByLibrary.simpleMessage("프로토콜 버전"),
-    "providerInUse": m65,
+    "providerInUse": m79,
     "providerUrlTip": MessageLookupByLibrary.simpleMessage("원격 공급자만 지원합니다"),
     "providers": MessageLookupByLibrary.simpleMessage("외부 리소스"),
     "proxies": MessageLookupByLibrary.simpleMessage("프록시"),
-    "proxiesCount": m66,
-    "proxiesProfileLabel": m67,
-    "proxiesRemovedTip": m68,
-    "proxiesReplacedTip": m69,
+    "proxiesCount": m80,
+    "proxiesProfileLabel": m81,
+    "proxiesRemovedTip": m82,
+    "proxiesReplacedTip": m83,
     "proxyChains": MessageLookupByLibrary.simpleMessage("프록시 체인"),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("프록시 그룹"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage("프록시 그룹이 비어 있습니다"),
-    "proxyGroupInUse": m70,
+    "proxyGroupInUse": m84,
     "proxyGroupsAfterStart": MessageLookupByLibrary.simpleMessage(
       "코어가 시작되면 그룹이 여기에 표시됩니다",
     ),
-    "proxyGroupsCount": m71,
+    "proxyGroupsCount": m85,
     "proxyProviders": MessageLookupByLibrary.simpleMessage("프록시 공급자"),
     "proxyType": MessageLookupByLibrary.simpleMessage("프록시 유형"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("캐시 정리"),
@@ -1358,12 +1843,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "규칙은 DOMAIN,example.com,DIRECT처럼 지원하는 유형으로 시작해야 합니다",
     ),
     "rules": MessageLookupByLibrary.simpleMessage("규칙"),
-    "rulesCount": m72,
+    "rulesCount": m86,
     "runTime": MessageLookupByLibrary.simpleMessage("실행 시간"),
     "running": MessageLookupByLibrary.simpleMessage("실행 중"),
     "runtimeConfig": MessageLookupByLibrary.simpleMessage("런타임 구성"),
     "safeMode": MessageLookupByLibrary.simpleMessage("안전 모드"),
-    "safeModeAppTitle": m73,
+    "safeModeAppTitle": m87,
     "saturation": MessageLookupByLibrary.simpleMessage("채도"),
     "save": MessageLookupByLibrary.simpleMessage("저장"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("변경 사항을 저장하시겠습니까?"),
@@ -1374,9 +1859,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "scrollToSelected": MessageLookupByLibrary.simpleMessage("선택 항목으로 스크롤"),
     "search": MessageLookupByLibrary.simpleMessage("검색"),
     "seconds": MessageLookupByLibrary.simpleMessage("초"),
-    "secondsCount": m74,
+    "secondsCount": m88,
     "secretKey": MessageLookupByLibrary.simpleMessage("키"),
-    "sectionsInEffect": m75,
+    "sectionsInEffect": m89,
     "select": MessageLookupByLibrary.simpleMessage("선택"),
     "selectAll": MessageLookupByLibrary.simpleMessage("모두 선택"),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage("규칙 세트를 선택하세요"),
@@ -1405,7 +1890,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "휴대폰 카메라로 코드를 스캔한 뒤 열린 페이지에 링크를 붙여 넣으세요. 두 기기가 같은 네트워크에 연결되어 있어야 합니다.",
     ),
     "server": MessageLookupByLibrary.simpleMessage("서버"),
-    "serviceAbnormalCount": m76,
+    "serviceAbnormalCount": m90,
     "serviceAllAvailable": MessageLookupByLibrary.simpleMessage("모두 사용 가능"),
     "serviceAvailable": MessageLookupByLibrary.simpleMessage("사용 가능"),
     "serviceBlocked": MessageLookupByLibrary.simpleMessage("차단됨"),
@@ -1427,8 +1912,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settingEntries": MessageLookupByLibrary.simpleMessage("설정"),
     "settings": MessageLookupByLibrary.simpleMessage("설정"),
-    "settingsCount": m77,
-    "shareLinkUnreadable": m78,
+    "settingsCount": m91,
+    "shareLinkUnreadable": m92,
     "shareLinksInvalid": MessageLookupByLibrary.simpleMessage(
       "링크에서 읽을 수 있는 프록시가 없습니다",
     ),
@@ -1455,7 +1940,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "singleShareLinkOnly": MessageLookupByLibrary.simpleMessage(
       "여기에는 링크를 하나만 입력하세요. 여러 개는 목록의 빠른 편집에서 편집하세요",
     ),
-    "singleValueTip": m79,
+    "singleValueTip": m93,
     "size": MessageLookupByLibrary.simpleMessage("크기"),
     "skipCertVerify": MessageLookupByLibrary.simpleMessage("인증서 검증 건너뛰기"),
     "skipDomain": MessageLookupByLibrary.simpleMessage("건너뛸 도메인"),
@@ -1549,11 +2034,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("업로드량"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("TProxy 포트"),
     "traffic": MessageLookupByLibrary.simpleMessage("트래픽"),
-    "trafficPeak": m80,
-    "trafficTotal": m81,
+    "trafficPeak": m94,
+    "trafficTotal": m95,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("트래픽 사용량"),
     "transport": MessageLookupByLibrary.simpleMessage("전송"),
-    "transportHeaders": m82,
+    "transportHeaders": m96,
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunAuthorizationFailed": MessageLookupByLibrary.simpleMessage(
       "TUN 권한을 얻지 못해 끄기로 되돌렸습니다.",
@@ -1583,7 +2068,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("업로드"),
     "uploadBandwidth": MessageLookupByLibrary.simpleMessage("업로드 대역폭"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m83,
+    "urlTip": m97,
     "useHosts": MessageLookupByLibrary.simpleMessage("hosts 사용"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("시스템 hosts 사용"),
     "usedShort": MessageLookupByLibrary.simpleMessage("사용"),
@@ -1606,8 +2091,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "시스템에 기록하면 시스템 시계도 설정합니다. Android에서는 무시됩니다.",
     ),
-    "yearsAgo": m84,
-    "yearsAgoShort": m85,
+    "yearsAgo": m98,
+    "yearsAgoShort": m99,
     "yes": MessageLookupByLibrary.simpleMessage("예"),
     "zhCN": MessageLookupByLibrary.simpleMessage("중국어 간체"),
   };

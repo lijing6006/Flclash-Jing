@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_relative_lib_imports
+
 import 'dart:convert';
 
 import '../../lib/services/process_proxy/traffic.dart';
@@ -72,7 +74,9 @@ final Map<String, void Function()> processProxyTrafficCases = {
       try {
         formatProcessProxyPayload(_payload([], fields: {'data_base64': value}));
         throw StateError('Expected failure');
-      } on ProcessProxyException {}
+      } on ProcessProxyException {
+        continue;
+      }
     }
   },
   'rows without a valid run identity cannot open a payload from another run':

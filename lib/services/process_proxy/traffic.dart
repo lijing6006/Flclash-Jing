@@ -111,8 +111,14 @@ class ProcessProxyTrafficRow {
   final String label;
   final int cacheId;
   final String runId;
+  final Map<String, dynamic> record;
 
-  const ProcessProxyTrafficRow(this.label, this.cacheId, this.runId);
+  const ProcessProxyTrafficRow(
+    this.label,
+    this.cacheId,
+    this.runId,
+    this.record,
+  );
 }
 
 List<ProcessProxyTrafficRow> processProxyTrafficRows(
@@ -139,6 +145,7 @@ List<ProcessProxyTrafficRow> processProxyTrafficRows(
         label.length > 256 ? label.substring(0, 256) : label,
         id,
         runId,
+        Map<String, dynamic>.unmodifiable(record),
       ),
     );
   }

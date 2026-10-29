@@ -40,3 +40,11 @@
 ## English summary
 
 The existing read-only protocol can drive genuine directional Raw/Hex, payload/cache status, DNS/DoH, offline detail and filtered pages. Do not conflate reconstructed plaintext with original wire bytes, or offline replay with network retransmission. QUIC compatibility preparation is a separate first-injection, process-lifetime opt-in; capture/decryption and CA trust remain independent. Index recovery writes metadata and needs its own explicit confirmation. GONC encrypts the proxy-server transport and is not compatible with the required ordinary local FlClash listener. Every Windows-specific behavior remains unverified in this workspace.
+
+## 停止不等于卸载 Hook / Stop is not unhook
+
+固定版本 `GlobalProxy.cpp:113–126`、`PRCTcpServer.cpp:153–157` 的 DisableProxy 关闭broker的PRC/监听/任务，不卸载目标内的Hook。`ProxyModule.cpp:187–191,230–240` 与 `ProxyModule.h:363–366` 显示DLL被固定，显式unhook属于目标内部且需静止状态，本桥接不调用它。
+
+因此停止/核心失效后，新的被拦截TCP及未缓存UDP可能因broker缺失返回HOOK_FAILED/SOCKET_ERROR，而非恢复直连（`HookWinsock.cpp:1422–1429,1860–1861,1048–1057,1723–1732`）。这仍不是全局fail-closed：loopback bypass保持；remote-DNS缺失管道时可回到系统DNS（`:652–675,1005–1010`）；新子进程在管道失败时可跳过注入并继续执行（`:2475–2476,2508`）；缓存UDP还可能指向旧PRC端点（`:1819–1843`）。不自动杀/重启目标，不承诺DNS或所有后代不泄漏。需要干净状态时，由用户保存工作并手动关闭/重新启动所选应用。
+
+Stopping the broker does not restore a pristine target process. Hooks can remain, new intercepted connections can fail, and loopback/DNS/new-child behavior is not a universal kill switch. Save work and manually relaunch the selected application when a clean process is needed. These are source-reviewed semantics, not Windows runtime validation.

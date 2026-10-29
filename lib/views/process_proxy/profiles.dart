@@ -41,6 +41,7 @@ class _ProcessProxyProfilesViewState extends State<ProcessProxyProfilesView> {
   late final _repository = widget.repository ?? _defaultRepository;
   List<ProcessProxyProfile> _profiles = [];
   bool _busy = false;
+  bool _working = false;
   bool _ready = false;
   bool _includeArguments = false;
   Object? _error;
@@ -62,12 +63,26 @@ class _ProcessProxyProfilesViewState extends State<ProcessProxyProfilesView> {
     } catch (error) {
       if (mounted) setState(() => _error = error);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _working = false;
+        });
+      }
+    }
+  }
+
+  Future<T> _work<T>(Future<T> Function() action) async {
+    if (mounted) setState(() => _working = true);
+    try {
+      return await action();
+    } finally {
+      if (mounted) setState(() => _working = false);
     }
   }
 
   Future<void> _load() => _perform(() async {
-    final profiles = await _repository.load();
+    final profiles = await _work(_repository.load);
     if (mounted) {
       setState(() {
         _profiles = profiles;
@@ -98,7 +113,7 @@ class _ProcessProxyProfilesViewState extends State<ProcessProxyProfilesView> {
   }
 
   Future<void> _store(List<ProcessProxyProfile> profiles) async {
-    await _repository.save(profiles);
+    await _work(() => _repository.save(profiles));
     if (mounted) setState(() => _profiles = profiles);
   }
 
@@ -167,13 +182,13 @@ class _ProcessProxyProfilesViewState extends State<ProcessProxyProfilesView> {
     if (selected == null) return null;
     final path = selected.path;
     if (path == null) throw const ProcessProxyException('profilesStorage');
-    return readProcessProxyProfilesFile(File(path));
+    return _work(() => readProcessProxyProfilesFile(File(path)));
   }
 
   Future<void> _import() => _perform(() async {
     final text = await _readImport();
     if (!mounted || text == null) return;
-    final incoming = await _repository.decodeImport(text);
+    final incoming = await _work(() => _repository.decodeImport(text));
     if (!mounted) return;
     if (incoming.isEmpty) throw const ProcessProxyException('profilesInvalid');
     final merged = mergeProcessProxyProfiles(_profiles, incoming);
@@ -203,13 +218,15 @@ class _ProcessProxyProfilesViewState extends State<ProcessProxyProfilesView> {
     if (!mounted || confirmed != true) return;
     final profiles = _profiles;
     final includeArguments = _includeArguments;
-    final text = await _repository.exportProfiles(
-      profiles,
-      includeArguments: includeArguments,
+    final text = await _work(
+      () => _repository.exportProfiles(
+        profiles,
+        includeArguments: includeArguments,
+      ),
     );
     if (!mounted) return;
     if (widget.exportText case final write?) {
-      await write(text);
+      await _work(() => write(text));
     } else {
       await picker.saveFile(
         'Flclash-Jing-process-profiles.json',
@@ -238,7 +255,7 @@ class _ProcessProxyProfilesViewState extends State<ProcessProxyProfilesView> {
     final enabled = _ready && !_busy;
     return CommonScaffold(
       title: l.processProxyProfiles,
-      isLoading: _busy && !_ready,
+      isLoading: _working && !_ready,
       body: Builder(
         builder: (context) => ListView(
           padding: EdgeInsets.only(
@@ -261,7 +278,7 @@ class _ProcessProxyProfilesViewState extends State<ProcessProxyProfilesView> {
               ),
             if (!_ready && !_busy)
               TextButton(onPressed: _load, child: Text(l.retry)),
-            if (_busy && _ready) const LinearProgressIndicator(),
+            if (_working && _ready) const LinearProgressIndicator(),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Wrap(
@@ -269,6 +286,7 @@ class _ProcessProxyProfilesViewState extends State<ProcessProxyProfilesView> {
                 runSpacing: 12,
                 children: [
                   FilledButton(
+                    key: const ValueKey('process-proxy-save-profile'),
                     onPressed: enabled && widget.currentRequest != null
                         ? _saveCurrent
                         : null,

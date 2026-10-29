@@ -43,6 +43,7 @@ class _Repository extends ProcessProxyProfilesRepository {
   int writes = 0;
   bool failLoad = false;
   bool failSave = false;
+  Completer<void>? pendingSave;
 
   _Repository() : super(_UnusedStorage());
 
@@ -55,6 +56,7 @@ class _Repository extends ProcessProxyProfilesRepository {
   @override
   Future<void> save(List<ProcessProxyProfile> values) async {
     encodeProcessProxyProfiles(values);
+    if (pendingSave case final pending?) await pending.future;
     if (failSave) throw const ProcessProxyException('profilesStorage');
     profiles = List.unmodifiable(values);
     writes++;
@@ -144,6 +146,46 @@ Future<void> _confirm(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('profile naming holds controls without fake work progress', (
+    tester,
+  ) async {
+    final harness = _Harness();
+    await _pump(tester, harness);
+    final save = find.byKey(const ValueKey('process-proxy-save-profile'));
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    expect(harness.repository.writes, 0);
+    await tester.tap(find.text(currentAppLocalizations.cancel));
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
+  });
+
+  testWidgets(
+    'profile storage still shows progress during real asynchronous work',
+    (tester) async {
+      final harness = _Harness();
+      final pending = Completer<void>();
+      harness.repository.pendingSave = pending;
+      await _pump(tester, harness);
+      await tester.tap(
+        find.byKey(const ValueKey('process-proxy-save-profile')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+      await tester.enterText(find.byType(TextFormField), 'Saved');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+      expect(harness.repository.writes, 0);
+      pending.complete();
+      await tester.pumpAndSettle();
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+      expect(harness.repository.writes, 1);
+    },
+  );
+
   testWidgets('empty state does not write and export arguments default off', (
     tester,
   ) async {
@@ -169,6 +211,7 @@ void main() {
     harness.importText = encodeProcessProxyProfiles([_profile('Imported')]);
     await _pump(tester, harness);
     await _import(tester);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
     expect(find.textContaining('Imported'), findsOneWidget);
     expect(harness.repository.writes, 0);
     await tester.tap(find.text(currentAppLocalizations.cancel));
@@ -266,6 +309,7 @@ void main() {
     );
     await tester.tap(export);
     await tester.pumpAndSettle();
+    expect(find.byType(LinearProgressIndicator), findsNothing);
     expect(harness.exported, isEmpty);
     await _confirm(tester);
     expect(harness.exported.single, isNot(contains('private-token')));
@@ -289,14 +333,22 @@ void main() {
       findsOneWidget,
     );
     expect(
-      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+      tester
+          .widget<FilledButton>(
+            find.byKey(const ValueKey('process-proxy-save-profile')),
+          )
+          .onPressed,
       isNull,
     );
     harness.repository.failLoad = false;
     await tester.tap(find.text(currentAppLocalizations.retry));
     await tester.pumpAndSettle();
     expect(
-      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+      tester
+          .widget<FilledButton>(
+            find.byKey(const ValueKey('process-proxy-save-profile')),
+          )
+          .onPressed,
       isNotNull,
     );
     expect(harness.repository.writes, 0);
@@ -307,7 +359,7 @@ void main() {
   ) async {
     final harness = _Harness();
     await _pump(tester, harness);
-    await tester.tap(find.byType(FilledButton));
+    await tester.tap(find.byKey(const ValueKey('process-proxy-save-profile')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField), 'Saved');
     await tester.testTextInput.receiveAction(TextInputAction.done);

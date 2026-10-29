@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_relative_lib_imports
+
 import 'dart:convert';
 
 import '../../lib/services/process_proxy/policy.dart';
@@ -118,9 +120,9 @@ final Map<String, void Function()> processProxyRecordingCases = {
     _check(!query.containsKey('cache_id'));
   },
   'cache detail query carries exact run and bounded preview': () {
-    final row = parseProcessProxyRecordingPage(recordingFixturePage())
-        .rows
-        .single;
+    final row = parseProcessProxyRecordingPage(
+      recordingFixturePage(),
+    ).rows.single;
     final query = row.detailQuery();
     _check(query['type'] == 'recording_detail');
     _check(query['run_id'] == 'recording:100' && query['cache_id'] == 7);
@@ -294,9 +296,9 @@ final Map<String, void Function()> processProxyRecordingCases = {
     );
   },
   'detail must match the selected cache identity': () {
-    final row = parseProcessProxyRecordingPage(recordingFixturePage())
-        .rows
-        .single;
+    final row = parseProcessProxyRecordingPage(
+      recordingFixturePage(),
+    ).rows.single;
     final text = formatProcessProxyRecordingDetail((
       response: recordingFixtureRow(),
       row: row,
@@ -315,8 +317,10 @@ final Map<String, void Function()> processProxyRecordingCases = {
       recordingFixturePage(records: [response]),
     ).rows.single;
     _check(
-      !formatProcessProxyRecordingDetail((response: response, row: row))
-          .truncated,
+      !formatProcessProxyRecordingDetail((
+        response: response,
+        row: row,
+      )).truncated,
     );
     _fails(
       () => formatProcessProxyRecordingDetail((

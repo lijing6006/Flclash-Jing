@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_relative_lib_imports
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -163,11 +165,9 @@ final Map<String, FutureOr<void> Function()> processProxyProfilesCases = {
     final doc = _document();
     _fields(doc).remove('workingDirectory');
     _check(
-      decodeProcessProxyProfiles(jsonEncode(doc))
-          .single
-          .request
-          .workingDirectory
-          .isEmpty,
+      decodeProcessProxyProfiles(
+        jsonEncode(doc),
+      ).single.request.workingDirectory.isEmpty,
     );
   },
   'legacy version one profile may omit all new optional filters': () {
@@ -180,9 +180,9 @@ final Map<String, FutureOr<void> Function()> processProxyProfilesCases = {
     _check(!request.childRuleInclude);
   },
   'filters round trip exactly without restoring sensitive consent': () {
-    final request = decodeProcessProxyProfiles(jsonEncode(_document()))
-        .single
-        .request;
+    final request = decodeProcessProxyProfiles(
+      jsonEncode(_document()),
+    ).single.request;
     _check(request.proxyOnlyRules == _request.proxyOnlyRules);
     _check(
       request.childRules == _request.childRules && request.childRuleInclude,
@@ -561,8 +561,9 @@ final Map<String, FutureOr<void> Function()> processProxyProfilesCases = {
   if (!Platform.isWindows)
     'symbolic profile directory cannot redirect reads or writes': () =>
         _withFiles((root, storage) async {
-          final redirected = await Directory('${root.path}/redirected')
-              .create();
+          final redirected = await Directory(
+            '${root.path}/redirected',
+          ).create();
           await Link(_profileFile(root).parent.path).create(redirected.path);
           await _failsAsync(() async {
             await storage.read();

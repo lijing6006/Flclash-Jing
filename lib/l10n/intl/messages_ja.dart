@@ -152,60 +152,97 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m61(port) => "ポート ${port}";
 
-  static String m62(days) => "残り ${days} 日";
+  static String m62(action) =>
+      "このセッションで「${action}」を実行しますか？監視・記録には認証情報や個人情報を含む場合があります。このページを閉じても収集は停止しません。";
 
-  static String m63(date, days) => "${date} に期限切れ、残り ${days} 日";
+  static String m63(action) =>
+      "現在の Windows ユーザーだけに「${action}」を実行しますか？CA データや信頼を変更します。再接続が必要な場合があります。マシン全体の証明書ストアは変更しません。";
 
-  static String m64(time) => "${time}に更新";
+  static String m64(application) =>
+      "${application} の新しいインスタンスを起動しますか？作業を保存し、既存の同じアプリを自分で終了してください。単一起動アプリはプロキシ未使用の旧プロセスを再利用する場合があります。既存プロセスは自動終了しません。";
 
-  static String m65(label, profiles) =>
+  static String m65(rule) =>
+      "この CIDR を安全に変換できません：${rule}。正確な IP または対応するネットワーク接頭辞を使ってください。";
+
+  static String m66(rule) =>
+      "IP／ドメインルールが無効です：${rule}。1行にIP、対応CIDRまたはドメインパターンを入力し、URLやポートは入力しないでください。";
+
+  static String m67(error) => "操作に失敗しました：${error}";
+
+  static String m68(count) => "報告パケット数：${count}";
+
+  static String m69(number, offset, length) =>
+      "データグラム ${number}：オフセット ${offset}、${length} バイト";
+
+  static String m70(length) => "読み取り専用プレフィックスは最大${length}バイトです。範囲と方向は固定です。";
+
+  static String m71(count) =>
+      "以下の${count}件を追加しますか？既存設定は保持し、名前やIDの競合は拒否します。起動は行いません。実行ファイルのパスを確認してください。";
+
+  static String m72(name) => "「${name}」をフォームに読み込みますか？起動は行わず、信頼と機密機能の同意を解除します。";
+
+  static String m73(count) =>
+      "選択した既存の TCP 接続 ${count} 件（直接接続を含む）を切断しますか？アップロードやセッションが中断する場合があります。再接続はアプリ側で行い、成功は保証されません。UDP は対象外です。";
+
+  static String m74(start, end, total, all) =>
+      "一致する${total}件中 ${start}–${end}件（記録全体は${all}件）";
+
+  static String m75(count) => "記録の警告：${count}";
+
+  static String m76(days) => "残り ${days} 日";
+
+  static String m77(date, days) => "${date} に期限切れ、残り ${days} 日";
+
+  static String m78(time) => "${time}に更新";
+
+  static String m79(label, profiles) =>
       "${label} は ${profiles} でまだ使用されており、削除するとそれらが正常に動作しなくなります。削除してもよろしいですか？";
 
-  static String m66(count, label) =>
+  static String m80(count, label) =>
       "${Intl.plural(count, other: 'プロキシ ${label} 件')}";
 
-  static String m67(name, count) => "${name} など${count}件のプロキシ";
+  static String m81(name, count) => "${name} など${count}件のプロキシ";
 
-  static String m68(removed) =>
+  static String m82(removed) =>
       "次のプロキシが削除されます：${removed}。名前を変えた行は新しいプロキシとして扱われ、削除されたプロキシを参照するカスタムプロファイルでは見つからないと表示されます。適用しますか？";
 
-  static String m69(removed, added) =>
+  static String m83(removed, added) =>
       "次のプロキシが削除されます：${removed}。次のプロキシが追加されます：${added}。名前を変えた行は新しいプロキシとして扱われ、削除されたプロキシを参照するカスタムプロファイルでは見つからないと表示されます。適用しますか？";
 
-  static String m70(label) =>
+  static String m84(label) =>
       "${label} はこのプロファイルのルール、プロキシグループ、ダイヤラープロキシ、DNS または NTP からまだ参照されており、削除するとそれらの参照は無効になります。削除してもよろしいですか？";
 
-  static String m71(count, label) =>
+  static String m85(count, label) =>
       "${Intl.plural(count, other: 'プロキシグループ ${label} 件')}";
 
-  static String m72(count, label) =>
+  static String m86(count, label) =>
       "${Intl.plural(count, other: 'ルール ${label} 件')}";
 
-  static String m73(appName) => "${appName}（セーフモード）";
+  static String m87(appName) => "${appName}（セーフモード）";
 
-  static String m74(count) => "${count} 秒";
+  static String m88(count) => "${count} 秒";
 
-  static String m75(count) => "${count} 件が有効";
+  static String m89(count) => "${count} 件が有効";
 
-  static String m76(count) => "${count} 件に問題";
+  static String m90(count) => "${count} 件に問題";
 
-  static String m77(count) => "設定 ${count} 件";
+  static String m91(count) => "設定 ${count} 件";
 
-  static String m78(link) => "${link} からプロキシを読み取れませんでした";
+  static String m92(link) => "${link} からプロキシを読み取れませんでした";
 
-  static String m79(label) => "${label}は1項目のみ指定できます";
+  static String m93(label) => "${label}は1項目のみ指定できます";
 
-  static String m80(value) => "ピーク ${value}";
+  static String m94(value) => "ピーク ${value}";
 
-  static String m81(value) => "累計 ${value}";
+  static String m95(value) => "累計 ${value}";
 
-  static String m82(transport) => "${transport} リクエストヘッダー";
+  static String m96(transport) => "${transport} リクエストヘッダー";
 
-  static String m83(label) => "${label}はURLである必要があります";
+  static String m97(label) => "${label}はURLである必要があります";
 
-  static String m84(count) => "${count} 年前";
+  static String m98(count) => "${count} 年前";
 
-  static String m85(count) => "${count} 年前";
+  static String m99(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1135,13 +1172,470 @@ class MessageLookup extends MessageLookupByLibrary {
     "privateKey": MessageLookupByLibrary.simpleMessage("秘密鍵"),
     "privateKeyPassphrase": MessageLookupByLibrary.simpleMessage("秘密鍵のパスフレーズ"),
     "process": MessageLookupByLibrary.simpleMessage("プロセス"),
+    "processProxy": MessageLookupByLibrary.simpleMessage("プロセスプロキシ"),
+    "processProxyAdvanced": MessageLookupByLibrary.simpleMessage("高度な機能・試験的"),
+    "processProxyAdvancedHelp": MessageLookupByLibrary.simpleMessage(
+      "HTTPS/QUIC 復号、CA 信頼、監視、記録、再生の FlClash への移行は未完了です。既定では全てオフ。復号設定だけでは証明書の導入や監視は始まりません。",
+    ),
+    "processProxyApplications": MessageLookupByLibrary.simpleMessage(
+      "インストール済みアプリ",
+    ),
+    "processProxyApplicationsHelp": MessageLookupByLibrary.simpleMessage(
+      "App PathsとスタートメニューのローカルEXEを読み取り専用で検索します。引数と作業フォルダーを保持し、起動、接続、終了は行いません。UWPとスクリプトは非対応です。",
+    ),
+    "processProxyApplyCapture": MessageLookupByLibrary.simpleMessage("収集制限を適用"),
+    "processProxyArguments": MessageLookupByLibrary.simpleMessage(
+      "引数（JSON 文字列配列）",
+    ),
+    "processProxyArgumentsHelp": MessageLookupByLibrary.simpleMessage(
+      "例：[\"--profile\", \"Work\"]。シェルは使用しません。パスワードやトークンは入力しないでください。",
+    ),
+    "processProxyBackend": MessageLookupByLibrary.simpleMessage(
+      "ProxyLane バックエンド",
+    ),
+    "processProxyBackendHelp": MessageLookupByLibrary.simpleMessage(
+      "信頼できる完全な ProxyLane v1.3.5 を選択してください。元の設定を変更せず、セッション用コピーを使用します。",
+    ),
+    "processProxyBackendPath": MessageLookupByLibrary.simpleMessage(
+      "公式 ProxyLane64.exe のパス",
+    ),
+    "processProxyBackendRunning": MessageLookupByLibrary.simpleMessage(
+      "バックエンド実行中・通信は要確認",
+    ),
+    "processProxyBlockUdp": MessageLookupByLibrary.simpleMessage(
+      "UDP をブロック（対応アプリは QUIC を TCP に切替）",
+    ),
+    "processProxyBypass": MessageLookupByLibrary.simpleMessage(
+      "除外する IP・CIDR・ドメイン（1 行に 1 件）",
+    ),
+    "processProxyBypassHelp": MessageLookupByLibrary.simpleMessage(
+      "除外先は直接接続します。内部ドメインを明示してください。IP ルールは宛先 IP が分かる場合に適用され、ホスト名が優先されます。",
+    ),
+    "processProxyCaWarning": MessageLookupByLibrary.simpleMessage(
+      "証明書は自動導入しません。CA を信頼すると、このユーザーの傍受 TLS 接続に信頼済み証明書を発行できます。許可されたアプリと通信だけを調査してください。",
+    ),
+    "processProxyCacheId": MessageLookupByLibrary.simpleMessage("キャッシュ ID"),
+    "processProxyCaptureOptions": MessageLookupByLibrary.simpleMessage(
+      "収集制限（JSON オブジェクト）",
+    ),
+    "processProxyCapturePrivacy": MessageLookupByLibrary.simpleMessage(
+      "復号と録画は初期状態で無効です。許可されたアプリの通信のみを検査してください。録画は選択したローカルディレクトリに保存されるため、適切に保護・削除してください。監視を停止すると取得と新規接続の復号は無効になりますが、既存の TLS ブリッジは接続終了または明示的な再接続まで残る場合があります。信頼済み CA は別途削除が必要です。再接続は転送を中断する場合があり、自動では行いません。",
+    ),
+    "processProxyCertificates": MessageLookupByLibrary.simpleMessage("証明書"),
+    "processProxyChildRuleInclude": MessageLookupByLibrary.simpleMessage(
+      "一致する子プロセスのみに注入",
+    ),
+    "processProxyChildRules": MessageLookupByLibrary.simpleMessage(
+      "子プロセスのパス／名前ルール",
+    ),
+    "processProxyChildRulesHelp": MessageLookupByLibrary.simpleMessage(
+      "ローカル完全パス／ワイルドカード、またはEXE名を1行ずつ、最大128件。子プロセスのプロキシが必要です。既定は一致を除外、下のスイッチで一致のみ許可します。空欄はすべて、ルートは対象外です。除外された子には注入せず、その子孫も自動継承しません。中間ランチャーを含めてください。",
+    ),
+    "processProxyChildren": MessageLookupByLibrary.simpleMessage("子プロセスも対象"),
+    "processProxyClient": MessageLookupByLibrary.simpleMessage("クライアント → サーバー"),
+    "processProxyCloseReplay": MessageLookupByLibrary.simpleMessage("再生を閉じる"),
+    "processProxyConfirmAdvanced": m62,
+    "processProxyConfirmCa": m63,
+    "processProxyConfirmLaunch": m64,
+    "processProxyCoreRequired": MessageLookupByLibrary.simpleMessage(
+      "先にダッシュボードで FlClash を開始してください。",
+    ),
+    "processProxyCoreSessionEnded": MessageLookupByLibrary.simpleMessage(
+      "コアの状態またはリスナー設定が変更されたため、このプロセスプロキシセッションは無効になりました。 バックエンドやコアの停止後も注入フックが残り、新規接続が失敗する場合があります。クリーンな状態にするには選択したアプリを手動で再起動してください。アプリの自動終了・再起動は行わず、直接接続の復旧やキルスイッチも保証しません。",
+    ),
+    "processProxyDataTruncated": MessageLookupByLibrary.simpleMessage(
+      "先頭 48 KiB のみ表示しています。クエリを絞るか別のページを読み取ってください。",
+    ),
+    "processProxyDatagrams": MessageLookupByLibrary.simpleMessage("データグラム境界"),
+    "processProxyDatagramsHelp": MessageLookupByLibrary.simpleMessage(
+      "バックエンド提供のバイトオフセットと長さのみを表示します。取得済みペイロードのデータグラムであり、IP パケットや推定境界ではありません。空でない項目を選択し、明示的に上限付きプレフィックスを読み取ってください。",
+    ),
+    "processProxyDecryptHttps": MessageLookupByLibrary.simpleMessage(
+      "監視を明示的に開始した場合に HTTPS 復号を許可",
+    ),
+    "processProxyDecryptQuic": MessageLookupByLibrary.simpleMessage(
+      "監視を明示的に開始した場合に QUIC 復号を許可",
+    ),
+    "processProxyDirectMode": MessageLookupByLibrary.simpleMessage(
+      "直結モードです。ルールまたはグローバルモードとプロキシを選択してから起動してください。このページはモードを自動変更しません。",
+    ),
+    "processProxyDirectory": MessageLookupByLibrary.simpleMessage(
+      "ローカルディレクトリの絶対パス",
+    ),
+    "processProxyDnsHelp": MessageLookupByLibrary.simpleMessage(
+      "ローカル・社内分割 DNS のため既定はオフです。ローカル DNS 問い合わせはネットワークから見える場合があります。プライベート DNS は強制転送しません。",
+    ),
+    "processProxyEmptyPacket": MessageLookupByLibrary.simpleMessage(
+      "長さゼロのデータグラムです。読み取りは行いません。",
+    ),
+    "processProxyEncryptedPayload": MessageLookupByLibrary.simpleMessage(
+      "暗号化された TLS／QUIC ペイロードです。このスナップショットに平文はなく、Raw／Hex も復号しません。",
+    ),
+    "processProxyEndpoint": MessageLookupByLibrary.simpleMessage("現在のローカル接続先"),
+    "processProxyErrorArchitecture": MessageLookupByLibrary.simpleMessage(
+      "試験的ネイティブブリッジは現在 x64 の起動アプリのみ対応します。対応する x64 ファイルを選択してください。既存プロセスへ自動接続しません。",
+    ),
+    "processProxyErrorAuthentication": MessageLookupByLibrary.simpleMessage(
+      "ローカルプロキシ認証に失敗しました。FlClash のユーザー名とパスワードを確認してください。認証情報は表示しません。",
+    ),
+    "processProxyErrorBackendVersion": MessageLookupByLibrary.simpleMessage(
+      "完全な ProxyLane v1.3.5 の公式 ProxyLane64.exe を選択してください。選択したバージョンは未対応です。",
+    ),
+    "processProxyErrorBridge": MessageLookupByLibrary.simpleMessage(
+      "ネイティブブリッジが利用できないか操作を拒否しました。対応する Windows ビルドとバックエンドを確認し、新しいセッションを開始してください。",
+    ),
+    "processProxyErrorBusy": MessageLookupByLibrary.simpleMessage(
+      "起動処理中です。完了してから再試行してください。",
+    ),
+    "processProxyErrorCaRequired": MessageLookupByLibrary.simpleMessage(
+      "復号には初期化済みで明示的に信頼した現在ユーザーの CA が必要です。「証明書」を確認してください。自動で信頼を追加しません。",
+    ),
+    "processProxyErrorChildRule": MessageLookupByLibrary.simpleMessage(
+      "子プロセスルールが無効です。ローカル完全パス／ワイルドカードまたはEXE名を1行ずつ指定してください。UNC、親パス参照、コマンド構文は禁止です。",
+    ),
+    "processProxyErrorCidr": m65,
+    "processProxyErrorComponents": MessageLookupByLibrary.simpleMessage(
+      "必要な ProxyLane コンポーネントがありません。公式パッケージ全体を同じフォルダーに展開して再選択してください。",
+    ),
+    "processProxyErrorCoreChanged": MessageLookupByLibrary.simpleMessage(
+      "起動中に FlClash が停止したか設定が変わりました。状態を確認して新しいセッションを開始してください。",
+    ),
+    "processProxyErrorDirectory": MessageLookupByLibrary.simpleMessage(
+      "既存のローカルディレクトリを絶対パスで指定してください。ネットワーク共有やリンクは使用できません。",
+    ),
+    "processProxyErrorExecutable": MessageLookupByLibrary.simpleMessage(
+      "ローカルにある .exe ファイルを絶対パスで選択してください。ショートカット、ネットワークパス、コマンド文字列には対応していません。",
+    ),
+    "processProxyErrorGeneric": MessageLookupByLibrary.simpleMessage(
+      "操作を完了できません。選択ファイルとコアの状態を確認して再試行してください。機密情報を含む可能性がある詳細は非表示です。",
+    ),
+    "processProxyErrorHook": MessageLookupByLibrary.simpleMessage(
+      "対象アプリでプロキシを初期化できません。非対応または保護されている可能性があります。安全機能を無効にせず、対応アプリを試してください。",
+    ),
+    "processProxyErrorListener": MessageLookupByLibrary.simpleMessage(
+      "ローカルプロキシのハンドシェイクに失敗しました。FlClash と mixed・SOCKS・HTTP ポートを確認してください。",
+    ),
+    "processProxyErrorMonitoringActive": MessageLookupByLibrary.simpleMessage(
+      "収集制限・再生・証明書信頼を変更する前に監視と記録を停止してください。",
+    ),
+    "processProxyErrorNativeRequired": MessageLookupByLibrary.simpleMessage(
+      "この設定にはFlClashProxyBridge.exeが必要です。互換ランチャーでは安全に適用できません。",
+    ),
+    "processProxyErrorPathLength": MessageLookupByLibrary.simpleMessage(
+      "現在のバックエンドはパスを UTF-8 の240バイト以内に制限します。短いローカルパスを選択してください。Unicode と一時パスは Windows での検証が必要です。",
+    ),
+    "processProxyErrorProcessQuery": MessageLookupByLibrary.simpleMessage(
+      "Windows のプロセス照会を完了できません。再検索するか .exe ファイルを直接選択してください。",
+    ),
+    "processProxyErrorQuic": MessageLookupByLibrary.simpleMessage(
+      "QUIC 復号には UDP が必要です。先に「UDP をブロック」を明示的にオフにしてください。",
+    ),
+    "processProxyErrorQuicPrepare": MessageLookupByLibrary.simpleMessage(
+      "このアプリはQUIC検査用に準備されていません。自分で終了し、QUIC準備に同意して再起動してから復号を有効にしてください。",
+    ),
+    "processProxyErrorQuicSocks": MessageLookupByLibrary.simpleMessage(
+      "QUICの準備には実行中コアのSOCKS5またはmixedリスナーが必要です。HTTPのみでは使えません。",
+    ),
+    "processProxyErrorRecordingState": MessageLookupByLibrary.simpleMessage(
+      "バックエンドが要求された録画状態を確認しませんでした。録画が開始または停止したとは限りません。このセッションを停止し、ローカル録画ディレクトリを確認してから新しいセッションで監視または録画を再開してください。",
+    ),
+    "processProxyErrorResponseLarge": MessageLookupByLibrary.simpleMessage(
+      "要求または応答が安全なサイズ制限を超えました。件数・プレビュー・入力の長さを減らして再試行してください。",
+    ),
+    "processProxyErrorRule": m66,
+    "processProxyErrorRuleLimit": MessageLookupByLibrary.simpleMessage(
+      "ルール上限を超えています。IP／ドメインは512件、子プロセスは128件、各リストは16 KiB以下です。",
+    ),
+    "processProxyErrorSession": MessageLookupByLibrary.simpleMessage(
+      "このセッションは利用できません。必要なら対象アプリを自分で閉じ、新しいセッションを起動してください。",
+    ),
+    "processProxyErrorSettings": MessageLookupByLibrary.simpleMessage(
+      "保存した設定を読み込めません。設定を入力し直して保存してください。",
+    ),
+    "processProxyErrorTrust": MessageLookupByLibrary.simpleMessage(
+      "バックエンドのパスを確認し、信頼することを明示してください。",
+    ),
+    "processProxyErrorWindows": MessageLookupByLibrary.simpleMessage(
+      "現在は Windows と標準のローカルプロセス照会ツールが必要です。",
+    ),
+    "processProxyErrorWorkingDirectory": MessageLookupByLibrary.simpleMessage(
+      "存在するローカル絶対パスを指定してください。UNC、親パス参照、代替データストリームは使えません。",
+    ),
+    "processProxyExited": MessageLookupByLibrary.simpleMessage("バックエンド終了"),
+    "processProxyExperimentalHint": MessageLookupByLibrary.simpleMessage(
+      "試験的機能：Windows 実機検証は未完了です。表示はこのセッションの実データのみで、手動更新します。",
+    ),
+    "processProxyFailed": m67,
+    "processProxyGoncUnsupported": MessageLookupByLibrary.simpleMessage(
+      "GONC TLS-PSK暗号化プロキシは通常のローカルFlClashリスナーと互換性がありません。選択したノードを迂回するためにリモートへ切り替えません。",
+    ),
+    "processProxyHeaders": MessageLookupByLibrary.simpleMessage(
+      "ヘッダー（順序と重複を保持）",
+    ),
+    "processProxyHeadersUnavailable": MessageLookupByLibrary.simpleMessage(
+      "このスナップショットにはヘッダーメタデータがありません。",
+    ),
+    "processProxyHex": MessageLookupByLibrary.simpleMessage("16進数"),
+    "processProxyInformational": MessageLookupByLibrary.simpleMessage(
+      "情報レスポンス",
+    ),
+    "processProxyInitializeCa": MessageLookupByLibrary.simpleMessage(
+      "CA データを初期化",
+    ),
+    "processProxyIntro": MessageLookupByLibrary.simpleMessage(
+      "選択したアプリだけを現在の FlClash プロキシで起動します。システムプロキシと TUN はオフのままです。",
+    ),
+    "processProxyInvalidArguments": MessageLookupByLibrary.simpleMessage(
+      "引数には文字列のみの JSON 配列を指定してください。",
+    ),
+    "processProxyJsonObjectRequired": MessageLookupByLibrary.simpleMessage(
+      "指定フィールドを持つ有効な JSON オブジェクトを入力してください。",
+    ),
+    "processProxyLaunch": MessageLookupByLibrary.simpleMessage("プロキシで起動"),
+    "processProxyMessageIncomplete": MessageLookupByLibrary.simpleMessage(
+      "メッセージの完了は未確認です。",
+    ),
+    "processProxyMonitor": MessageLookupByLibrary.simpleMessage("通信監視"),
+    "processProxyNativeWorkspace": MessageLookupByLibrary.simpleMessage(
+      "ネイティブ高度ワークスペース",
+    ),
+    "processProxyNoData": MessageLookupByLibrary.simpleMessage(
+      "応答未取得です。読み取りまたは更新を実行してください。",
+    ),
+    "processProxyNoPort": MessageLookupByLibrary.simpleMessage(
+      "対応するローカルプロキシポートが有効ではありません。",
+    ),
+    "processProxyNoProcesses": MessageLookupByLibrary.simpleMessage(
+      "一致するアクセス可能なアプリはありません。.exe ファイルを選択できます。",
+    ),
+    "processProxyOffset": MessageLookupByLibrary.simpleMessage("バイトオフセット"),
+    "processProxyOnlyRules": MessageLookupByLibrary.simpleMessage(
+      "指定IP／ドメインのみをプロキシ（任意）",
+    ),
+    "processProxyOnlyRulesHelp": MessageLookupByLibrary.simpleMessage(
+      "1行にIP、対応CIDR、またはドメインパターンを入力します。空欄は全宛先、未一致は直接接続です。除外が常に優先します。IP照合はアプリがIPを通知した場合のみです。内部ドメインは明示してください。次回起動から適用します。",
+    ),
+    "processProxyOpenBackend": MessageLookupByLibrary.simpleMessage(
+      "高度なワークスペース（ProxyLane ウィンドウ）",
+    ),
+    "processProxyOpenReplay": MessageLookupByLibrary.simpleMessage(
+      "記録ディレクトリを開く",
+    ),
+    "processProxyOverview": MessageLookupByLibrary.simpleMessage("概要"),
+    "processProxyPacketCount": m68,
+    "processProxyPacketLimit": MessageLookupByLibrary.simpleMessage(
+      "各方向の先頭128件のみを表示します。追加または未索引のパケットがある場合があります。",
+    ),
+    "processProxyPacketMetadata": m69,
+    "processProxyPacketPrefix": m70,
+    "processProxyPacketsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "データグラム索引がないため、境界を再構成できません。",
+    ),
+    "processProxyPayloadDecode": MessageLookupByLibrary.simpleMessage(
+      "デコードプレビューを読む",
+    ),
+    "processProxyPayloadDns": MessageLookupByLibrary.simpleMessage("DNSを解析"),
+    "processProxyPayloadDoh": MessageLookupByLibrary.simpleMessage("DoHを解析"),
+    "processProxyPayloadHelp": MessageLookupByLibrary.simpleMessage(
+      "キャプチャ済みまたは再生データのみを読み取ります。1回最大64 KiBです。本文／ストリームデータであり、HTTP/2やQUICの生ネットワークフレームではありません。",
+    ),
+    "processProxyPayloadRead": MessageLookupByLibrary.simpleMessage("生の本文を読む"),
+    "processProxyPayloadUnavailable": MessageLookupByLibrary.simpleMessage(
+      "本文は未準備、削除済み、または不完全です。以下の状態と警告を確認してください。",
+    ),
+    "processProxyPayloadViewer": MessageLookupByLibrary.simpleMessage(
+      "ペイロード Raw / Hex プレビュー",
+    ),
+    "processProxyPrepareQuic": MessageLookupByLibrary.simpleMessage(
+      "この起動をQUIC検査用に準備",
+    ),
+    "processProxyPrepareQuicHelp": MessageLookupByLibrary.simpleMessage(
+      "起動前に明示的な同意が必要です。ネイティブブリッジ、SOCKS5、UDP許可が必要です。対象プロセスのブラウザー互換設定は終了まで続きます。監視、復号、証明書インストールは開始しません。",
+    ),
+    "processProxyPrivate": MessageLookupByLibrary.simpleMessage(
+      "プライベートネットワークを除外",
+    ),
+    "processProxyProfiles": MessageLookupByLibrary.simpleMessage("起動プロファイル"),
+    "processProxyProfilesConflict": MessageLookupByLibrary.simpleMessage(
+      "名前またはIDが重複しています。競合する設定を改名または削除してください。上書きはしていません。",
+    ),
+    "processProxyProfilesEmpty": MessageLookupByLibrary.simpleMessage(
+      "起動プロファイルはありません。",
+    ),
+    "processProxyProfilesExport": MessageLookupByLibrary.simpleMessage(
+      "プロファイルをエクスポート",
+    ),
+    "processProxyProfilesExportConfirm": MessageLookupByLibrary.simpleMessage(
+      "このページの引数設定で平文JSONを書き出しますか？共有前にパスや引数の秘密情報を確認してください。信頼、プロキシ認証情報、機密機能の同意は書き出しません。",
+    ),
+    "processProxyProfilesExportHelp": MessageLookupByLibrary.simpleMessage(
+      "既定ではすべての引数を省略します。パス、名前、除外ルールは平文です。引数にはパスワードやトークンが含まれる場合があります。信頼できる場所にのみ保存してください。",
+    ),
+    "processProxyProfilesHelp": MessageLookupByLibrary.simpleMessage(
+      "最大32件の起動設定をローカルに保存します。設定とバックアップは平文で、引数に秘密情報が含まれる場合があります。読込はフォームへの入力のみで、起動や実行中のセッション変更は行いません。信頼とキャプチャ／QUICの同意はリセットされます。",
+    ),
+    "processProxyProfilesImport": MessageLookupByLibrary.simpleMessage(
+      "プロファイルをインポート",
+    ),
+    "processProxyProfilesImportConfirm": m71,
+    "processProxyProfilesIncludeArguments":
+        MessageLookupByLibrary.simpleMessage("引数をエクスポートに含める"),
+    "processProxyProfilesInvalid": MessageLookupByLibrary.simpleMessage(
+      "JSON、バージョン、名前、または型が無効です。既存プロファイルは変更していません。",
+    ),
+    "processProxyProfilesLimit": MessageLookupByLibrary.simpleMessage(
+      "最大32件です。不要なプロファイルを先に削除してください。",
+    ),
+    "processProxyProfilesLoadConfirm": m72,
+    "processProxyProfilesSaveCurrent": MessageLookupByLibrary.simpleMessage(
+      "現在のフォームを保存",
+    ),
+    "processProxyProfilesStorage": MessageLookupByLibrary.simpleMessage(
+      "ローカル設定を読み書きできません。権限と空き容量を確認して再試行してください。",
+    ),
+    "processProxyProfilesTooLarge": MessageLookupByLibrary.simpleMessage(
+      "ファイルは256 KiB以下にしてください。既存設定は変更していません。",
+    ),
+    "processProxyReadDetails": MessageLookupByLibrary.simpleMessage("詳細を読む"),
+    "processProxyReadNext": MessageLookupByLibrary.simpleMessage("次の記録を読む"),
+    "processProxyReadQuery": MessageLookupByLibrary.simpleMessage(
+      "読み取り専用詳細クエリ（JSON）",
+    ),
+    "processProxyReadQueryHelp": MessageLookupByLibrary.simpleMessage(
+      "応答の ID を使います。poll、stats、cache_read、cache_decode、dns_read、recording_page、recording_detail などの読み取り専用クエリに対応します。コマンド実行はできません。",
+    ),
+    "processProxyRebuildIndex": MessageLookupByLibrary.simpleMessage(
+      "記録インデックスを復元",
+    ),
+    "processProxyRebuildIndexWarning": MessageLookupByLibrary.simpleMessage(
+      "明示的に選択したローカル記録フォルダーのみを再インデックス化します。メタデータを書き込みますが通信は再送しません。失敗やタイムアウトは自動再試行しません。バックアップを確認し、監視を停止してください。",
+    ),
+    "processProxyReconnect": MessageLookupByLibrary.simpleMessage(
+      "このセッションのTCP接続を再構築",
+    ),
+    "processProxyReconnectConfirm": m73,
+    "processProxyReconnectNone": MessageLookupByLibrary.simpleMessage(
+      "再構築できるTCP接続がありません。",
+    ),
+    "processProxyRecording": MessageLookupByLibrary.simpleMessage("記録"),
+    "processProxyRecordingAll": MessageLookupByLibrary.simpleMessage(
+      "すべてのプロトコル",
+    ),
+    "processProxyRecordingBrowser": MessageLookupByLibrary.simpleMessage(
+      "オフライン記録を閲覧",
+    ),
+    "processProxyRecordingBrowserHelp": MessageLookupByLibrary.simpleMessage(
+      "先に記録ワークスペースでローカル記録を開いてください。この画面は読み取り専用で、リクエスト再送や監視開始は行いません。フィルター設定後に更新してください。ページングは記録位置を使い、ライブのカーソルは使いません。",
+    ),
+    "processProxyRecordingCapacity": MessageLookupByLibrary.simpleMessage(
+      "記録容量上限（MiB）",
+    ),
+    "processProxyRecordingChanged": MessageLookupByLibrary.simpleMessage(
+      "ページング中に記録が変更されました。古い行は消去しました。先頭から更新して詳細を開いてください。",
+    ),
+    "processProxyRecordingDetails": MessageLookupByLibrary.simpleMessage(
+      "記録セッションの詳細",
+    ),
+    "processProxyRecordingNext": MessageLookupByLibrary.simpleMessage("次のページ"),
+    "processProxyRecordingNoPayload": MessageLookupByLibrary.simpleMessage(
+      "この接続のみの記録には本文キャッシュIDがありません。以下にメタデータを表示します。",
+    ),
+    "processProxyRecordingPageSize": MessageLookupByLibrary.simpleMessage(
+      "1ページの件数",
+    ),
+    "processProxyRecordingPageSummary": m74,
+    "processProxyRecordingPrevious": MessageLookupByLibrary.simpleMessage(
+      "前のページ",
+    ),
+    "processProxyRecordingQueryInvalid": MessageLookupByLibrary.simpleMessage(
+      "フィルターは制御文字なしのUTF-8で256バイト以内、1ページ1〜64件、位置は0以上の整数にしてください。",
+    ),
+    "processProxyRecordingReserve": MessageLookupByLibrary.simpleMessage(
+      "最小空きディスク容量（MiB）",
+    ),
+    "processProxyRecordingStalled": MessageLookupByLibrary.simpleMessage(
+      "報告された末尾より前に空ページが返されました。欠落やループを防ぐためページングを停止しました。更新するか記録状態を確認してください。",
+    ),
+    "processProxyRecordingWarnings": m75,
+    "processProxyRefresh": MessageLookupByLibrary.simpleMessage("更新"),
+    "processProxyRemoteDns": MessageLookupByLibrary.simpleMessage(
+      "公開ドメインをプロキシで解決",
+    ),
+    "processProxyRemoveCa": MessageLookupByLibrary.simpleMessage(
+      "現在のユーザーの CA 信頼を削除",
+    ),
+    "processProxyReplay": MessageLookupByLibrary.simpleMessage("オフライン再生"),
+    "processProxyRequested": MessageLookupByLibrary.simpleMessage("起動を要求済み"),
+    "processProxyRules": MessageLookupByLibrary.simpleMessage("ルーティングと除外"),
+    "processProxyRunId": MessageLookupByLibrary.simpleMessage("実行 ID"),
+    "processProxySafeMode": MessageLookupByLibrary.simpleMessage(
+      "セーフモードでは起動できません。",
+    ),
+    "processProxySearch": MessageLookupByLibrary.simpleMessage("実行中のアプリを検索"),
+    "processProxySearchHelp": MessageLookupByLibrary.simpleMessage(
+      "選択は新規起動用のパスを設定するだけです。既存プロセスへの接続、停止、再起動は行いません。",
+    ),
+    "processProxySearchHint": MessageLookupByLibrary.simpleMessage(
+      "名前・PID・実行ファイルのパスで検索",
+    ),
+    "processProxySelectFile": MessageLookupByLibrary.simpleMessage("実行ファイルを選択"),
+    "processProxySemanticDetails": MessageLookupByLibrary.simpleMessage(
+      "プロトコル詳細",
+    ),
+    "processProxySemanticHelp": MessageLookupByLibrary.simpleMessage(
+      "選択した実行とレコードの読み取り専用スナップショットです。HTTP フィールドは意味的メタデータで、元の通信バイト列ではありません。このページを開いてもペイロード読み取りや取得は始まりません。",
+    ),
+    "processProxySemanticUnavailable": MessageLookupByLibrary.simpleMessage(
+      "対応する HTTP ヘッダーやデータグラム詳細がありません。アプリのメッセージ境界を推定せず、既存のメタデータとペイロード表示を利用してください。",
+    ),
+    "processProxyServer": MessageLookupByLibrary.simpleMessage("サーバー → クライアント"),
+    "processProxySessionHelp": MessageLookupByLibrary.simpleMessage(
+      "状態はバックエンドの生存状況であり通信確認ではありません。ページを閉じてもアプリは終了しません。コア停止やポート変更後はアプリを閉じ新しいセッションを開始してください。",
+    ),
+    "processProxySessionStopWarning": MessageLookupByLibrary.simpleMessage(
+      "このセッションの監視・記録・プロキシを停止しますか？アプリは終了しませんが、接続が切断される場合があります。 バックエンドやコアの停止後も注入フックが残り、新規接続が失敗する場合があります。クリーンな状態にするには選択したアプリを手動で再起動してください。アプリの自動終了・再起動は行わず、直接接続の復旧やキルスイッチも保証しません。",
+    ),
+    "processProxySessions": MessageLookupByLibrary.simpleMessage(
+      "このウィンドウのセッション",
+    ),
+    "processProxyStartMonitor": MessageLookupByLibrary.simpleMessage("監視を開始"),
+    "processProxyStartRecording": MessageLookupByLibrary.simpleMessage("記録を開始"),
+    "processProxyStats": MessageLookupByLibrary.simpleMessage("通信統計"),
+    "processProxyStatus": MessageLookupByLibrary.simpleMessage("バックエンド状態"),
+    "processProxyStopMonitor": MessageLookupByLibrary.simpleMessage("監視を停止"),
+    "processProxyStopRecording": MessageLookupByLibrary.simpleMessage(
+      "記録と監視を停止",
+    ),
+    "processProxyStopSession": MessageLookupByLibrary.simpleMessage(
+      "プロキシセッションを停止",
+    ),
+    "processProxyTakeoverOff": MessageLookupByLibrary.simpleMessage(
+      "プロセス単位で使うにはシステムプロキシと TUN をオフにしてください。",
+    ),
+    "processProxyTarget": MessageLookupByLibrary.simpleMessage("起動するアプリ"),
+    "processProxyTargetPath": MessageLookupByLibrary.simpleMessage(
+      "アプリの .exe パス",
+    ),
+    "processProxyTrailers": MessageLookupByLibrary.simpleMessage("トレーラー"),
+    "processProxyTrust": MessageLookupByLibrary.simpleMessage(
+      "このバックエンドを信頼し、自分が起動するアプリのプロキシを許可します。",
+    ),
+    "processProxyTrustCa": MessageLookupByLibrary.simpleMessage(
+      "現在のユーザーで CA を信頼",
+    ),
+    "processProxyWorkingDirectory": MessageLookupByLibrary.simpleMessage(
+      "作業ディレクトリ（任意）",
+    ),
+    "processProxyWorkingDirectoryHelp": MessageLookupByLibrary.simpleMessage(
+      "ローカルの絶対パス。空欄は実行ファイルのフォルダーを使います。指定時はネイティブブリッジが必要です。",
+    ),
     "profile": MessageLookupByLibrary.simpleMessage("プロファイル"),
     "profileAutoUpdateIntervalInvalidValidationDesc":
         MessageLookupByLibrary.simpleMessage("有効な間隔を入力してください"),
     "profileAutoUpdateIntervalNullValidationDesc":
         MessageLookupByLibrary.simpleMessage("自動更新間隔を入力してください"),
-    "profileDaysLeft": m62,
-    "profileExpiresIn": m63,
+    "profileDaysLeft": m76,
+    "profileExpiresIn": m77,
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "プロファイルが変更されています。自動更新を無効にしますか？",
     ),
@@ -1154,7 +1648,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileTunSettingsDesc": MessageLookupByLibrary.simpleMessage(
       "このプロファイルにのみ適用され、ネットワーク設定の TUN 上書き項目より優先されます。",
     ),
-    "profileUpdatedAt": m64,
+    "profileUpdatedAt": m78,
     "profileUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
       "有効なプロファイルURLを入力してください",
     ),
@@ -1167,22 +1661,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "protocol": MessageLookupByLibrary.simpleMessage("プロトコル"),
     "protocolParam": MessageLookupByLibrary.simpleMessage("プロトコルパラメータ"),
     "protocolVersion": MessageLookupByLibrary.simpleMessage("プロトコルバージョン"),
-    "providerInUse": m65,
+    "providerInUse": m79,
     "providerUrlTip": MessageLookupByLibrary.simpleMessage("リモートリソースのみ対応しています"),
     "providers": MessageLookupByLibrary.simpleMessage("外部リソース"),
     "proxies": MessageLookupByLibrary.simpleMessage("プロキシ"),
-    "proxiesCount": m66,
-    "proxiesProfileLabel": m67,
-    "proxiesRemovedTip": m68,
-    "proxiesReplacedTip": m69,
+    "proxiesCount": m80,
+    "proxiesProfileLabel": m81,
+    "proxiesRemovedTip": m82,
+    "proxiesReplacedTip": m83,
     "proxyChains": MessageLookupByLibrary.simpleMessage("プロキシチェーン"),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("プロキシグループ"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage("プロキシグループが空です"),
-    "proxyGroupInUse": m70,
+    "proxyGroupInUse": m84,
     "proxyGroupsAfterStart": MessageLookupByLibrary.simpleMessage(
       "起動するとここにグループが表示されます",
     ),
-    "proxyGroupsCount": m71,
+    "proxyGroupsCount": m85,
     "proxyProviders": MessageLookupByLibrary.simpleMessage("プロキシプロバイダー"),
     "proxyType": MessageLookupByLibrary.simpleMessage("プロキシタイプ"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("キャッシュを整理"),
@@ -1385,12 +1879,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "ルールは対応する種類で始めてください。例：DOMAIN,example.com,DIRECT",
     ),
     "rules": MessageLookupByLibrary.simpleMessage("ルール"),
-    "rulesCount": m72,
+    "rulesCount": m86,
     "runTime": MessageLookupByLibrary.simpleMessage("稼働時間"),
     "running": MessageLookupByLibrary.simpleMessage("実行中"),
     "runtimeConfig": MessageLookupByLibrary.simpleMessage("ランタイム設定"),
     "safeMode": MessageLookupByLibrary.simpleMessage("セーフモード"),
-    "safeModeAppTitle": m73,
+    "safeModeAppTitle": m87,
     "saturation": MessageLookupByLibrary.simpleMessage("彩度"),
     "save": MessageLookupByLibrary.simpleMessage("保存"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("変更を保存しますか？"),
@@ -1401,9 +1895,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "scrollToSelected": MessageLookupByLibrary.simpleMessage("選択項目へスクロール"),
     "search": MessageLookupByLibrary.simpleMessage("検索"),
     "seconds": MessageLookupByLibrary.simpleMessage("秒"),
-    "secondsCount": m74,
+    "secondsCount": m88,
     "secretKey": MessageLookupByLibrary.simpleMessage("キー"),
-    "sectionsInEffect": m75,
+    "sectionsInEffect": m89,
     "select": MessageLookupByLibrary.simpleMessage("選択"),
     "selectAll": MessageLookupByLibrary.simpleMessage("すべて選択"),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage("ルールセットを選択してください"),
@@ -1434,7 +1928,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "スマートフォンのカメラでコードをスキャンし、開いたページにリンクを貼り付けてください。両方のデバイスを同じネットワークに接続する必要があります。",
     ),
     "server": MessageLookupByLibrary.simpleMessage("サーバー"),
-    "serviceAbnormalCount": m76,
+    "serviceAbnormalCount": m90,
     "serviceAllAvailable": MessageLookupByLibrary.simpleMessage("すべて利用可能"),
     "serviceAvailable": MessageLookupByLibrary.simpleMessage("利用可能"),
     "serviceBlocked": MessageLookupByLibrary.simpleMessage("ブロック済み"),
@@ -1456,8 +1950,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "serviceUnsupportedRegion": MessageLookupByLibrary.simpleMessage("対象外の地域"),
     "settingEntries": MessageLookupByLibrary.simpleMessage("設定項目"),
     "settings": MessageLookupByLibrary.simpleMessage("設定"),
-    "settingsCount": m77,
-    "shareLinkUnreadable": m78,
+    "settingsCount": m91,
+    "shareLinkUnreadable": m92,
     "shareLinksInvalid": MessageLookupByLibrary.simpleMessage(
       "リンクからプロキシを読み取れませんでした",
     ),
@@ -1484,7 +1978,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "singleShareLinkOnly": MessageLookupByLibrary.simpleMessage(
       "ここにはリンクを 1 つだけ入力してください。複数の場合は一覧のクイック編集を使ってください",
     ),
-    "singleValueTip": m79,
+    "singleValueTip": m93,
     "size": MessageLookupByLibrary.simpleMessage("サイズ"),
     "skipCertVerify": MessageLookupByLibrary.simpleMessage("証明書の検証をスキップ"),
     "skipDomain": MessageLookupByLibrary.simpleMessage("スキップするドメイン"),
@@ -1576,11 +2070,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("アップロード量"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("TProxyポート"),
     "traffic": MessageLookupByLibrary.simpleMessage("通信量"),
-    "trafficPeak": m80,
-    "trafficTotal": m81,
+    "trafficPeak": m94,
+    "trafficTotal": m95,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("トラフィック統計"),
     "transport": MessageLookupByLibrary.simpleMessage("トランスポート"),
-    "transportHeaders": m82,
+    "transportHeaders": m96,
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunAuthorizationFailed": MessageLookupByLibrary.simpleMessage(
       "TUN の権限を取得できなかったため、オフにしました。",
@@ -1608,7 +2102,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("アップロード"),
     "uploadBandwidth": MessageLookupByLibrary.simpleMessage("アップロード帯域幅"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m83,
+    "urlTip": m97,
     "useHosts": MessageLookupByLibrary.simpleMessage("Hostsを使用"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("システムのHostsを使用"),
     "usedShort": MessageLookupByLibrary.simpleMessage("使用済み"),
@@ -1631,8 +2125,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "システムに書き込むを有効にするとシステムクロックも設定します。Android では無視されます。",
     ),
-    "yearsAgo": m84,
-    "yearsAgoShort": m85,
+    "yearsAgo": m98,
+    "yearsAgoShort": m99,
     "yes": MessageLookupByLibrary.simpleMessage("はい"),
     "zhCN": MessageLookupByLibrary.simpleMessage("簡体字中国語"),
   };

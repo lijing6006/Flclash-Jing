@@ -13,7 +13,9 @@ Future<void> closeOwnedProcessProxyBridge({
   Future<void> drain() async {
     try {
       await closeInput();
-    } on Exception {}
+    } on Exception {
+      // Input can already be closed while the owned process drains recording.
+    }
     await exited;
   }
 

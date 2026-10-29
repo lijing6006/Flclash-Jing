@@ -3,10 +3,12 @@ import 'dart:convert';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/services/process_proxy.dart';
+import 'package:fl_clash/services/process_proxy/record_detail.dart';
 import 'package:fl_clash/services/process_proxy/traffic.dart';
-import 'package:fl_clash/views/process_proxy/payload.dart';
-import 'package:fl_clash/views/process_proxy/recording_browser.dart';
 import 'package:fl_clash/ui/ui.dart';
+import 'package:fl_clash/views/process_proxy/payload.dart';
+import 'package:fl_clash/views/process_proxy/record_detail.dart';
+import 'package:fl_clash/views/process_proxy/recording_browser.dart';
 import 'package:fl_clash/views/process_proxy_error.dart';
 import 'package:flutter/foundation.dart' show compute;
 import 'package:material_ui/material_ui.dart';
@@ -62,6 +64,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
   final Map<_Panel, _Reply> _responses = {};
   List<ProcessProxyTrafficRow> _trafficRows = [];
   bool _busy = false;
+  bool _working = false;
   bool _decryptHttps = false;
   bool _decryptQuic = false;
   bool _recordDecryptHttps = false;
@@ -101,6 +104,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
     if (_busy) return;
     setState(() {
       _busy = true;
+      _working = false;
       _error = null;
     });
     try {
@@ -124,6 +128,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
         );
         if (!mounted || confirmed != true) return;
       }
+      setState(() => _working = true);
       final response = await widget.service.bridgeRequest(
         widget.session.id,
         operation,
@@ -172,7 +177,12 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
     } catch (error) {
       if (mounted) setState(() => _error = error);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _working = false;
+        });
+      }
     }
   }
 
@@ -180,6 +190,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
     if (_busy) return;
     setState(() {
       _busy = true;
+      _working = true;
       _error = null;
     });
     Object? preparation;
@@ -195,6 +206,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
         throw const ProcessProxyException('bridgeProtocolError');
       }
       if (!mounted) return;
+      setState(() => _working = false);
       final l = context.appLocalizations;
       if (count == 0) {
         setState(
@@ -213,6 +225,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
         destructive: true,
       );
       if (!mounted || confirmed != true) return;
+      setState(() => _working = true);
       consumed = true;
       final reply = await widget.service.bridgeRequest(
         widget.session.id,
@@ -228,14 +241,22 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
     } finally {
       if (!consumed && preparation is String) {
         try {
+          if (mounted) setState(() => _working = true);
           await widget.service.bridgeRequest(
             widget.session.id,
             'connections.cancel_reconnect',
             {'preparation_id': preparation},
           );
-        } on Exception {}
+        } on Exception {
+          // An expired or closed broker ticket cannot be retried safely.
+        }
       }
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _working = false;
+        });
+      }
     }
   }
 
@@ -494,11 +515,14 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
       for (final row in _trafficRows)
         ListItem.open(
           title: Text(row.label),
-          widget: ProcessProxyPayloadView(
+          widget: ProcessProxyRecordDetailView(
             service: widget.service,
             session: widget.session,
-            runId: row.runId,
-            cacheId: row.cacheId,
+            input: ProcessProxyRecordInput(
+              record: row.record,
+              runId: row.runId,
+              cacheId: row.cacheId,
+            ),
           ),
         ),
       _result(_Panel.traffic),
@@ -676,7 +700,7 @@ class _ProcessProxyAdvancedViewState extends State<ProcessProxyAdvancedView> {
                         .copyWith(color: context.colorScheme.error),
                   ),
                 ),
-              if (_busy) const LinearProgressIndicator(),
+              if (_working) const LinearProgressIndicator(),
               TabBar(
                 isScrollable: true,
                 tabs: [

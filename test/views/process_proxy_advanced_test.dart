@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/providers/app.dart';
@@ -27,6 +28,8 @@ class _BridgeService extends ProcessProxyService {
   bool fail = false;
   String runId = 'run-1';
   bool rows = false;
+  String? pendingOperation;
+  Completer<Map<String, dynamic>>? pending;
 
   @override
   Future<Map<String, dynamic>> bridgeRequest(
@@ -35,6 +38,9 @@ class _BridgeService extends ProcessProxyService {
     Map<String, dynamic> arguments = const {},
   ]) async {
     calls.add((operation: operation, arguments: arguments));
+    if (operation == pendingOperation && pending != null) {
+      return pending!.future;
+    }
     if (fail) {
       throw const ProcessProxyException(
         'bridgeOperationFailed',
@@ -106,6 +112,35 @@ Finder _field(String label) => find.ancestor(
 );
 
 void main() {
+  testWidgets('confirmation holds controls while only backend work animates', (
+    tester,
+  ) async {
+    final service = await _pump(tester);
+    final l = currentAppLocalizations;
+    await _tab(tester, l.traffic);
+    service.pendingOperation = 'monitor.start';
+    service.pending = Completer<Map<String, dynamic>>();
+    final start = find.widgetWithText(
+      OutlinedButton,
+      l.processProxyStartMonitor,
+    );
+    await tester.tap(start);
+    await tester.pumpAndSettle();
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(tester.widget<OutlinedButton>(start).onPressed, isNull);
+    expect(
+      service.calls.where((call) => call.operation == 'monitor.start'),
+      isEmpty,
+    );
+    await tester.tap(find.text(l.confirm));
+    await tester.pump();
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    service.pending!.complete({'run_id': 'run-1'});
+    await tester.pumpAndSettle();
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(tester.widget<OutlinedButton>(start).onPressed, isNotNull);
+  });
+
   testWidgets('mount only reads status and renders the backend response', (
     tester,
   ) async {
@@ -129,6 +164,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(service.calls.length, 1);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
       await tester.tap(find.text(l.cancel));
       await tester.pumpAndSettle();
       expect(service.calls.length, 1);

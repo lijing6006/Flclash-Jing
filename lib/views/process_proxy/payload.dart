@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/services/process_proxy.dart';
 import 'package:fl_clash/services/process_proxy/traffic.dart';
@@ -11,6 +13,10 @@ class ProcessProxyPayloadView extends StatefulWidget {
   final ProcessProxySession session;
   final String? runId;
   final int? cacheId;
+  final int initialOffset;
+  final int readLength;
+  final bool initialClient;
+  final bool boundedRange;
   final Future<ProcessProxyPayloadPreview> Function(Map<String, dynamic>)?
   format;
 
@@ -20,6 +26,10 @@ class ProcessProxyPayloadView extends StatefulWidget {
     required this.session,
     this.runId,
     this.cacheId,
+    this.initialOffset = 0,
+    this.readLength = 16384,
+    this.initialClient = true,
+    this.boundedRange = false,
     this.format,
   });
 
@@ -33,15 +43,39 @@ class _ProcessProxyPayloadViewState extends State<ProcessProxyPayloadView> {
   late final _cacheId = TextEditingController(
     text: widget.cacheId?.toString() ?? '',
   );
-  final _offset = TextEditingController(text: '0');
-  bool _client = true;
+  late final _offset = TextEditingController(text: '${widget.initialOffset}');
+  late bool _client = widget.initialClient;
   bool _busy = false;
   bool _hex = false;
   Object? _error;
   ProcessProxyPayloadPreview? _preview;
+  int _generation = 0;
+
+  @override
+  void didUpdateWidget(covariant ProcessProxyPayloadView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.service != widget.service ||
+        oldWidget.session.id != widget.session.id ||
+        oldWidget.runId != widget.runId ||
+        oldWidget.cacheId != widget.cacheId ||
+        oldWidget.initialOffset != widget.initialOffset ||
+        oldWidget.readLength != widget.readLength ||
+        oldWidget.initialClient != widget.initialClient ||
+        oldWidget.boundedRange != widget.boundedRange) {
+      _generation++;
+      _runId.text = widget.runId ?? '';
+      _cacheId.text = widget.cacheId?.toString() ?? '';
+      _offset.text = '${widget.initialOffset}';
+      _client = widget.initialClient;
+      _busy = false;
+      _error = null;
+      _preview = null;
+    }
+  }
 
   Future<void> _read(String type) async {
     if (_busy) return;
+    final generation = ++_generation;
     setState(() {
       _busy = true;
       _error = null;
@@ -56,7 +90,10 @@ class _ProcessProxyPayloadViewState extends State<ProcessProxyPayloadView> {
           offset == null ||
           offset < 0 ||
           runId.isEmpty ||
-          runId.length > 256) {
+          runId.length > 256 ||
+          widget.readLength < 1 ||
+          widget.readLength > 16384 ||
+          (widget.boundedRange && type != 'cache_read')) {
         throw const ProcessProxyException('invalidQuery');
       }
       final response = await widget.service.bridgeRequest(
@@ -69,25 +106,46 @@ class _ProcessProxyPayloadViewState extends State<ProcessProxyPayloadView> {
           'direction': _client ? 'client' : 'server',
           if (type == 'cache_read' || type == 'dns_read') ...{
             'offset': offset,
-            'length': type == 'dns_read' ? 65535 : 16384,
+            'length': type == 'dns_read' ? 65535 : widget.readLength,
           },
           if (type == 'cache_decode' || type == 'doh_read')
             'preview_bytes': 16384,
         },
       );
-      if (!mounted) return;
+      if (!mounted || generation != _generation) return;
+      final payload = response['payload'];
+      final cache = payload is Map ? payload['cache'] : null;
+      if (response['run_id'] != runId ||
+          payload is! Map ||
+          payload['direction'] != (_client ? 'client' : 'server') ||
+          payload['offset'] !=
+              (type == 'cache_decode' || type == 'doh_read' ? 0 : offset) ||
+          (cache is Map && cache['id'] != null && cache['id'] != cacheId)) {
+        throw const ProcessProxyException('bridgeProtocolError');
+      }
+      if (widget.boundedRange) {
+        final encoded = payload['data_base64'];
+        if (encoded is! String ||
+            encoded.length > 4 * ((widget.readLength + 2) ~/ 3) ||
+            base64Decode(encoded).length > widget.readLength) {
+          throw const ProcessProxyException('bridgeProtocolError');
+        }
+      }
       final preview =
           await (widget.format?.call(response) ??
               compute(formatProcessProxyPayload, response));
-      if (mounted) setState(() => _preview = preview);
+      if (mounted && generation == _generation) {
+        setState(() => _preview = preview);
+      }
     } catch (error) {
-      if (mounted)
+      if (mounted && generation == _generation) {
         setState(() {
           _error = error;
           _preview = null;
         });
+      }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted && generation == _generation) setState(() => _busy = false);
     }
   }
 
@@ -95,7 +153,7 @@ class _ProcessProxyPayloadViewState extends State<ProcessProxyPayloadView> {
     padding: const EdgeInsets.symmetric(vertical: 8),
     child: TextFormField(
       controller: controller,
-      enabled: !_busy,
+      enabled: !_busy && !widget.boundedRange,
       autocorrect: false,
       decoration: InputDecoration(labelText: label),
     ),
@@ -111,13 +169,15 @@ class _ProcessProxyPayloadViewState extends State<ProcessProxyPayloadView> {
         padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + context.bottomInset),
         children: [
           Text(l.processProxyPayloadHelp),
+          if (widget.boundedRange)
+            Text(l.processProxyPacketPrefix(widget.readLength)),
           _field(_runId, l.processProxyRunId),
           _field(_cacheId, l.processProxyCacheId),
           _field(_offset, l.processProxyOffset),
           ListItem.toggle(
             title: Text(_client ? l.processProxyClient : l.processProxyServer),
             value: _client,
-            onChanged: _busy
+            onChanged: _busy || widget.boundedRange
                 ? null
                 : (value) => setState(() => _client = value),
           ),
@@ -129,9 +189,11 @@ class _ProcessProxyPayloadViewState extends State<ProcessProxyPayloadView> {
               children: [
                 for (final action in [
                   (l.processProxyPayloadRead, 'cache_read'),
-                  (l.processProxyPayloadDecode, 'cache_decode'),
-                  (l.processProxyPayloadDns, 'dns_read'),
-                  (l.processProxyPayloadDoh, 'doh_read'),
+                  if (!widget.boundedRange) ...[
+                    (l.processProxyPayloadDecode, 'cache_decode'),
+                    (l.processProxyPayloadDns, 'dns_read'),
+                    (l.processProxyPayloadDoh, 'doh_read'),
+                  ],
                 ])
                   OutlinedButton(
                     onPressed: _busy ? null : () => _read(action.$2),
@@ -184,6 +246,7 @@ class _ProcessProxyPayloadViewState extends State<ProcessProxyPayloadView> {
 
   @override
   void dispose() {
+    _generation++;
     _runId.dispose();
     _cacheId.dispose();
     _offset.dispose();

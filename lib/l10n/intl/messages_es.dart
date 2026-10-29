@@ -177,66 +177,105 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m61(port) => "Puerto ${port}";
 
-  static String m62(days) =>
+  static String m62(action) =>
+      "¿Aplicar «${action}» a esta sesión? Los datos pueden contener credenciales o contenido privado. Cerrar la página no detiene la captura.";
+
+  static String m63(action) =>
+      "¿Confirmar «${action}» solo para el usuario actual de Windows? Esto cambia el material o la confianza de CA. Puede ser necesario reconectar. No cambia el almacén del equipo.";
+
+  static String m64(application) =>
+      "¿Iniciar una nueva instancia de ${application}? Guarda tu trabajo y cierra tú mismo la instancia existente. Algunas aplicaciones pueden reutilizar un proceso antiguo sin proxy. No se detendrá ningún proceso automáticamente.";
+
+  static String m65(rule) =>
+      "Este CIDR no se puede convertir de forma segura: ${rule}. Usa una IP exacta o un prefijo de red compatible.";
+
+  static String m66(rule) =>
+      "Regla IP/dominio no válida: ${rule}. Usa una IP, CIDR admitida o patrón de dominio por línea, sin URL ni puertos.";
+
+  static String m67(error) => "La operación falló: ${error}";
+
+  static String m68(count) => "Paquetes notificados: ${count}";
+
+  static String m69(number, offset, length) =>
+      "Datagrama ${number}: posición ${offset}, ${length} bytes";
+
+  static String m70(length) =>
+      "Prefijo de solo lectura limitado a ${length} bytes; rango y dirección bloqueados.";
+
+  static String m71(count) =>
+      "¿Añadir estos ${count} perfiles? Se conservan los existentes y se rechazan nombres o ID duplicados. No se inicia nada. Revisa las rutas indicadas.";
+
+  static String m72(name) =>
+      "¿Cargar «${name}» en el formulario? No se iniciará nada y se borrarán la confianza y los permisos sensibles.";
+
+  static String m73(count) =>
+      "¿Desconectar las ${count} conexiones TCP seleccionadas, incluidas las directas? Puede interrumpir cargas o sesiones. Las aplicaciones deben reconectarse; no se garantiza éxito. UDP no se modifica.";
+
+  static String m74(start, end, total, all) =>
+      "Registros ${start}–${end} de ${total} coincidencias (${all} en total)";
+
+  static String m75(count) => "Avisos de grabación: ${count}";
+
+  static String m76(days) =>
       "${Intl.plural(days, one: 'Queda 1 día', other: 'Quedan ${days} días')}";
 
-  static String m63(date, days) =>
+  static String m77(date, days) =>
       "Vence el ${date}, ${Intl.plural(days, one: 'queda 1 día', other: 'quedan ${days} días')}";
 
-  static String m64(time) => "Actualizado ${time}";
+  static String m78(time) => "Actualizado ${time}";
 
-  static String m65(label, profiles) =>
+  static String m79(label, profiles) =>
       "${label} sigue en uso en ${profiles}, que dejarán de funcionar correctamente si se elimina. ¿Seguro que quieres eliminarlo?";
 
-  static String m66(count, label) =>
+  static String m80(count, label) =>
       "${Intl.plural(count, one: '1 proxy', other: '${label} proxies')}";
 
-  static String m67(name, count) => "${name} y otros (${count} proxies)";
+  static String m81(name, count) => "${name} y otros (${count} proxies)";
 
-  static String m68(removed) =>
+  static String m82(removed) =>
       "Se eliminarán estos proxies: ${removed}. Una línea cuyo nombre cambió cuenta como un proxy nuevo, y los perfiles personalizados que mencionen los eliminados los marcarán como ausentes. ¿Aplicar de todos modos?";
 
-  static String m69(removed, added) =>
+  static String m83(removed, added) =>
       "Se eliminarán estos proxies: ${removed}. Se añadirán estos: ${added}. Una línea cuyo nombre cambió cuenta como un proxy nuevo, y los perfiles personalizados que mencionen los eliminados los marcarán como ausentes. ¿Aplicar de todos modos?";
 
-  static String m70(label) =>
+  static String m84(label) =>
       "${label} sigue mencionado por reglas, grupos de proxies, proxies de marcación, DNS o NTP de este perfil, que dejarán de funcionar si se elimina. ¿Seguro que quieres eliminarlo?";
 
-  static String m71(count, label) =>
+  static String m85(count, label) =>
       "${Intl.plural(count, one: '1 grupo de proxies', other: '${label} grupos de proxies')}";
 
-  static String m72(count, label) =>
+  static String m86(count, label) =>
       "${Intl.plural(count, one: '1 regla', other: '${label} reglas')}";
 
-  static String m73(appName) => "${appName} (Modo seguro)";
+  static String m87(appName) => "${appName} (Modo seguro)";
 
-  static String m74(count) =>
+  static String m88(count) =>
       "${Intl.plural(count, one: '1 segundo', other: '${count} segundos')}";
 
-  static String m75(count) => "${count} en vigor";
+  static String m89(count) => "${count} en vigor";
 
-  static String m76(count) =>
+  static String m90(count) =>
       "${Intl.plural(count, one: '1 problema', other: '${count} problemas')}";
 
-  static String m77(count) =>
+  static String m91(count) =>
       "${Intl.plural(count, one: '1 ajuste', other: '${count} ajustes')}";
 
-  static String m78(link) => "No se pudo leer ningún proxy de ${link}";
+  static String m92(link) => "No se pudo leer ningún proxy de ${link}";
 
-  static String m79(label) => "${label} debe ser un solo elemento";
+  static String m93(label) => "${label} debe ser un solo elemento";
 
-  static String m80(value) => "Pico: ${value}";
+  static String m94(value) => "Pico: ${value}";
 
-  static String m81(value) => "Total: ${value}";
+  static String m95(value) => "Total: ${value}";
 
-  static String m82(transport) => "Encabezados ${transport}";
+  static String m96(transport) => "Encabezados ${transport}";
 
-  static String m83(label) => "${label} debe ser una URL";
+  static String m97(label) => "${label} debe ser una URL";
 
-  static String m84(count) =>
+  static String m98(count) =>
       "${Intl.plural(count, one: 'hace 1 año', other: 'hace ${count} años')}";
 
-  static String m85(count) => "${Intl.plural(count, other: 'hace ${count} a')}";
+  static String m99(count) => "${Intl.plural(count, other: 'hace ${count} a')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1431,6 +1470,529 @@ class MessageLookup extends MessageLookupByLibrary {
       "Frase de contraseña de la clave privada",
     ),
     "process": MessageLookupByLibrary.simpleMessage("Proceso"),
+    "processProxy": MessageLookupByLibrary.simpleMessage("Proxy por proceso"),
+    "processProxyAdvanced": MessageLookupByLibrary.simpleMessage(
+      "Funciones avanzadas — experimentales",
+    ),
+    "processProxyAdvancedHelp": MessageLookupByLibrary.simpleMessage(
+      "El descifrado HTTPS/QUIC, CA, supervisión, grabación y reproducción aún no están totalmente migrados a FlClash. Todo está desactivado por defecto. Estas preferencias no instalan certificados ni inician la supervisión.",
+    ),
+    "processProxyApplications": MessageLookupByLibrary.simpleMessage(
+      "Aplicaciones instaladas",
+    ),
+    "processProxyApplicationsHelp": MessageLookupByLibrary.simpleMessage(
+      "Busca EXE locales en App Paths y el menú Inicio sin modificarlos. Conserva argumentos y directorios de los accesos directos. No inicia, adjunta ni detiene procesos. No admite UWP ni scripts.",
+    ),
+    "processProxyApplyCapture": MessageLookupByLibrary.simpleMessage(
+      "Aplicar límites de captura",
+    ),
+    "processProxyArguments": MessageLookupByLibrary.simpleMessage(
+      "Argumentos (matriz JSON de cadenas)",
+    ),
+    "processProxyArgumentsHelp": MessageLookupByLibrary.simpleMessage(
+      "Ejemplo: [\"--profile\", \"Work\"]. No se usa un shell. No introduzcas contraseñas ni tokens.",
+    ),
+    "processProxyBackend": MessageLookupByLibrary.simpleMessage(
+      "Motor ProxyLane",
+    ),
+    "processProxyBackendHelp": MessageLookupByLibrary.simpleMessage(
+      "Selecciona una instalación completa y confiable de ProxyLane v1.3.5. Se usa una copia aislada sin sobrescribir la configuración original.",
+    ),
+    "processProxyBackendPath": MessageLookupByLibrary.simpleMessage(
+      "Ruta del ProxyLane64.exe oficial",
+    ),
+    "processProxyBackendRunning": MessageLookupByLibrary.simpleMessage(
+      "Motor activo; verifica el tráfico",
+    ),
+    "processProxyBlockUdp": MessageLookupByLibrary.simpleMessage(
+      "Bloquear UDP (QUIC recurre a TCP si se admite)",
+    ),
+    "processProxyBypass": MessageLookupByLibrary.simpleMessage(
+      "IP, CIDR y dominios excluidos — uno por línea",
+    ),
+    "processProxyBypassHelp": MessageLookupByLibrary.simpleMessage(
+      "Los destinos excluidos se conectan directamente. Añade explícitamente los dominios internos. Las reglas IP se aplican si se conoce la IP; el nombre de host tiene prioridad.",
+    ),
+    "processProxyCaWarning": MessageLookupByLibrary.simpleMessage(
+      "No se instala ningún certificado automáticamente. Esta CA podrá autenticar conexiones TLS interceptadas para el usuario actual. Inspecciona solo aplicaciones y tráfico autorizados.",
+    ),
+    "processProxyCacheId": MessageLookupByLibrary.simpleMessage("ID de caché"),
+    "processProxyCaptureOptions": MessageLookupByLibrary.simpleMessage(
+      "Límites de captura (objeto JSON)",
+    ),
+    "processProxyCapturePrivacy": MessageLookupByLibrary.simpleMessage(
+      "El descifrado y la grabación están desactivados por defecto. Inspeccione solo el tráfico autorizado de sus aplicaciones. Las grabaciones permanecen en la carpeta local elegida; protéjalas y elimínelas según sus necesidades. Detener la supervisión desactiva la captura y el descifrado de conexiones nuevas, pero los puentes TLS existentes pueden persistir hasta que las conexiones terminen o se reconecten explícitamente. Las CA de confianza deben eliminarse por separado. La reconexión puede interrumpir transferencias y nunca es automática.",
+    ),
+    "processProxyCertificates": MessageLookupByLibrary.simpleMessage(
+      "Certificados",
+    ),
+    "processProxyChildRuleInclude": MessageLookupByLibrary.simpleMessage(
+      "Inyectar solo en hijos que coincidan",
+    ),
+    "processProxyChildRules": MessageLookupByLibrary.simpleMessage(
+      "Reglas de ruta / nombre de procesos hijos",
+    ),
+    "processProxyChildRulesHelp": MessageLookupByLibrary.simpleMessage(
+      "Una ruta local completa/patrón o nombre EXE por línea, hasta 128 reglas. Requiere proxy de procesos hijos. Por defecto excluye coincidencias; activa abajo para incluir solo coincidencias. Vacío incluye todos; la raíz no cambia. Los hijos excluidos no reciben inyección y sus descendientes no heredan el proxy automáticamente; incluye iniciadores intermedios.",
+    ),
+    "processProxyChildren": MessageLookupByLibrary.simpleMessage(
+      "Incluir procesos secundarios",
+    ),
+    "processProxyClient": MessageLookupByLibrary.simpleMessage(
+      "Cliente → Servidor",
+    ),
+    "processProxyCloseReplay": MessageLookupByLibrary.simpleMessage(
+      "Cerrar reproducción",
+    ),
+    "processProxyConfirmAdvanced": m62,
+    "processProxyConfirmCa": m63,
+    "processProxyConfirmLaunch": m64,
+    "processProxyCoreRequired": MessageLookupByLibrary.simpleMessage(
+      "Inicia FlClash en el panel antes de iniciar una aplicación.",
+    ),
+    "processProxyCoreSessionEnded": MessageLookupByLibrary.simpleMessage(
+      "El estado del núcleo o la configuración del puerto de escucha cambió; esta sesión de proxy de proceso quedó invalidada. Los hooks inyectados pueden permanecer tras detener el motor o el núcleo y hacer fallar conexiones nuevas. Reinicie manualmente las aplicaciones seleccionadas para volver a un estado limpio. Nunca se cierran ni reinician automáticamente; no se garantiza restaurar la conexión directa ni un interruptor de corte.",
+    ),
+    "processProxyDataTruncated": MessageLookupByLibrary.simpleMessage(
+      "Se muestran los primeros 48 KiB. Limita la consulta o lee otra página.",
+    ),
+    "processProxyDatagrams": MessageLookupByLibrary.simpleMessage(
+      "Límites de datagramas",
+    ),
+    "processProxyDatagramsHelp": MessageLookupByLibrary.simpleMessage(
+      "Solo se muestran posiciones en bytes y longitudes del motor. Describen datagramas capturados, no paquetes IP ni límites inferidos. Seleccione un datagrama no vacío y lea explícitamente su prefijo limitado.",
+    ),
+    "processProxyDecryptHttps": MessageLookupByLibrary.simpleMessage(
+      "Permitir descifrado HTTPS al iniciar explícitamente la supervisión",
+    ),
+    "processProxyDecryptQuic": MessageLookupByLibrary.simpleMessage(
+      "Permitir descifrado QUIC al iniciar explícitamente la supervisión",
+    ),
+    "processProxyDirectMode": MessageLookupByLibrary.simpleMessage(
+      "Está activo el modo directo. Elige Reglas o Global y un proxy antes de iniciar. Esta página no cambia el modo automáticamente.",
+    ),
+    "processProxyDirectory": MessageLookupByLibrary.simpleMessage(
+      "Ruta absoluta del directorio local",
+    ),
+    "processProxyDnsHelp": MessageLookupByLibrary.simpleMessage(
+      "Desactivado por defecto para preservar el DNS local y corporativo. La red puede ver las consultas DNS locales. El DNS privado nunca se redirige por la fuerza.",
+    ),
+    "processProxyEmptyPacket": MessageLookupByLibrary.simpleMessage(
+      "Datagrama de longitud cero; no se lee contenido.",
+    ),
+    "processProxyEncryptedPayload": MessageLookupByLibrary.simpleMessage(
+      "Contenido TLS/QUIC cifrado: esta instantánea no tiene texto claro. Raw/Hex no lo descifra.",
+    ),
+    "processProxyEndpoint": MessageLookupByLibrary.simpleMessage(
+      "Endpoint local actual",
+    ),
+    "processProxyErrorArchitecture": MessageLookupByLibrary.simpleMessage(
+      "El puente experimental solo admite aplicaciones raíz x64. Elige un ejecutable x64; no se conectará automáticamente a procesos existentes.",
+    ),
+    "processProxyErrorAuthentication": MessageLookupByLibrary.simpleMessage(
+      "El proxy local rechazó la autenticación. Revisa el usuario y la contraseña en FlClash. No se muestran las credenciales en este error.",
+    ),
+    "processProxyErrorBackendVersion": MessageLookupByLibrary.simpleMessage(
+      "Selecciona el ProxyLane64.exe oficial de una instalación completa de ProxyLane v1.3.5. Esta versión no es compatible.",
+    ),
+    "processProxyErrorBridge": MessageLookupByLibrary.simpleMessage(
+      "El puente nativo no está disponible o rechazó la operación. Verifica la compilación compatible de Windows y el motor, e inicia otra sesión.",
+    ),
+    "processProxyErrorBusy": MessageLookupByLibrary.simpleMessage(
+      "Ya hay un inicio en curso. Espera a que termine antes de reintentarlo.",
+    ),
+    "processProxyErrorCaRequired": MessageLookupByLibrary.simpleMessage(
+      "El descifrado necesita una CA inicializada y aprobada explícitamente para el usuario actual. Revisa Certificados; nunca se instala confianza automáticamente.",
+    ),
+    "processProxyErrorChildRule": MessageLookupByLibrary.simpleMessage(
+      "Regla de hijo no válida. Usa una ruta local completa/patrón o nombre EXE por línea; no se admite UNC, rutas de escape ni sintaxis de comandos.",
+    ),
+    "processProxyErrorCidr": m65,
+    "processProxyErrorComponents": MessageLookupByLibrary.simpleMessage(
+      "Faltan componentes de ProxyLane. Extrae el paquete oficial completo en una carpeta y vuelve a seleccionar ProxyLane64.exe.",
+    ),
+    "processProxyErrorCoreChanged": MessageLookupByLibrary.simpleMessage(
+      "FlClash se detuvo o cambió su configuración durante el inicio. Comprueba el estado e inicia otra sesión.",
+    ),
+    "processProxyErrorDirectory": MessageLookupByLibrary.simpleMessage(
+      "Elige un directorio local existente mediante su ruta absoluta. No se aceptan recursos de red ni enlaces.",
+    ),
+    "processProxyErrorExecutable": MessageLookupByLibrary.simpleMessage(
+      "Selecciona un archivo .exe local existente con ruta absoluta. No se admiten accesos directos, rutas de red ni cadenas de comandos.",
+    ),
+    "processProxyErrorGeneric": MessageLookupByLibrary.simpleMessage(
+      "No se pudo completar la operación. Revisa los archivos y el estado del núcleo e inténtalo otra vez. Los detalles potencialmente sensibles están ocultos.",
+    ),
+    "processProxyErrorHook": MessageLookupByLibrary.simpleMessage(
+      "No se pudo inicializar el proxy en la aplicación. Puede ser incompatible o estar protegida. No desactives la seguridad; prueba una aplicación compatible.",
+    ),
+    "processProxyErrorListener": MessageLookupByLibrary.simpleMessage(
+      "El proxy local no respondió al protocolo esperado. Comprueba que FlClash y su puerto mixed, SOCKS o HTTP estén activos.",
+    ),
+    "processProxyErrorMonitoringActive": MessageLookupByLibrary.simpleMessage(
+      "Detén la supervisión y la grabación antes de cambiar límites, abrir una reproducción o modificar la confianza de certificados.",
+    ),
+    "processProxyErrorNativeRequired": MessageLookupByLibrary.simpleMessage(
+      "Esta opción requiere FlClashProxyBridge.exe. El iniciador compatible no puede aplicarla con seguridad.",
+    ),
+    "processProxyErrorPathLength": MessageLookupByLibrary.simpleMessage(
+      "El backend limita las rutas a 240 bytes UTF-8. Elige una ruta local más corta. La compatibilidad Unicode y temporal requiere validación en Windows.",
+    ),
+    "processProxyErrorProcessQuery": MessageLookupByLibrary.simpleMessage(
+      "Windows no pudo completar la consulta de procesos accesibles. Reintenta la búsqueda o elige el archivo .exe directamente.",
+    ),
+    "processProxyErrorQuic": MessageLookupByLibrary.simpleMessage(
+      "El descifrado QUIC requiere UDP. Desactiva explícitamente el bloqueo UDP antes de habilitarlo.",
+    ),
+    "processProxyErrorQuicPrepare": MessageLookupByLibrary.simpleMessage(
+      "La aplicación no se preparó para QUIC. Ciérrala tú mismo y vuelve a iniciarla con preparación explícita antes de activar el descifrado QUIC.",
+    ),
+    "processProxyErrorQuicSocks": MessageLookupByLibrary.simpleMessage(
+      "La preparación QUIC requiere SOCKS5 o puerto mixto del núcleo activo, no solo HTTP.",
+    ),
+    "processProxyErrorRecordingState": MessageLookupByLibrary.simpleMessage(
+      "El motor no confirmó el estado de grabación solicitado. No suponga que la grabación haya comenzado o terminado. Detenga esta sesión, revise su carpeta local de grabación e inicie una nueva sesión antes de volver a activar la supervisión o la grabación.",
+    ),
+    "processProxyErrorResponseLarge": MessageLookupByLibrary.simpleMessage(
+      "La solicitud o respuesta supera el límite seguro. Reduce la cantidad de registros, la vista previa o la longitud del texto y reintenta.",
+    ),
+    "processProxyErrorRule": m66,
+    "processProxyErrorRuleLimit": MessageLookupByLibrary.simpleMessage(
+      "Límite superado: 512 reglas IP/dominio o 128 de procesos hijos y 16 KiB de texto por lista.",
+    ),
+    "processProxyErrorSession": MessageLookupByLibrary.simpleMessage(
+      "Esta sesión ya no está disponible. Cierra tú mismo la aplicación e inicia otra sesión si es necesario.",
+    ),
+    "processProxyErrorSettings": MessageLookupByLibrary.simpleMessage(
+      "No se pudieron leer los ajustes guardados. Introdúcelos y guárdalos de nuevo.",
+    ),
+    "processProxyErrorTrust": MessageLookupByLibrary.simpleMessage(
+      "Revisa la ruta del motor y confirma explícitamente que confías en él.",
+    ),
+    "processProxyErrorWindows": MessageLookupByLibrary.simpleMessage(
+      "Esta función requiere Windows y sus herramientas estándar de consulta de procesos locales.",
+    ),
+    "processProxyErrorWorkingDirectory": MessageLookupByLibrary.simpleMessage(
+      "Usa un directorio local absoluto existente, sin UNC, rutas de escape ni flujos alternativos.",
+    ),
+    "processProxyExited": MessageLookupByLibrary.simpleMessage(
+      "Motor finalizado",
+    ),
+    "processProxyExperimentalHint": MessageLookupByLibrary.simpleMessage(
+      "Experimental: la validación en Windows está pendiente. Los resultados son reales de esta sesión, nunca simulados. Actualización manual.",
+    ),
+    "processProxyFailed": m67,
+    "processProxyGoncUnsupported": MessageLookupByLibrary.simpleMessage(
+      "La entrada cifrada GONC TLS-PSK no es compatible con un puerto local normal de FlClash. No se usará un servidor remoto para omitir el nodo seleccionado.",
+    ),
+    "processProxyHeaders": MessageLookupByLibrary.simpleMessage(
+      "Cabeceras (orden y duplicados conservados)",
+    ),
+    "processProxyHeadersUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Esta instantánea no contiene metadatos de cabeceras.",
+    ),
+    "processProxyHex": MessageLookupByLibrary.simpleMessage("Hexadecimal"),
+    "processProxyInformational": MessageLookupByLibrary.simpleMessage(
+      "Respuesta informativa",
+    ),
+    "processProxyInitializeCa": MessageLookupByLibrary.simpleMessage(
+      "Inicializar material de CA",
+    ),
+    "processProxyIntro": MessageLookupByLibrary.simpleMessage(
+      "Inicia solo las aplicaciones elegidas mediante el proxy actual de FlClash. El proxy del sistema y TUN permanecen desactivados.",
+    ),
+    "processProxyInvalidArguments": MessageLookupByLibrary.simpleMessage(
+      "Los argumentos deben ser una matriz JSON de cadenas.",
+    ),
+    "processProxyJsonObjectRequired": MessageLookupByLibrary.simpleMessage(
+      "Introduce un objeto JSON válido con los campos indicados.",
+    ),
+    "processProxyLaunch": MessageLookupByLibrary.simpleMessage(
+      "Iniciar mediante proxy",
+    ),
+    "processProxyMessageIncomplete": MessageLookupByLibrary.simpleMessage(
+      "No se confirmó la finalización del mensaje.",
+    ),
+    "processProxyMonitor": MessageLookupByLibrary.simpleMessage(
+      "Supervisión del tráfico",
+    ),
+    "processProxyNativeWorkspace": MessageLookupByLibrary.simpleMessage(
+      "Espacio avanzado nativo",
+    ),
+    "processProxyNoData": MessageLookupByLibrary.simpleMessage(
+      "No hay respuesta cargada. Usa una acción de lectura o actualización.",
+    ),
+    "processProxyNoPort": MessageLookupByLibrary.simpleMessage(
+      "No hay ningún puerto proxy local compatible habilitado.",
+    ),
+    "processProxyNoProcesses": MessageLookupByLibrary.simpleMessage(
+      "No hay aplicaciones accesibles coincidentes. Puedes elegir un archivo .exe.",
+    ),
+    "processProxyOffset": MessageLookupByLibrary.simpleMessage(
+      "Desplazamiento en bytes",
+    ),
+    "processProxyOnlyRules": MessageLookupByLibrary.simpleMessage(
+      "Usar proxy solo para estas IP / dominios",
+    ),
+    "processProxyOnlyRulesHelp": MessageLookupByLibrary.simpleMessage(
+      "Una IP, CIDR admitida o patrón de dominio por línea. Vacío incluye todos los destinos; los demás van directos. Las exclusiones tienen prioridad. Las reglas IP solo funcionan si la aplicación expone la IP; añade dominios internos explícitamente. Se aplica al próximo inicio.",
+    ),
+    "processProxyOpenBackend": MessageLookupByLibrary.simpleMessage(
+      "Espacio avanzado (ventana nativa de ProxyLane)",
+    ),
+    "processProxyOpenReplay": MessageLookupByLibrary.simpleMessage(
+      "Abrir directorio de grabación",
+    ),
+    "processProxyOverview": MessageLookupByLibrary.simpleMessage("Resumen"),
+    "processProxyPacketCount": m68,
+    "processProxyPacketLimit": MessageLookupByLibrary.simpleMessage(
+      "Solo se muestran los primeros 128 datagramas indexados por dirección; puede haber más paquetes o paquetes sin índice.",
+    ),
+    "processProxyPacketMetadata": m69,
+    "processProxyPacketPrefix": m70,
+    "processProxyPacketsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "No se proporcionó un índice de datagramas; no se pueden reconstruir sus límites.",
+    ),
+    "processProxyPayloadDecode": MessageLookupByLibrary.simpleMessage(
+      "Leer vista decodificada",
+    ),
+    "processProxyPayloadDns": MessageLookupByLibrary.simpleMessage(
+      "Decodificar DNS",
+    ),
+    "processProxyPayloadDoh": MessageLookupByLibrary.simpleMessage(
+      "Decodificar DoH",
+    ),
+    "processProxyPayloadHelp": MessageLookupByLibrary.simpleMessage(
+      "Solo lee datos capturados o reproducidos, hasta 64 KiB por consulta. Son datos de contenido/flujo, no tramas de red HTTP/2 o QUIC sin procesar.",
+    ),
+    "processProxyPayloadRead": MessageLookupByLibrary.simpleMessage(
+      "Leer contenido sin procesar",
+    ),
+    "processProxyPayloadUnavailable": MessageLookupByLibrary.simpleMessage(
+      "El contenido no está listo, fue eliminado de la caché o está incompleto. Revisa el estado y los avisos.",
+    ),
+    "processProxyPayloadViewer": MessageLookupByLibrary.simpleMessage(
+      "Vista de contenido Raw / Hex",
+    ),
+    "processProxyPrepareQuic": MessageLookupByLibrary.simpleMessage(
+      "Preparar este inicio para inspección QUIC",
+    ),
+    "processProxyPrepareQuicHelp": MessageLookupByLibrary.simpleMessage(
+      "Requiere permiso previo, puente nativo, SOCKS5 y UDP permitido. Ajusta la compatibilidad del navegador para esos procesos hasta que se cierren. No inicia supervisión, descifrado ni instalación de certificados.",
+    ),
+    "processProxyPrivate": MessageLookupByLibrary.simpleMessage(
+      "Excluir redes privadas",
+    ),
+    "processProxyProfiles": MessageLookupByLibrary.simpleMessage(
+      "Perfiles de inicio",
+    ),
+    "processProxyProfilesConflict": MessageLookupByLibrary.simpleMessage(
+      "Nombre o ID duplicado. Renombra o elimina el perfil en conflicto; no se sobrescribió nada.",
+    ),
+    "processProxyProfilesEmpty": MessageLookupByLibrary.simpleMessage(
+      "Aún no hay perfiles.",
+    ),
+    "processProxyProfilesExport": MessageLookupByLibrary.simpleMessage(
+      "Exportar perfiles",
+    ),
+    "processProxyProfilesExportConfirm": MessageLookupByLibrary.simpleMessage(
+      "¿Exportar JSON sin cifrar con la opción de argumentos mostrada? Revisa rutas y argumentos antes de compartir. No se exportan confianza, credenciales del proxy ni permisos sensibles.",
+    ),
+    "processProxyProfilesExportHelp": MessageLookupByLibrary.simpleMessage(
+      "Los argumentos se omiten por defecto. Rutas, nombres y exclusiones quedan en texto claro. Los argumentos pueden revelar contraseñas o tokens; usa una ubicación segura.",
+    ),
+    "processProxyProfilesHelp": MessageLookupByLibrary.simpleMessage(
+      "Guarda hasta 32 perfiles locales. Los ajustes y copias no están cifrados; los argumentos pueden contener secretos. Cargar solo rellena el formulario, sin iniciar ni cambiar sesiones. La confianza y los permisos de captura/QUIC se restablecen.",
+    ),
+    "processProxyProfilesImport": MessageLookupByLibrary.simpleMessage(
+      "Importar perfiles",
+    ),
+    "processProxyProfilesImportConfirm": m71,
+    "processProxyProfilesIncludeArguments":
+        MessageLookupByLibrary.simpleMessage("Incluir argumentos al exportar"),
+    "processProxyProfilesInvalid": MessageLookupByLibrary.simpleMessage(
+      "JSON, versión, nombre o tipo de campo no válido. No se cambiaron los perfiles existentes.",
+    ),
+    "processProxyProfilesLimit": MessageLookupByLibrary.simpleMessage(
+      "Se permiten hasta 32 perfiles. Elimina primero uno sin uso.",
+    ),
+    "processProxyProfilesLoadConfirm": m72,
+    "processProxyProfilesSaveCurrent": MessageLookupByLibrary.simpleMessage(
+      "Guardar formulario actual",
+    ),
+    "processProxyProfilesStorage": MessageLookupByLibrary.simpleMessage(
+      "No se puede leer o guardar el archivo. Comprueba permisos y espacio libre y reintenta.",
+    ),
+    "processProxyProfilesTooLarge": MessageLookupByLibrary.simpleMessage(
+      "El archivo no debe superar 256 KiB. No se cambiaron los perfiles existentes.",
+    ),
+    "processProxyReadDetails": MessageLookupByLibrary.simpleMessage(
+      "Leer detalles",
+    ),
+    "processProxyReadNext": MessageLookupByLibrary.simpleMessage(
+      "Leer registros siguientes",
+    ),
+    "processProxyReadQuery": MessageLookupByLibrary.simpleMessage(
+      "Consulta de detalles de solo lectura (JSON)",
+    ),
+    "processProxyReadQueryHelp": MessageLookupByLibrary.simpleMessage(
+      "Usa los ID de una respuesta. Tipos permitidos: poll, stats, cache_read, cache_decode, dns_read, recording_page y recording_detail. No ejecuta comandos.",
+    ),
+    "processProxyRebuildIndex": MessageLookupByLibrary.simpleMessage(
+      "Recuperar índice de grabación",
+    ),
+    "processProxyRebuildIndexWarning": MessageLookupByLibrary.simpleMessage(
+      "Reconstruye el índice solo de la carpeta local elegida. Escribe metadatos sin repetir solicitudes de red. Los fallos y tiempos de espera no se reintentan automáticamente. Confirma la copia de seguridad y mantén detenida la supervisión.",
+    ),
+    "processProxyReconnect": MessageLookupByLibrary.simpleMessage(
+      "Restablecer conexiones TCP de esta sesión",
+    ),
+    "processProxyReconnectConfirm": m73,
+    "processProxyReconnectNone": MessageLookupByLibrary.simpleMessage(
+      "Esta sesión no tiene conexiones TCP que restablecer.",
+    ),
+    "processProxyRecording": MessageLookupByLibrary.simpleMessage("Grabación"),
+    "processProxyRecordingAll": MessageLookupByLibrary.simpleMessage(
+      "Todos los protocolos",
+    ),
+    "processProxyRecordingBrowser": MessageLookupByLibrary.simpleMessage(
+      "Explorar grabación sin conexión",
+    ),
+    "processProxyRecordingBrowserHelp": MessageLookupByLibrary.simpleMessage(
+      "Abre primero una grabación local en su espacio de trabajo. Este visor solo lee datos; no reenvía solicitudes ni inicia supervisión. Ajusta los filtros y actualiza. La paginación usa posiciones de registros, no el cursor del tráfico en vivo.",
+    ),
+    "processProxyRecordingCapacity": MessageLookupByLibrary.simpleMessage(
+      "Capacidad de grabación (MiB)",
+    ),
+    "processProxyRecordingChanged": MessageLookupByLibrary.simpleMessage(
+      "La grabación abierta cambió al paginar. Se borraron las filas antiguas; actualiza desde la primera página antes de ver detalles.",
+    ),
+    "processProxyRecordingDetails": MessageLookupByLibrary.simpleMessage(
+      "Detalles de sesión grabada",
+    ),
+    "processProxyRecordingNext": MessageLookupByLibrary.simpleMessage(
+      "Página siguiente",
+    ),
+    "processProxyRecordingNoPayload": MessageLookupByLibrary.simpleMessage(
+      "Este registro solo de conexión no tiene ID de caché de contenido. Se muestran sus metadatos.",
+    ),
+    "processProxyRecordingPageSize": MessageLookupByLibrary.simpleMessage(
+      "Registros por página",
+    ),
+    "processProxyRecordingPageSummary": m74,
+    "processProxyRecordingPrevious": MessageLookupByLibrary.simpleMessage(
+      "Página anterior",
+    ),
+    "processProxyRecordingQueryInvalid": MessageLookupByLibrary.simpleMessage(
+      "Usa un filtro de hasta 256 bytes UTF-8 sin caracteres de control, 1–64 registros por página y desplazamiento no negativo.",
+    ),
+    "processProxyRecordingReserve": MessageLookupByLibrary.simpleMessage(
+      "Espacio libre mínimo (MiB)",
+    ),
+    "processProxyRecordingStalled": MessageLookupByLibrary.simpleMessage(
+      "Se recibió una página vacía antes del final indicado. Se detiene la paginación para evitar omisiones o bucles. Actualiza o comprueba el estado.",
+    ),
+    "processProxyRecordingWarnings": m75,
+    "processProxyRefresh": MessageLookupByLibrary.simpleMessage("Actualizar"),
+    "processProxyRemoteDns": MessageLookupByLibrary.simpleMessage(
+      "Resolver nombres públicos mediante el proxy",
+    ),
+    "processProxyRemoveCa": MessageLookupByLibrary.simpleMessage(
+      "Eliminar confianza de CA del usuario actual",
+    ),
+    "processProxyReplay": MessageLookupByLibrary.simpleMessage(
+      "Reproducción sin conexión",
+    ),
+    "processProxyRequested": MessageLookupByLibrary.simpleMessage(
+      "Inicio solicitado",
+    ),
+    "processProxyRules": MessageLookupByLibrary.simpleMessage(
+      "Enrutamiento y exclusiones",
+    ),
+    "processProxyRunId": MessageLookupByLibrary.simpleMessage(
+      "ID de ejecución",
+    ),
+    "processProxySafeMode": MessageLookupByLibrary.simpleMessage(
+      "El inicio está desactivado en modo seguro.",
+    ),
+    "processProxySearch": MessageLookupByLibrary.simpleMessage(
+      "Buscar una aplicación en ejecución",
+    ),
+    "processProxySearchHelp": MessageLookupByLibrary.simpleMessage(
+      "La selección solo rellena la ruta para un nuevo inicio. No conecta, detiene ni reinicia el proceso existente.",
+    ),
+    "processProxySearchHint": MessageLookupByLibrary.simpleMessage(
+      "Buscar por nombre, PID o ruta",
+    ),
+    "processProxySelectFile": MessageLookupByLibrary.simpleMessage(
+      "Elegir ejecutable",
+    ),
+    "processProxySemanticDetails": MessageLookupByLibrary.simpleMessage(
+      "Detalles del protocolo",
+    ),
+    "processProxySemanticHelp": MessageLookupByLibrary.simpleMessage(
+      "Instantánea de solo lectura de la ejecución y el registro elegidos. Los campos HTTP son metadatos semánticos, no los bytes originales de red. Abrir esta página no lee contenido ni inicia capturas.",
+    ),
+    "processProxySemanticUnavailable": MessageLookupByLibrary.simpleMessage(
+      "No hay detalles compatibles de cabeceras HTTP o datagramas. Consulte los metadatos y el contenido sin asumir límites de mensajes de aplicación.",
+    ),
+    "processProxyServer": MessageLookupByLibrary.simpleMessage(
+      "Servidor → Cliente",
+    ),
+    "processProxySessionHelp": MessageLookupByLibrary.simpleMessage(
+      "El estado refleja el motor, no verifica el tráfico. Cerrar esta página no detiene aplicaciones. Si se detiene el núcleo o cambia el puerto, cierra la aplicación y crea otra sesión.",
+    ),
+    "processProxySessionStopWarning": MessageLookupByLibrary.simpleMessage(
+      "¿Detener la supervisión, grabación y proxy de esta sesión? Las aplicaciones seguirán abiertas, pero sus conexiones pueden interrumpirse. Los hooks inyectados pueden permanecer tras detener el motor o el núcleo y hacer fallar conexiones nuevas. Reinicie manualmente las aplicaciones seleccionadas para volver a un estado limpio. Nunca se cierran ni reinician automáticamente; no se garantiza restaurar la conexión directa ni un interruptor de corte.",
+    ),
+    "processProxySessions": MessageLookupByLibrary.simpleMessage(
+      "Sesiones de esta ventana",
+    ),
+    "processProxyStartMonitor": MessageLookupByLibrary.simpleMessage(
+      "Iniciar supervisión",
+    ),
+    "processProxyStartRecording": MessageLookupByLibrary.simpleMessage(
+      "Iniciar grabación",
+    ),
+    "processProxyStats": MessageLookupByLibrary.simpleMessage(
+      "Estadísticas de tráfico",
+    ),
+    "processProxyStatus": MessageLookupByLibrary.simpleMessage(
+      "Estado del motor",
+    ),
+    "processProxyStopMonitor": MessageLookupByLibrary.simpleMessage(
+      "Detener supervisión",
+    ),
+    "processProxyStopRecording": MessageLookupByLibrary.simpleMessage(
+      "Detener grabación y supervisión",
+    ),
+    "processProxyStopSession": MessageLookupByLibrary.simpleMessage(
+      "Detener sesión de proxy",
+    ),
+    "processProxyTakeoverOff": MessageLookupByLibrary.simpleMessage(
+      "Desactiva el proxy del sistema y TUN para usar el proxy solo por proceso.",
+    ),
+    "processProxyTarget": MessageLookupByLibrary.simpleMessage(
+      "Aplicación que se iniciará",
+    ),
+    "processProxyTargetPath": MessageLookupByLibrary.simpleMessage(
+      "Ruta del archivo .exe",
+    ),
+    "processProxyTrailers": MessageLookupByLibrary.simpleMessage(
+      "Campos finales",
+    ),
+    "processProxyTrust": MessageLookupByLibrary.simpleMessage(
+      "Confío en este motor y autorizo que use el proxy en la aplicación que inicio.",
+    ),
+    "processProxyTrustCa": MessageLookupByLibrary.simpleMessage(
+      "Confiar en CA para el usuario actual",
+    ),
+    "processProxyWorkingDirectory": MessageLookupByLibrary.simpleMessage(
+      "Directorio de trabajo (opcional)",
+    ),
+    "processProxyWorkingDirectoryHelp": MessageLookupByLibrary.simpleMessage(
+      "Ruta local absoluta; vacía usa la carpeta del ejecutable. Una ruta explícita requiere el puente nativo.",
+    ),
     "profile": MessageLookupByLibrary.simpleMessage("Perfil"),
     "profileAutoUpdateIntervalInvalidValidationDesc":
         MessageLookupByLibrary.simpleMessage("Introduce un intervalo válido"),
@@ -1438,8 +2000,8 @@ class MessageLookup extends MessageLookupByLibrary {
         MessageLookupByLibrary.simpleMessage(
           "Introduce el intervalo de actualización automática",
         ),
-    "profileDaysLeft": m62,
-    "profileExpiresIn": m63,
+    "profileDaysLeft": m76,
+    "profileExpiresIn": m77,
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "El perfil se ha modificado. ¿Desactivar la actualización automática?",
     ),
@@ -1452,7 +2014,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileTunSettingsDesc": MessageLookupByLibrary.simpleMessage(
       "Se aplica solo a este perfil y tiene prioridad sobre las entradas de sobrescritura de TUN de los ajustes de red.",
     ),
-    "profileUpdatedAt": m64,
+    "profileUpdatedAt": m78,
     "profileUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
       "Introduce una URL de perfil válida",
     ),
@@ -1469,26 +2031,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "protocolVersion": MessageLookupByLibrary.simpleMessage(
       "Versión del protocolo",
     ),
-    "providerInUse": m65,
+    "providerInUse": m79,
     "providerUrlTip": MessageLookupByLibrary.simpleMessage(
       "Solo se admiten proveedores remotos",
     ),
     "providers": MessageLookupByLibrary.simpleMessage("Recursos externos"),
     "proxies": MessageLookupByLibrary.simpleMessage("Proxies"),
-    "proxiesCount": m66,
-    "proxiesProfileLabel": m67,
-    "proxiesRemovedTip": m68,
-    "proxiesReplacedTip": m69,
+    "proxiesCount": m80,
+    "proxiesProfileLabel": m81,
+    "proxiesRemovedTip": m82,
+    "proxiesReplacedTip": m83,
     "proxyChains": MessageLookupByLibrary.simpleMessage("Cadena de proxies"),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("Grupo de proxies"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage(
       "El grupo de proxies está vacío",
     ),
-    "proxyGroupInUse": m70,
+    "proxyGroupInUse": m84,
     "proxyGroupsAfterStart": MessageLookupByLibrary.simpleMessage(
       "Los grupos aparecen aquí cuando se inicia el núcleo",
     ),
-    "proxyGroupsCount": m71,
+    "proxyGroupsCount": m85,
     "proxyProviders": MessageLookupByLibrary.simpleMessage(
       "Proveedores de proxies",
     ),
@@ -1739,14 +2301,14 @@ class MessageLookup extends MessageLookupByLibrary {
       "La regla debe empezar con un tipo admitido, por ejemplo DOMAIN,example.com,DIRECT",
     ),
     "rules": MessageLookupByLibrary.simpleMessage("Reglas"),
-    "rulesCount": m72,
+    "rulesCount": m86,
     "runTime": MessageLookupByLibrary.simpleMessage("Tiempo de ejecución"),
     "running": MessageLookupByLibrary.simpleMessage("En ejecución"),
     "runtimeConfig": MessageLookupByLibrary.simpleMessage(
       "Configuración de ejecución",
     ),
     "safeMode": MessageLookupByLibrary.simpleMessage("Modo seguro"),
-    "safeModeAppTitle": m73,
+    "safeModeAppTitle": m87,
     "saturation": MessageLookupByLibrary.simpleMessage("Saturación"),
     "save": MessageLookupByLibrary.simpleMessage("Guardar"),
     "saveChanges": MessageLookupByLibrary.simpleMessage(
@@ -1761,9 +2323,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "search": MessageLookupByLibrary.simpleMessage("Buscar"),
     "seconds": MessageLookupByLibrary.simpleMessage("segundos"),
-    "secondsCount": m74,
+    "secondsCount": m88,
     "secretKey": MessageLookupByLibrary.simpleMessage("Clave"),
-    "sectionsInEffect": m75,
+    "sectionsInEffect": m89,
     "select": MessageLookupByLibrary.simpleMessage("Seleccionar"),
     "selectAll": MessageLookupByLibrary.simpleMessage("Seleccionar todo"),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage(
@@ -1798,7 +2360,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Escanea el código con la cámara del teléfono y pega el enlace en la página que se abre. Ambos dispositivos deben estar en la misma red.",
     ),
     "server": MessageLookupByLibrary.simpleMessage("Servidor"),
-    "serviceAbnormalCount": m76,
+    "serviceAbnormalCount": m90,
     "serviceAllAvailable": MessageLookupByLibrary.simpleMessage(
       "Todo disponible",
     ),
@@ -1834,8 +2396,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settingEntries": MessageLookupByLibrary.simpleMessage("ajustes"),
     "settings": MessageLookupByLibrary.simpleMessage("Ajustes"),
-    "settingsCount": m77,
-    "shareLinkUnreadable": m78,
+    "settingsCount": m91,
+    "shareLinkUnreadable": m92,
     "shareLinksInvalid": MessageLookupByLibrary.simpleMessage(
       "No se pudo leer ningún proxy de los enlaces",
     ),
@@ -1862,7 +2424,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "singleShareLinkOnly": MessageLookupByLibrary.simpleMessage(
       "Introduce aquí un solo enlace; para varios, usa la edición rápida de la lista",
     ),
-    "singleValueTip": m79,
+    "singleValueTip": m93,
     "size": MessageLookupByLibrary.simpleMessage("Tamaño"),
     "skipCertVerify": MessageLookupByLibrary.simpleMessage(
       "Omitir verificación de certificado",
@@ -1978,11 +2540,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("Subido"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Puerto TProxy"),
     "traffic": MessageLookupByLibrary.simpleMessage("Tráfico"),
-    "trafficPeak": m80,
-    "trafficTotal": m81,
+    "trafficPeak": m94,
+    "trafficTotal": m95,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Uso de tráfico"),
     "transport": MessageLookupByLibrary.simpleMessage("Transporte"),
-    "transportHeaders": m82,
+    "transportHeaders": m96,
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunAuthorizationFailed": MessageLookupByLibrary.simpleMessage(
       "No se pudo autorizar TUN, por lo que se desactivó.",
@@ -2018,7 +2580,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Ancho de banda de subida",
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m83,
+    "urlTip": m97,
     "useHosts": MessageLookupByLibrary.simpleMessage("Usar hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage(
       "Usar hosts del sistema",
@@ -2047,8 +2609,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "Escribir en el sistema también ajusta el reloj del sistema; Android lo ignora.",
     ),
-    "yearsAgo": m84,
-    "yearsAgoShort": m85,
+    "yearsAgo": m98,
+    "yearsAgoShort": m99,
     "yes": MessageLookupByLibrary.simpleMessage("Sí"),
     "zhCN": MessageLookupByLibrary.simpleMessage("Chino simplificado"),
   };

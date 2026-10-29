@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_relative_lib_imports
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -151,7 +153,7 @@ final Map<String, Future<void> Function()> processProxyBackendCases = {
     await _probe(
       (socket) async {
         var step = 0;
-        await for (final bytes in socket) {
+        await for (final _ in socket) {
           socket.add(step++ == 0 ? [5, 2] : [1, 1]);
           await socket.flush();
           if (step == 2) break;

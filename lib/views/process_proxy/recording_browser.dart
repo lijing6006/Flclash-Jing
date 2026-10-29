@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/services/process_proxy.dart';
+import 'package:fl_clash/services/process_proxy/record_detail.dart';
 import 'package:fl_clash/services/process_proxy/recording_browser.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/views/process_proxy/payload.dart';
+import 'package:fl_clash/views/process_proxy/record_detail.dart';
 import 'package:fl_clash/views/process_proxy_error.dart';
 import 'package:flutter/foundation.dart' show compute;
 import 'package:material_ui/material_ui.dart';
@@ -44,6 +46,7 @@ class _ProcessProxyRecordingBrowserState
   ProcessProxyRecordingPage? _page;
   ProcessProxyRecordingRow? _selected;
   ProcessProxyRecordingText? _detail;
+  Map<String, dynamic>? _detailRecord;
 
   @override
   void initState() {
@@ -61,6 +64,7 @@ class _ProcessProxyRecordingBrowserState
       _page = null;
       _selected = null;
       _detail = null;
+      _detailRecord = null;
       _history.clear();
       unawaited(_load(0, reset: true));
     }
@@ -74,6 +78,7 @@ class _ProcessProxyRecordingBrowserState
       _page = null;
       _selected = null;
       _detail = null;
+      _detailRecord = null;
       _error = null;
       _history.clear();
     });
@@ -98,6 +103,7 @@ class _ProcessProxyRecordingBrowserState
       _error = null;
       _selected = null;
       _detail = null;
+      _detailRecord = null;
     });
     try {
       final response = await widget.service.bridgeRequest(
@@ -149,6 +155,7 @@ class _ProcessProxyRecordingBrowserState
       _error = null;
       _selected = row;
       _detail = null;
+      _detailRecord = null;
     });
     try {
       final response = await widget.service.bridgeRequest(
@@ -162,7 +169,10 @@ class _ProcessProxyRecordingBrowserState
           await (widget.formatDetail?.call(input) ??
               compute(formatProcessProxyRecordingDetail, input));
       if (_current(generation) && _page?.runId == row.runId) {
-        setState(() => _detail = detail);
+        setState(() {
+          _detail = detail;
+          _detailRecord = response;
+        });
       }
     } catch (error) {
       if (_current(generation)) setState(() => _error = error);
@@ -191,10 +201,12 @@ class _ProcessProxyRecordingBrowserState
   String _errorMessage(Object error) {
     final l = context.appLocalizations;
     if (error is ProcessProxyException) {
-      if (error.code == 'recordingChanged')
+      if (error.code == 'recordingChanged') {
         return l.processProxyRecordingChanged;
-      if (error.code == 'recordingQueryInvalid')
+      }
+      if (error.code == 'recordingQueryInvalid') {
         return l.processProxyRecordingQueryInvalid;
+      }
     }
     return processProxyErrorMessage(error, l);
   }
@@ -327,6 +339,20 @@ class _ProcessProxyRecordingBrowserState
             if (selected != null && detail != null) ...[
               const SizedBox(height: 16),
               Text(l.processProxyRecordingDetails),
+              if (_detailRecord case final record?)
+                ListItem.open(
+                  title: Text(l.processProxySemanticDetails),
+                  widget: ProcessProxyRecordDetailView(
+                    service: widget.service,
+                    session: widget.session,
+                    input: ProcessProxyRecordInput(
+                      record: record,
+                      runId: selected.runId,
+                      cacheId: selected.cacheId,
+                      connectionId: selected.connectionId,
+                    ),
+                  ),
+                ),
               if (selected.cacheId != null)
                 ListItem.open(
                   title: Text(l.processProxyPayloadViewer),

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/l10n/l10n.dart';
+import 'package:fl_clash/models/config.dart' show AuthenticationPropsExt;
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/services/process_proxy.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
@@ -44,6 +45,36 @@ ProcessProxyRuntime _processProxyRuntime(ProviderContainer container) {
     username: authenticated ? authentication.username : '',
     password: authenticated ? authentication.password : '',
   );
+}
+
+void Function() _observeProcessProxyRuntime(
+  ProviderContainer container,
+  void Function(ProcessProxyRuntime?) listener,
+) {
+  void changed() {
+    try {
+      listener(_processProxyRuntime(container));
+    } on Exception {
+      listener(null);
+    }
+  }
+
+  final subscriptions = [
+    container.listen(coreStatusProvider, (_, _) => changed()),
+    container.listen(
+      runTimeProvider.select((value) => value != null),
+      (_, _) => changed(),
+    ),
+    container.listen(suspendProvider, (_, _) => changed()),
+    container.listen(safeModeProvider, (_, _) => changed()),
+    container.listen(patchClashConfigProvider, (_, _) => changed()),
+    container.listen(networkSettingProvider, (_, _) => changed()),
+  ];
+  return () {
+    for (final subscription in subscriptions) {
+      subscription.close();
+    }
+  };
 }
 
 class ProcessProxyView extends ConsumerStatefulWidget {
@@ -206,6 +237,8 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       await _service.launch(
         request: request,
         runtime: () => _verifiedProcessProxyRuntime(container),
+        observeRuntime: (listener) =>
+            _observeProcessProxyRuntime(container, listener),
       );
     } catch (error) {
       if (mounted) setState(() => _error = error);
@@ -313,6 +346,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       'requested' => l.processProxyRequested,
       'backendRunning' => l.processProxyBackendRunning,
       'exited' => l.processProxyExited,
+      'coreInvalidated' => l.processProxyCoreSessionEnded,
       _ => l.processProxyFailed(processProxyExitMessage(session.exitCode, l)),
     };
   }
@@ -539,6 +573,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                 runSpacing: 12,
                 children: [
                   FilledButton(
+                    key: const ValueKey('process-proxy-launch'),
                     onPressed: canLaunch ? _launch : null,
                     child: Text(l.processProxyLaunch),
                   ),

@@ -39,6 +39,9 @@ class _VerifiedSetupAction extends SetupAction {
 
 class _FakeService extends ProcessProxyService {
   int launches = 0;
+  int invalidations = 0;
+  ProcessProxyRuntimeLease? runtimeLease;
+  void Function()? stopObserving;
   Future<ProcessProxyRuntime> Function()? lastRuntime;
   ProcessProxyLaunchRequest? saved;
   bool failSearch = false;
@@ -82,10 +85,22 @@ class _FakeService extends ProcessProxyService {
   Future<void> launch({
     required ProcessProxyLaunchRequest request,
     required Future<ProcessProxyRuntime> Function() runtime,
+    required ProcessProxyRuntimeObserver observeRuntime,
   }) async {
     lastRuntime = runtime;
-    final endpoint = (await runtime()).endpoint;
-    if (endpoint.port > 0) launches++;
+    final initial = await runtime();
+    stopObserving?.call();
+    runtimeLease?.dispose();
+    runtimeLease = ProcessProxyRuntimeLease(initial, () => invalidations++);
+    stopObserving = observeRuntime(runtimeLease!.observe);
+    if (initial.endpoint.port > 0) launches++;
+  }
+
+  @override
+  void dispose() {
+    stopObserving?.call();
+    runtimeLease?.dispose();
+    super.dispose();
   }
 }
 
@@ -126,9 +141,9 @@ Future<ProviderContainer> _pump(
   );
   addTearDown(container.dispose);
   globalState.container = container;
-  (container.read(
-    setupActionProvider.notifier,
-  ) as _VerifiedSetupAction).applied = applied;
+  (container.read(setupActionProvider.notifier) as _VerifiedSetupAction)
+          .applied =
+      applied;
   container.read(viewSizeProvider.notifier).value = size;
   await tester.pumpWidget(
     UncontrolledProviderScope(
@@ -173,7 +188,11 @@ void main() {
       isFalse,
     );
     expect(
-      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+      tester
+          .widget<FilledButton>(
+            find.byKey(const ValueKey('process-proxy-launch')),
+          )
+          .onPressed,
       isNull,
     );
     expect(find.textContaining('SOCKS5 · 127.0.0.1:17891'), findsOneWidget);
@@ -230,7 +249,11 @@ void main() {
       );
       await _trustBackend(tester);
       expect(
-        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+        tester
+            .widget<FilledButton>(
+              find.byKey(const ValueKey('process-proxy-launch')),
+            )
+            .onPressed,
         isNull,
       );
       expect(service.launches, 0);
@@ -311,7 +334,7 @@ void main() {
     final service = _FakeService();
     await _pump(tester, service);
     await _trustBackend(tester);
-    await tester.tap(find.byType(FilledButton));
+    await tester.tap(find.byKey(const ValueKey('process-proxy-launch')));
     await tester.pumpAndSettle();
     await tester.tap(find.text(currentAppLocalizations.cancel));
     await tester.pumpAndSettle();
@@ -371,7 +394,7 @@ void main() {
       final service = _FakeService();
       await _pump(tester, service);
       await _trustBackend(tester);
-      await tester.tap(find.byType(FilledButton));
+      await tester.tap(find.byKey(const ValueKey('process-proxy-launch')));
       await tester.pumpAndSettle();
       await tester.tap(
         find.widgetWithText(
@@ -389,13 +412,38 @@ void main() {
     },
   );
 
+  testWidgets(
+    'a rapid core restart permanently invalidates its process lease',
+    (tester) async {
+      final service = _FakeService();
+      final container = await _pump(tester, service);
+      await _trustBackend(tester);
+      await tester.tap(find.byKey(const ValueKey('process-proxy-launch')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.widgetWithText(
+          TextButton,
+          currentAppLocalizations.processProxyLaunch,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(service.runtimeLease!.valid, isTrue);
+      container.read(coreStatusProvider.notifier).value = CoreStatus.connecting;
+      container.read(coreStatusProvider.notifier).value = CoreStatus.connected;
+      await tester.pump();
+      expect(service.invalidations, 1);
+      expect(service.runtimeLease!.valid, isFalse);
+      expect(service.launches, 1);
+    },
+  );
+
   testWidgets('unapplied core inputs reject the confirmed launch', (
     tester,
   ) async {
     final service = _FakeService();
     await _pump(tester, service, applied: false);
     await _trustBackend(tester);
-    await tester.tap(find.byType(FilledButton));
+    await tester.tap(find.byKey(const ValueKey('process-proxy-launch')));
     await tester.pumpAndSettle();
     await tester.tap(
       find.widgetWithText(

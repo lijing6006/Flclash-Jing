@@ -173,8 +173,9 @@ class ProcessProxyLaunchRequest {
 }
 
 void validateExecutablePath(String path) {
-  if (utf8.encode(path).length > 240)
+  if (utf8.encode(path).length > 240) {
     throw const ProcessProxyException('pathTooLong');
+  }
   if (!RegExp(r'^[a-zA-Z]:[\\/]').hasMatch(path) ||
       !path.toLowerCase().endsWith('.exe') ||
       path.contains(RegExp(r'[\x00-\x1f"<>|*?]')) ||
@@ -187,8 +188,9 @@ void validateExecutablePath(String path) {
 
 void validateWorkingDirectoryPath(String path) {
   if (path.isEmpty) return;
-  if (utf8.encode(path).length > 240)
+  if (utf8.encode(path).length > 240) {
     throw const ProcessProxyException('pathTooLong');
+  }
   if (!RegExp(r'^[a-zA-Z]:[\\/]').hasMatch(path) ||
       path.contains(RegExp(r'[\x00-\x1f"<>|*?]')) ||
       path.substring(2).contains(':') ||

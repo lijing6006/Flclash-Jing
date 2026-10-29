@@ -42,11 +42,12 @@ class _Service extends ProcessProxyService {
       pending = null;
       return wait.future;
     }
-    if (fail)
+    if (fail) {
       throw const ProcessProxyException(
         'bridgeOperationFailed',
         'SECRET_DIAGNOSTIC',
       );
+    }
     if (arguments['type'] == 'recording_detail') {
       return recordingFixtureRow(
         cacheId: arguments['cache_id'] as int? ?? 7,

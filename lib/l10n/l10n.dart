@@ -8052,6 +8052,1890 @@ class AppLocalizations {
       args: [name],
     );
   }
+
+  /// `Process proxy`
+  String get processProxy {
+    return Intl.message(
+      'Process proxy',
+      name: 'processProxy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Launch only the applications you choose through the current FlClash proxy. System proxy and TUN stay off.`
+  String get processProxyIntro {
+    return Intl.message(
+      'Launch only the applications you choose through the current FlClash proxy. System proxy and TUN stay off.',
+      name: 'processProxyIntro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start FlClash on the dashboard before launching an application.`
+  String get processProxyCoreRequired {
+    return Intl.message(
+      'Start FlClash on the dashboard before launching an application.',
+      name: 'processProxyCoreRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turn off system proxy and TUN to use process-only proxying.`
+  String get processProxyTakeoverOff {
+    return Intl.message(
+      'Turn off system proxy and TUN to use process-only proxying.',
+      name: 'processProxyTakeoverOff',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Launching is disabled in safe mode.`
+  String get processProxySafeMode {
+    return Intl.message(
+      'Launching is disabled in safe mode.',
+      name: 'processProxySafeMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current local endpoint`
+  String get processProxyEndpoint {
+    return Intl.message(
+      'Current local endpoint',
+      name: 'processProxyEndpoint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No supported local proxy port is enabled.`
+  String get processProxyNoPort {
+    return Intl.message(
+      'No supported local proxy port is enabled.',
+      name: 'processProxyNoPort',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ProxyLane backend`
+  String get processProxyBackend {
+    return Intl.message(
+      'ProxyLane backend',
+      name: 'processProxyBackend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Official ProxyLane64.exe path`
+  String get processProxyBackendPath {
+    return Intl.message(
+      'Official ProxyLane64.exe path',
+      name: 'processProxyBackendPath',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select a trusted complete ProxyLane v1.3.5 installation. FlClash uses an isolated session copy and does not overwrite its original configuration.`
+  String get processProxyBackendHelp {
+    return Intl.message(
+      'Select a trusted complete ProxyLane v1.3.5 installation. FlClash uses an isolated session copy and does not overwrite its original configuration.',
+      name: 'processProxyBackendHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I trust this backend and authorize it to proxy the application I launch.`
+  String get processProxyTrust {
+    return Intl.message(
+      'I trust this backend and authorize it to proxy the application I launch.',
+      name: 'processProxyTrust',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose executable`
+  String get processProxySelectFile {
+    return Intl.message(
+      'Choose executable',
+      name: 'processProxySelectFile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Application to launch`
+  String get processProxyTarget {
+    return Intl.message(
+      'Application to launch',
+      name: 'processProxyTarget',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Application .exe path`
+  String get processProxyTargetPath {
+    return Intl.message(
+      'Application .exe path',
+      name: 'processProxyTargetPath',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Arguments (JSON string array)`
+  String get processProxyArguments {
+    return Intl.message(
+      'Arguments (JSON string array)',
+      name: 'processProxyArguments',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Example: ["--profile", "Work"]. No shell is used. Do not enter passwords or tokens.`
+  String get processProxyArgumentsHelp {
+    return Intl.message(
+      'Example: ["--profile", "Work"]. No shell is used. Do not enter passwords or tokens.',
+      name: 'processProxyArgumentsHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Arguments must be a JSON array containing only strings.`
+  String get processProxyInvalidArguments {
+    return Intl.message(
+      'Arguments must be a JSON array containing only strings.',
+      name: 'processProxyInvalidArguments',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Routing and exclusions`
+  String get processProxyRules {
+    return Intl.message(
+      'Routing and exclusions',
+      name: 'processProxyRules',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bypass IPs, CIDRs and domains — one per line`
+  String get processProxyBypass {
+    return Intl.message(
+      'Bypass IPs, CIDRs and domains — one per line',
+      name: 'processProxyBypass',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Excluded destinations connect directly. Add internal domains explicitly. IP rules apply when the backend sees the destination IP; hostname matching takes precedence.`
+  String get processProxyBypassHelp {
+    return Intl.message(
+      'Excluded destinations connect directly. Add internal domains explicitly. IP rules apply when the backend sees the destination IP; hostname matching takes precedence.',
+      name: 'processProxyBypassHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Include child processes`
+  String get processProxyChildren {
+    return Intl.message(
+      'Include child processes',
+      name: 'processProxyChildren',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bypass private networks`
+  String get processProxyPrivate {
+    return Intl.message(
+      'Bypass private networks',
+      name: 'processProxyPrivate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resolve public names through the proxy`
+  String get processProxyRemoteDns {
+    return Intl.message(
+      'Resolve public names through the proxy',
+      name: 'processProxyRemoteDns',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Off by default to preserve local and corporate split DNS. Local DNS queries may be visible to your network. Private DNS is never forcibly redirected.`
+  String get processProxyDnsHelp {
+    return Intl.message(
+      'Off by default to preserve local and corporate split DNS. Local DNS queries may be visible to your network. Private DNS is never forcibly redirected.',
+      name: 'processProxyDnsHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Block UDP (QUIC uses TCP fallback where supported)`
+  String get processProxyBlockUdp {
+    return Intl.message(
+      'Block UDP (QUIC uses TCP fallback where supported)',
+      name: 'processProxyBlockUdp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find a running application`
+  String get processProxySearch {
+    return Intl.message(
+      'Find a running application',
+      name: 'processProxySearch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search by name, PID or executable path`
+  String get processProxySearchHint {
+    return Intl.message(
+      'Search by name, PID or executable path',
+      name: 'processProxySearchHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selecting a running process only fills its executable path for a new launch. It does not attach, stop or restart that process.`
+  String get processProxySearchHelp {
+    return Intl.message(
+      'Selecting a running process only fills its executable path for a new launch. It does not attach, stop or restart that process.',
+      name: 'processProxySearchHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No matching accessible applications. You can choose an .exe file instead.`
+  String get processProxyNoProcesses {
+    return Intl.message(
+      'No matching accessible applications. You can choose an .exe file instead.',
+      name: 'processProxyNoProcesses',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Launch through proxy`
+  String get processProxyLaunch {
+    return Intl.message(
+      'Launch through proxy',
+      name: 'processProxyLaunch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Launch a new instance of {application}? Save your work and close an already-running instance yourself first. Single-instance apps may reuse an old unproxied process. No existing process will be stopped automatically.`
+  String processProxyConfirmLaunch(Object application) {
+    return Intl.message(
+      'Launch a new instance of $application? Save your work and close an already-running instance yourself first. Single-instance apps may reuse an old unproxied process. No existing process will be stopped automatically.',
+      name: 'processProxyConfirmLaunch',
+      desc: '',
+      args: [application],
+    );
+  }
+
+  /// `This window’s sessions`
+  String get processProxySessions {
+    return Intl.message(
+      'This window’s sessions',
+      name: 'processProxySessions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Status tracks the backend process, not verified application traffic. Closing this page does not stop applications. Core shutdown or port changes can interrupt proxying; close the application and start a new session.`
+  String get processProxySessionHelp {
+    return Intl.message(
+      'Status tracks the backend process, not verified application traffic. Closing this page does not stop applications. Core shutdown or port changes can interrupt proxying; close the application and start a new session.',
+      name: 'processProxySessionHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Launch requested`
+  String get processProxyRequested {
+    return Intl.message(
+      'Launch requested',
+      name: 'processProxyRequested',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Backend running; verify traffic`
+  String get processProxyBackendRunning {
+    return Intl.message(
+      'Backend running; verify traffic',
+      name: 'processProxyBackendRunning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Backend exited`
+  String get processProxyExited {
+    return Intl.message(
+      'Backend exited',
+      name: 'processProxyExited',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Operation failed: {error}`
+  String processProxyFailed(Object error) {
+    return Intl.message(
+      'Operation failed: $error',
+      name: 'processProxyFailed',
+      desc: '',
+      args: [error],
+    );
+  }
+
+  /// `Advanced capabilities — experimental`
+  String get processProxyAdvanced {
+    return Intl.message(
+      'Advanced capabilities — experimental',
+      name: 'processProxyAdvanced',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `HTTPS/QUIC decryption, CA trust, monitoring, recording and replay are not yet fully migrated into FlClash. All are off by default. Changing decryption preferences does not install a certificate or start monitoring.`
+  String get processProxyAdvancedHelp {
+    return Intl.message(
+      'HTTPS/QUIC decryption, CA trust, monitoring, recording and replay are not yet fully migrated into FlClash. All are off by default. Changing decryption preferences does not install a certificate or start monitoring.',
+      name: 'processProxyAdvancedHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Allow HTTPS decryption when monitoring is explicitly started`
+  String get processProxyDecryptHttps {
+    return Intl.message(
+      'Allow HTTPS decryption when monitoring is explicitly started',
+      name: 'processProxyDecryptHttps',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Allow QUIC decryption when monitoring is explicitly started`
+  String get processProxyDecryptQuic {
+    return Intl.message(
+      'Allow QUIC decryption when monitoring is explicitly started',
+      name: 'processProxyDecryptQuic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Advanced workspace (native ProxyLane window)`
+  String get processProxyOpenBackend {
+    return Intl.message(
+      'Advanced workspace (native ProxyLane window)',
+      name: 'processProxyOpenBackend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Review the backend path and explicitly confirm that you trust it.`
+  String get processProxyErrorTrust {
+    return Intl.message(
+      'Review the backend path and explicitly confirm that you trust it.',
+      name: 'processProxyErrorTrust',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select the official ProxyLane64.exe from a complete ProxyLane v1.3.5 installation. The selected version is unsupported.`
+  String get processProxyErrorBackendVersion {
+    return Intl.message(
+      'Select the official ProxyLane64.exe from a complete ProxyLane v1.3.5 installation. The selected version is unsupported.',
+      name: 'processProxyErrorBackendVersion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select an existing local .exe file with an absolute path. Shortcuts, network paths and command strings are not supported.`
+  String get processProxyErrorExecutable {
+    return Intl.message(
+      'Select an existing local .exe file with an absolute path. Shortcuts, network paths and command strings are not supported.',
+      name: 'processProxyErrorExecutable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Required ProxyLane components are missing. Extract the complete official package into one folder and select its ProxyLane64.exe again.`
+  String get processProxyErrorComponents {
+    return Intl.message(
+      'Required ProxyLane components are missing. Extract the complete official package into one folder and select its ProxyLane64.exe again.',
+      name: 'processProxyErrorComponents',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved process-proxy settings could not be read. Re-enter the settings and save them again.`
+  String get processProxyErrorSettings {
+    return Intl.message(
+      'Saved process-proxy settings could not be read. Re-enter the settings and save them again.',
+      name: 'processProxyErrorSettings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A launch is already in progress. Wait for it to finish before trying again.`
+  String get processProxyErrorBusy {
+    return Intl.message(
+      'A launch is already in progress. Wait for it to finish before trying again.',
+      name: 'processProxyErrorBusy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This backend session is no longer available. Close the target application yourself and launch a new session if needed.`
+  String get processProxyErrorSession {
+    return Intl.message(
+      'This backend session is no longer available. Close the target application yourself and launch a new session if needed.',
+      name: 'processProxyErrorSession',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Process proxying currently requires Windows and its standard local process-query tools.`
+  String get processProxyErrorWindows {
+    return Intl.message(
+      'Process proxying currently requires Windows and its standard local process-query tools.',
+      name: 'processProxyErrorWindows',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `FlClash stopped or its proxy configuration changed during launch. Check the current state, then start a new session.`
+  String get processProxyErrorCoreChanged {
+    return Intl.message(
+      'FlClash stopped or its proxy configuration changed during launch. Check the current state, then start a new session.',
+      name: 'processProxyErrorCoreChanged',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The local proxy rejected authentication. Check FlClash’s proxy username and password settings. Credentials are not included in this error.`
+  String get processProxyErrorAuthentication {
+    return Intl.message(
+      'The local proxy rejected authentication. Check FlClash’s proxy username and password settings. Credentials are not included in this error.',
+      name: 'processProxyErrorAuthentication',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The configured local proxy did not answer the expected protocol handshake. Confirm that FlClash is running and its mixed, SOCKS or HTTP listener is enabled.`
+  String get processProxyErrorListener {
+    return Intl.message(
+      'The configured local proxy did not answer the expected protocol handshake. Confirm that FlClash is running and its mixed, SOCKS or HTTP listener is enabled.',
+      name: 'processProxyErrorListener',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Windows could not finish reading the accessible process list. Retry the search, or choose the application’s .exe file directly.`
+  String get processProxyErrorProcessQuery {
+    return Intl.message(
+      'Windows could not finish reading the accessible process list. Retry the search, or choose the application’s .exe file directly.',
+      name: 'processProxyErrorProcessQuery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid IP/domain rule: {rule}. Use one IP, supported CIDR or domain pattern per line; do not enter URLs or ports.`
+  String processProxyErrorRule(Object rule) {
+    return Intl.message(
+      'Invalid IP/domain rule: $rule. Use one IP, supported CIDR or domain pattern per line; do not enter URLs or ports.',
+      name: 'processProxyErrorRule',
+      desc: '',
+      args: [rule],
+    );
+  }
+
+  /// `This CIDR cannot be translated safely for this backend: {rule}. Use an exact IP or a supported network prefix.`
+  String processProxyErrorCidr(Object rule) {
+    return Intl.message(
+      'This CIDR cannot be translated safely for this backend: $rule. Use an exact IP or a supported network prefix.',
+      name: 'processProxyErrorCidr',
+      desc: '',
+      args: [rule],
+    );
+  }
+
+  /// `Rule lists exceed their limit: up to 512 IP/domain rules or 128 child-process rules, and 16 KiB of text per list.`
+  String get processProxyErrorRuleLimit {
+    return Intl.message(
+      'Rule lists exceed their limit: up to 512 IP/domain rules or 128 child-process rules, and 16 KiB of text per list.',
+      name: 'processProxyErrorRuleLimit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `QUIC decryption requires UDP. Explicitly turn off “Block UDP” before enabling this option.`
+  String get processProxyErrorQuic {
+    return Intl.message(
+      'QUIC decryption requires UDP. Explicitly turn off “Block UDP” before enabling this option.',
+      name: 'processProxyErrorQuic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ProxyLane could not initialize proxying in the selected application. It may be incompatible or protected. Do not disable security protections; try a supported application.`
+  String get processProxyErrorHook {
+    return Intl.message(
+      'ProxyLane could not initialize proxying in the selected application. It may be incompatible or protected. Do not disable security protections; try a supported application.',
+      name: 'processProxyErrorHook',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The operation could not be completed. Check the selected files and current core state, then retry. Sensitive diagnostic details are hidden.`
+  String get processProxyErrorGeneric {
+    return Intl.message(
+      'The operation could not be completed. Check the selected files and current core state, then retry. Sensitive diagnostic details are hidden.',
+      name: 'processProxyErrorGeneric',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Native advanced workspace`
+  String get processProxyNativeWorkspace {
+    return Intl.message(
+      'Native advanced workspace',
+      name: 'processProxyNativeWorkspace',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Experimental: Windows runtime validation is still pending. Results below come from this session’s actual backend, never simulated. Refresh is manual.`
+  String get processProxyExperimentalHint {
+    return Intl.message(
+      'Experimental: Windows runtime validation is still pending. Results below come from this session’s actual backend, never simulated. Refresh is manual.',
+      name: 'processProxyExperimentalHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Overview`
+  String get processProxyOverview {
+    return Intl.message(
+      'Overview',
+      name: 'processProxyOverview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Refresh`
+  String get processProxyRefresh {
+    return Intl.message(
+      'Refresh',
+      name: 'processProxyRefresh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Traffic monitoring`
+  String get processProxyMonitor {
+    return Intl.message(
+      'Traffic monitoring',
+      name: 'processProxyMonitor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recording`
+  String get processProxyRecording {
+    return Intl.message(
+      'Recording',
+      name: 'processProxyRecording',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Offline replay`
+  String get processProxyReplay {
+    return Intl.message(
+      'Offline replay',
+      name: 'processProxyReplay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Certificates`
+  String get processProxyCertificates {
+    return Intl.message(
+      'Certificates',
+      name: 'processProxyCertificates',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Absolute local directory path`
+  String get processProxyDirectory {
+    return Intl.message(
+      'Absolute local directory path',
+      name: 'processProxyDirectory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start monitoring`
+  String get processProxyStartMonitor {
+    return Intl.message(
+      'Start monitoring',
+      name: 'processProxyStartMonitor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop monitoring`
+  String get processProxyStopMonitor {
+    return Intl.message(
+      'Stop monitoring',
+      name: 'processProxyStopMonitor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start recording`
+  String get processProxyStartRecording {
+    return Intl.message(
+      'Start recording',
+      name: 'processProxyStartRecording',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop recording and monitoring`
+  String get processProxyStopRecording {
+    return Intl.message(
+      'Stop recording and monitoring',
+      name: 'processProxyStopRecording',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open recording directory`
+  String get processProxyOpenReplay {
+    return Intl.message(
+      'Open recording directory',
+      name: 'processProxyOpenReplay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Close replay`
+  String get processProxyCloseReplay {
+    return Intl.message(
+      'Close replay',
+      name: 'processProxyCloseReplay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Initialize CA material`
+  String get processProxyInitializeCa {
+    return Intl.message(
+      'Initialize CA material',
+      name: 'processProxyInitializeCa',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trust CA for current user`
+  String get processProxyTrustCa {
+    return Intl.message(
+      'Trust CA for current user',
+      name: 'processProxyTrustCa',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove current-user CA trust`
+  String get processProxyRemoveCa {
+    return Intl.message(
+      'Remove current-user CA trust',
+      name: 'processProxyRemoveCa',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No certificate is installed automatically. Trusting a local CA lets that CA authenticate intercepted TLS connections for this user. Only proceed on applications and traffic you are authorized to inspect.`
+  String get processProxyCaWarning {
+    return Intl.message(
+      'No certificate is installed automatically. Trusting a local CA lets that CA authenticate intercepted TLS connections for this user. Only proceed on applications and traffic you are authorized to inspect.',
+      name: 'processProxyCaWarning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apply “{action}” to this session? Monitoring and recordings may contain credentials or private content. Closing this page does not stop an active capture.`
+  String processProxyConfirmAdvanced(Object action) {
+    return Intl.message(
+      'Apply “$action” to this session? Monitoring and recordings may contain credentials or private content. Closing this page does not stop an active capture.',
+      name: 'processProxyConfirmAdvanced',
+      desc: '',
+      args: [action],
+    );
+  }
+
+  /// `Confirm “{action}” for the current Windows user only? This changes local CA material or trust. Applications may need to reconnect. No machine-wide certificate store will be changed.`
+  String processProxyConfirmCa(Object action) {
+    return Intl.message(
+      'Confirm “$action” for the current Windows user only? This changes local CA material or trust. Applications may need to reconnect. No machine-wide certificate store will be changed.',
+      name: 'processProxyConfirmCa',
+      desc: '',
+      args: [action],
+    );
+  }
+
+  /// `Decryption and recording are off by default. Inspect only your authorized application traffic. Recordings stay in the local directory you choose; protect and delete them as needed. Stopping monitoring disables capture and decryption for new connections, but existing TLS bridges can persist until those connections end or you explicitly reconnect them. Trusted CAs remain until removed separately. Reconnecting may interrupt transfers and is never automatic.`
+  String get processProxyCapturePrivacy {
+    return Intl.message(
+      'Decryption and recording are off by default. Inspect only your authorized application traffic. Recordings stay in the local directory you choose; protect and delete them as needed. Stopping monitoring disables capture and decryption for new connections, but existing TLS bridges can persist until those connections end or you explicitly reconnect them. Trusted CAs remain until removed separately. Reconnecting may interrupt transfers and is never automatic.',
+      name: 'processProxyCapturePrivacy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No response loaded. Use a read or refresh action.`
+  String get processProxyNoData {
+    return Intl.message(
+      'No response loaded. Use a read or refresh action.',
+      name: 'processProxyNoData',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Display limited to the first 48 KiB. Narrow the query or read another page for more data.`
+  String get processProxyDataTruncated {
+    return Intl.message(
+      'Display limited to the first 48 KiB. Narrow the query or read another page for more data.',
+      name: 'processProxyDataTruncated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Capture limits (JSON object)`
+  String get processProxyCaptureOptions {
+    return Intl.message(
+      'Capture limits (JSON object)',
+      name: 'processProxyCaptureOptions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apply capture limits`
+  String get processProxyApplyCapture {
+    return Intl.message(
+      'Apply capture limits',
+      name: 'processProxyApplyCapture',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read-only detail query (JSON object)`
+  String get processProxyReadQuery {
+    return Intl.message(
+      'Read-only detail query (JSON object)',
+      name: 'processProxyReadQuery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read details`
+  String get processProxyReadDetails {
+    return Intl.message(
+      'Read details',
+      name: 'processProxyReadDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use backend IDs from a response. Allowed query types include poll, stats, cache_read, cache_decode, dns_read, recording_page and recording_detail. This field cannot run commands.`
+  String get processProxyReadQueryHelp {
+    return Intl.message(
+      'Use backend IDs from a response. Allowed query types include poll, stats, cache_read, cache_decode, dns_read, recording_page and recording_detail. This field cannot run commands.',
+      name: 'processProxyReadQueryHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Backend status`
+  String get processProxyStatus {
+    return Intl.message(
+      'Backend status',
+      name: 'processProxyStatus',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Traffic statistics`
+  String get processProxyStats {
+    return Intl.message(
+      'Traffic statistics',
+      name: 'processProxyStats',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read next records`
+  String get processProxyReadNext {
+    return Intl.message(
+      'Read next records',
+      name: 'processProxyReadNext',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a valid JSON object with the documented fields.`
+  String get processProxyJsonObjectRequired {
+    return Intl.message(
+      'Enter a valid JSON object with the documented fields.',
+      name: 'processProxyJsonObjectRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The native bridge is unavailable or rejected the operation. Verify the compatible Windows bridge build and selected backend, then start a new session.`
+  String get processProxyErrorBridge {
+    return Intl.message(
+      'The native bridge is unavailable or rejected the operation. Verify the compatible Windows bridge build and selected backend, then start a new session.',
+      name: 'processProxyErrorBridge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recording capacity (MiB)`
+  String get processProxyRecordingCapacity {
+    return Intl.message(
+      'Recording capacity (MiB)',
+      name: 'processProxyRecordingCapacity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Minimum free disk space (MiB)`
+  String get processProxyRecordingReserve {
+    return Intl.message(
+      'Minimum free disk space (MiB)',
+      name: 'processProxyRecordingReserve',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Decryption needs an initialized, explicitly trusted current-user CA. Review the Certificates tab; this operation never installs trust automatically.`
+  String get processProxyErrorCaRequired {
+    return Intl.message(
+      'Decryption needs an initialized, explicitly trusted current-user CA. Review the Certificates tab; this operation never installs trust automatically.',
+      name: 'processProxyErrorCaRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop monitoring and recording before changing capture limits, opening replay or changing certificate trust.`
+  String get processProxyErrorMonitoringActive {
+    return Intl.message(
+      'Stop monitoring and recording before changing capture limits, opening replay or changing certificate trust.',
+      name: 'processProxyErrorMonitoringActive',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose an existing local directory using its absolute path. Network shares and links are not accepted.`
+  String get processProxyErrorDirectory {
+    return Intl.message(
+      'Choose an existing local directory using its absolute path. Network shares and links are not accepted.',
+      name: 'processProxyErrorDirectory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The experimental native bridge currently supports x64 root applications only. Choose a supported x64 executable; no existing process will be attached automatically.`
+  String get processProxyErrorArchitecture {
+    return Intl.message(
+      'The experimental native bridge currently supports x64 root applications only. Choose a supported x64 executable; no existing process will be attached automatically.',
+      name: 'processProxyErrorArchitecture',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The request or response exceeds the safe size limit. Reduce the record limit, preview size or input length and retry.`
+  String get processProxyErrorResponseLarge {
+    return Intl.message(
+      'The request or response exceeds the safe size limit. Reduce the record limit, preview size or input length and retry.',
+      name: 'processProxyErrorResponseLarge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Direct mode is selected. Choose Rule or Global mode and a proxy node before launching; this page never changes your routing mode automatically.`
+  String get processProxyDirectMode {
+    return Intl.message(
+      'Direct mode is selected. Choose Rule or Global mode and a proxy node before launching; this page never changes your routing mode automatically.',
+      name: 'processProxyDirectMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Launch profiles`
+  String get processProxyProfiles {
+    return Intl.message(
+      'Launch profiles',
+      name: 'processProxyProfiles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save up to 32 launch profiles locally. Settings and backups are plaintext; arguments may contain secrets. Loading only fills the form, never launches or changes an active session. Backend trust and capture/QUIC consent are always reset.`
+  String get processProxyProfilesHelp {
+    return Intl.message(
+      'Save up to 32 launch profiles locally. Settings and backups are plaintext; arguments may contain secrets. Loading only fills the form, never launches or changes an active session. Backend trust and capture/QUIC consent are always reset.',
+      name: 'processProxyProfilesHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save current form as profile`
+  String get processProxyProfilesSaveCurrent {
+    return Intl.message(
+      'Save current form as profile',
+      name: 'processProxyProfilesSaveCurrent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No launch profiles yet.`
+  String get processProxyProfilesEmpty {
+    return Intl.message(
+      'No launch profiles yet.',
+      name: 'processProxyProfilesEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Load “{name}” into the launch form? Nothing will start, and backend trust and sensitive consent will be cleared.`
+  String processProxyProfilesLoadConfirm(Object name) {
+    return Intl.message(
+      'Load “$name” into the launch form? Nothing will start, and backend trust and sensitive consent will be cleared.',
+      name: 'processProxyProfilesLoadConfirm',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Import profiles`
+  String get processProxyProfilesImport {
+    return Intl.message(
+      'Import profiles',
+      name: 'processProxyProfilesImport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add these {count} profiles? Existing profiles are retained; conflicting names or IDs are rejected. No application will start. Review the executable paths below.`
+  String processProxyProfilesImportConfirm(Object count) {
+    return Intl.message(
+      'Add these $count profiles? Existing profiles are retained; conflicting names or IDs are rejected. No application will start. Review the executable paths below.',
+      name: 'processProxyProfilesImportConfirm',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Export profiles`
+  String get processProxyProfilesExport {
+    return Intl.message(
+      'Export profiles',
+      name: 'processProxyProfilesExport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Include command-line arguments in export`
+  String get processProxyProfilesIncludeArguments {
+    return Intl.message(
+      'Include command-line arguments in export',
+      name: 'processProxyProfilesIncludeArguments',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export omits all arguments by default. Paths, names and bypass rules remain plaintext. Enabling arguments may disclose passwords or tokens; export only to a trusted location.`
+  String get processProxyProfilesExportHelp {
+    return Intl.message(
+      'Export omits all arguments by default. Paths, names and bypass rules remain plaintext. Enabling arguments may disclose passwords or tokens; export only to a trusted location.',
+      name: 'processProxyProfilesExportHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export a plaintext JSON file using the argument option shown on this page? Check paths and arguments for secrets before sharing. Backend trust, proxy credentials and sensitive-feature consent are never exported.`
+  String get processProxyProfilesExportConfirm {
+    return Intl.message(
+      'Export a plaintext JSON file using the argument option shown on this page? Check paths and arguments for secrets before sharing. Backend trust, proxy credentials and sensitive-feature consent are never exported.',
+      name: 'processProxyProfilesExportConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid launch-profile JSON, version, name or field type. Existing profiles were not changed.`
+  String get processProxyProfilesInvalid {
+    return Intl.message(
+      'Invalid launch-profile JSON, version, name or field type. Existing profiles were not changed.',
+      name: 'processProxyProfilesInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Profile files must not exceed 256 KiB. Existing profiles were not changed.`
+  String get processProxyProfilesTooLarge {
+    return Intl.message(
+      'Profile files must not exceed 256 KiB. Existing profiles were not changed.',
+      name: 'processProxyProfilesTooLarge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `At most 32 profiles are allowed. Remove an unused profile first.`
+  String get processProxyProfilesLimit {
+    return Intl.message(
+      'At most 32 profiles are allowed. Remove an unused profile first.',
+      name: 'processProxyProfilesLimit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A profile name or ID is duplicated. Rename or remove the conflicting profile; nothing was overwritten.`
+  String get processProxyProfilesConflict {
+    return Intl.message(
+      'A profile name or ID is duplicated. Rename or remove the conflicting profile; nothing was overwritten.',
+      name: 'processProxyProfilesConflict',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cannot read or save the local profile file. Check file permissions and free space, then retry.`
+  String get processProxyProfilesStorage {
+    return Intl.message(
+      'Cannot read or save the local profile file. Check file permissions and free space, then retry.',
+      name: 'processProxyProfilesStorage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Working directory (optional)`
+  String get processProxyWorkingDirectory {
+    return Intl.message(
+      'Working directory (optional)',
+      name: 'processProxyWorkingDirectory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Absolute local folder; leave empty to use the target executable’s folder. Requires the native bridge when specified.`
+  String get processProxyWorkingDirectoryHelp {
+    return Intl.message(
+      'Absolute local folder; leave empty to use the target executable’s folder. Requires the native bridge when specified.',
+      name: 'processProxyWorkingDirectoryHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Prepare this launch for QUIC inspection`
+  String get processProxyPrepareQuic {
+    return Intl.message(
+      'Prepare this launch for QUIC inspection',
+      name: 'processProxyPrepareQuic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Explicit opt-in before launch. Requires the native bridge, SOCKS5 and unblocked UDP. Changes browser compatibility preferences for this process tree until those applications exit. This does not start monitoring, decryption or certificate installation.`
+  String get processProxyPrepareQuicHelp {
+    return Intl.message(
+      'Explicit opt-in before launch. Requires the native bridge, SOCKS5 and unblocked UDP. Changes browser compatibility preferences for this process tree until those applications exit. This does not start monitoring, decryption or certificate installation.',
+      name: 'processProxyPrepareQuicHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use an existing absolute local working directory, without UNC paths, traversal or alternate data streams.`
+  String get processProxyErrorWorkingDirectory {
+    return Intl.message(
+      'Use an existing absolute local working directory, without UNC paths, traversal or alternate data streams.',
+      name: 'processProxyErrorWorkingDirectory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This option requires FlClashProxyBridge.exe. The compatibility launcher cannot apply it safely.`
+  String get processProxyErrorNativeRequired {
+    return Intl.message(
+      'This option requires FlClashProxyBridge.exe. The compatibility launcher cannot apply it safely.',
+      name: 'processProxyErrorNativeRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `QUIC preparation requires the running core’s SOCKS5 or mixed listener, not HTTP-only mode.`
+  String get processProxyErrorQuicSocks {
+    return Intl.message(
+      'QUIC preparation requires the running core’s SOCKS5 or mixed listener, not HTTP-only mode.',
+      name: 'processProxyErrorQuicSocks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This application was not prepared for QUIC inspection. Exit it yourself, then relaunch with explicit QUIC preparation before enabling QUIC decryption.`
+  String get processProxyErrorQuicPrepare {
+    return Intl.message(
+      'This application was not prepared for QUIC inspection. Exit it yourself, then relaunch with explicit QUIC preparation before enabling QUIC decryption.',
+      name: 'processProxyErrorQuicPrepare',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Payload Raw / Hex preview`
+  String get processProxyPayloadViewer {
+    return Intl.message(
+      'Payload Raw / Hex preview',
+      name: 'processProxyPayloadViewer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read captured or replayed data only, at most 64 KiB per request. This is payload/stream data, not raw HTTP/2 or QUIC network frames.`
+  String get processProxyPayloadHelp {
+    return Intl.message(
+      'Read captured or replayed data only, at most 64 KiB per request. This is payload/stream data, not raw HTTP/2 or QUIC network frames.',
+      name: 'processProxyPayloadHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Run ID`
+  String get processProxyRunId {
+    return Intl.message(
+      'Run ID',
+      name: 'processProxyRunId',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cache ID`
+  String get processProxyCacheId {
+    return Intl.message(
+      'Cache ID',
+      name: 'processProxyCacheId',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Byte offset`
+  String get processProxyOffset {
+    return Intl.message(
+      'Byte offset',
+      name: 'processProxyOffset',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read raw payload`
+  String get processProxyPayloadRead {
+    return Intl.message(
+      'Read raw payload',
+      name: 'processProxyPayloadRead',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read decoded preview`
+  String get processProxyPayloadDecode {
+    return Intl.message(
+      'Read decoded preview',
+      name: 'processProxyPayloadDecode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Decode DNS`
+  String get processProxyPayloadDns {
+    return Intl.message(
+      'Decode DNS',
+      name: 'processProxyPayloadDns',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Decode DoH`
+  String get processProxyPayloadDoh {
+    return Intl.message(
+      'Decode DoH',
+      name: 'processProxyPayloadDoh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Client → Server`
+  String get processProxyClient {
+    return Intl.message(
+      'Client → Server',
+      name: 'processProxyClient',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Server → Client`
+  String get processProxyServer {
+    return Intl.message(
+      'Server → Client',
+      name: 'processProxyServer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Payload is not ready, has been evicted, or is incomplete. Check the status and warnings below.`
+  String get processProxyPayloadUnavailable {
+    return Intl.message(
+      'Payload is not ready, has been evicted, or is incomplete. Check the status and warnings below.',
+      name: 'processProxyPayloadUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Installed applications`
+  String get processProxyApplications {
+    return Intl.message(
+      'Installed applications',
+      name: 'processProxyApplications',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read-only search of local EXEs in App Paths and the Start menu. Preserves shortcut arguments and working directories. Does not start, attach to or stop any existing process. UWP apps and scripts are unsupported.`
+  String get processProxyApplicationsHelp {
+    return Intl.message(
+      'Read-only search of local EXEs in App Paths and the Start menu. Preserves shortcut arguments and working directories. Does not start, attach to or stop any existing process. UWP apps and scripts are unsupported.',
+      name: 'processProxyApplicationsHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The GONC TLS-PSK encrypted proxy entry is incompatible with a normal local FlClash listener. It will not switch to a remote server to bypass the selected node.`
+  String get processProxyGoncUnsupported {
+    return Intl.message(
+      'The GONC TLS-PSK encrypted proxy entry is incompatible with a normal local FlClash listener. It will not switch to a remote server to bypass the selected node.',
+      name: 'processProxyGoncUnsupported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rebuild this session’s TCP connections`
+  String get processProxyReconnect {
+    return Intl.message(
+      'Rebuild this session’s TCP connections',
+      name: 'processProxyReconnect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Disconnect the {count} selected existing TCP connections in this session, including direct bypass connections? Uploads or sessions may be interrupted. Applications must reconnect themselves; success is not guaranteed. UDP is unaffected.`
+  String processProxyReconnectConfirm(Object count) {
+    return Intl.message(
+      'Disconnect the $count selected existing TCP connections in this session, including direct bypass connections? Uploads or sessions may be interrupted. Applications must reconnect themselves; success is not guaranteed. UDP is unaffected.',
+      name: 'processProxyReconnectConfirm',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `This session has no TCP connections to rebuild.`
+  String get processProxyReconnectNone {
+    return Intl.message(
+      'This session has no TCP connections to rebuild.',
+      name: 'processProxyReconnectNone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recover recording index`
+  String get processProxyRebuildIndex {
+    return Intl.message(
+      'Recover recording index',
+      name: 'processProxyRebuildIndex',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rebuild the index only for the explicitly selected local recording folder. This writes index metadata but does not resend network requests. Failures and timeouts are never retried automatically. Confirm you have a backup and keep monitoring stopped.`
+  String get processProxyRebuildIndexWarning {
+    return Intl.message(
+      'Rebuild the index only for the explicitly selected local recording folder. This writes index metadata but does not resend network requests. Failures and timeouts are never retried automatically. Confirm you have a backup and keep monitoring stopped.',
+      name: 'processProxyRebuildIndexWarning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop proxy session`
+  String get processProxyStopSession {
+    return Intl.message(
+      'Stop proxy session',
+      name: 'processProxyStopSession',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop monitoring, recording and this proxy backend? Running applications will not be terminated; their proxied connections may break. Injected hooks can remain after the backend or core stops, so new connections may fail. Manually restart the selected apps for a clean state. Apps are never killed or restarted automatically; direct access restoration and a kill switch are not guaranteed.`
+  String get processProxySessionStopWarning {
+    return Intl.message(
+      'Stop monitoring, recording and this proxy backend? Running applications will not be terminated; their proxied connections may break. Injected hooks can remain after the backend or core stops, so new connections may fail. Manually restart the selected apps for a clean state. Apps are never killed or restarted automatically; direct access restoration and a kill switch are not guaranteed.',
+      name: 'processProxySessionStopWarning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hex`
+  String get processProxyHex {
+    return Intl.message('Hex', name: 'processProxyHex', desc: '', args: []);
+  }
+
+  /// `Only proxy these IPs / domains (optional)`
+  String get processProxyOnlyRules {
+    return Intl.message(
+      'Only proxy these IPs / domains (optional)',
+      name: 'processProxyOnlyRules',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `One IP, supported CIDR or domain pattern per line. Empty means all destinations; unmatched destinations go direct. Bypass rules always win. IP rules apply only when the application exposes the IP to the backend; add internal domain names explicitly. Changes apply to the next launch.`
+  String get processProxyOnlyRulesHelp {
+    return Intl.message(
+      'One IP, supported CIDR or domain pattern per line. Empty means all destinations; unmatched destinations go direct. Bypass rules always win. IP rules apply only when the application exposes the IP to the backend; add internal domain names explicitly. Changes apply to the next launch.',
+      name: 'processProxyOnlyRulesHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Child-process path / name rules`
+  String get processProxyChildRules {
+    return Intl.message(
+      'Child-process path / name rules',
+      name: 'processProxyChildRules',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `One local full-path/glob or EXE name per line, at most 128 rules. Requires child-process proxying. By default matching children are excluded; switch below to include only matches. Empty means all children. The root is unaffected. Excluded children are not injected, so their descendants do not inherit proxying automatically; include intermediate launchers.`
+  String get processProxyChildRulesHelp {
+    return Intl.message(
+      'One local full-path/glob or EXE name per line, at most 128 rules. Requires child-process proxying. By default matching children are excluded; switch below to include only matches. Empty means all children. The root is unaffected. Excluded children are not injected, so their descendants do not inherit proxying automatically; include intermediate launchers.',
+      name: 'processProxyChildRulesHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only inject children matching these rules`
+  String get processProxyChildRuleInclude {
+    return Intl.message(
+      'Only inject children matching these rules',
+      name: 'processProxyChildRuleInclude',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid child-process rule. Use one local full path/glob or EXE name per line; UNC paths, traversal and command-line syntax are not allowed.`
+  String get processProxyErrorChildRule {
+    return Intl.message(
+      'Invalid child-process rule. Use one local full path/glob or EXE name per line; UNC paths, traversal and command-line syntax are not allowed.',
+      name: 'processProxyErrorChildRule',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The current backend limits paths to 240 UTF-8 bytes. Choose a shorter local path. Unicode and staging-path compatibility still require Windows validation.`
+  String get processProxyErrorPathLength {
+    return Intl.message(
+      'The current backend limits paths to 240 UTF-8 bytes. Choose a shorter local path. Unicode and staging-path compatibility still require Windows validation.',
+      name: 'processProxyErrorPathLength',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Browse offline recording`
+  String get processProxyRecordingBrowser {
+    return Intl.message(
+      'Browse offline recording',
+      name: 'processProxyRecordingBrowser',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `First open a local recording in the recording workspace. This browser only reads that recording; it never sends captured requests or starts monitoring. Set filters, then refresh. Pages use record offsets, not the live-traffic cursor.`
+  String get processProxyRecordingBrowserHelp {
+    return Intl.message(
+      'First open a local recording in the recording workspace. This browser only reads that recording; it never sends captured requests or starts monitoring. Set filters, then refresh. Pages use record offsets, not the live-traffic cursor.',
+      name: 'processProxyRecordingBrowserHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All protocols`
+  String get processProxyRecordingAll {
+    return Intl.message(
+      'All protocols',
+      name: 'processProxyRecordingAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Records per page`
+  String get processProxyRecordingPageSize {
+    return Intl.message(
+      'Records per page',
+      name: 'processProxyRecordingPageSize',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Records {start}–{end} of {total} matches ({all} in the recording)`
+  String processProxyRecordingPageSummary(
+    Object start,
+    Object end,
+    Object total,
+    Object all,
+  ) {
+    return Intl.message(
+      'Records $start–$end of $total matches ($all in the recording)',
+      name: 'processProxyRecordingPageSummary',
+      desc: '',
+      args: [start, end, total, all],
+    );
+  }
+
+  /// `Previous page`
+  String get processProxyRecordingPrevious {
+    return Intl.message(
+      'Previous page',
+      name: 'processProxyRecordingPrevious',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next page`
+  String get processProxyRecordingNext {
+    return Intl.message(
+      'Next page',
+      name: 'processProxyRecordingNext',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The backend returned an empty page before the reported end. Pagination is stopped to avoid skipping records or looping. Refresh or inspect the recording status.`
+  String get processProxyRecordingStalled {
+    return Intl.message(
+      'The backend returned an empty page before the reported end. Pagination is stopped to avoid skipping records or looping. Refresh or inspect the recording status.',
+      name: 'processProxyRecordingStalled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The opened recording changed while paging. Old rows were cleared; refresh from the first page before reading details.`
+  String get processProxyRecordingChanged {
+    return Intl.message(
+      'The opened recording changed while paging. Old rows were cleared; refresh from the first page before reading details.',
+      name: 'processProxyRecordingChanged',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recorded session details`
+  String get processProxyRecordingDetails {
+    return Intl.message(
+      'Recorded session details',
+      name: 'processProxyRecordingDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This connection-only record has no payload cache ID. Its metadata is shown below.`
+  String get processProxyRecordingNoPayload {
+    return Intl.message(
+      'This connection-only record has no payload cache ID. Its metadata is shown below.',
+      name: 'processProxyRecordingNoPayload',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recording warnings: {count}`
+  String processProxyRecordingWarnings(Object count) {
+    return Intl.message(
+      'Recording warnings: $count',
+      name: 'processProxyRecordingWarnings',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Use a filter of at most 256 UTF-8 bytes without control characters, 1–64 records per page, and a nonnegative record offset.`
+  String get processProxyRecordingQueryInvalid {
+    return Intl.message(
+      'Use a filter of at most 256 UTF-8 bytes without control characters, 1–64 records per page, and a nonnegative record offset.',
+      name: 'processProxyRecordingQueryInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The backend did not confirm the requested recording state. Do not assume recording has started or stopped. Stop this session, review its local recording directory, then start a new session before enabling monitoring or recording again.`
+  String get processProxyErrorRecordingState {
+    return Intl.message(
+      'The backend did not confirm the requested recording state. Do not assume recording has started or stopped. Stop this session, review its local recording directory, then start a new session before enabling monitoring or recording again.',
+      name: 'processProxyErrorRecordingState',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Protocol details`
+  String get processProxySemanticDetails {
+    return Intl.message(
+      'Protocol details',
+      name: 'processProxySemanticDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read-only snapshot from the selected run and record. HTTP fields are semantic metadata, not original wire bytes; opening this page does not read payloads or start capture.`
+  String get processProxySemanticHelp {
+    return Intl.message(
+      'Read-only snapshot from the selected run and record. HTTP fields are semantic metadata, not original wire bytes; opening this page does not read payloads or start capture.',
+      name: 'processProxySemanticHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Message completion was not confirmed.`
+  String get processProxyMessageIncomplete {
+    return Intl.message(
+      'Message completion was not confirmed.',
+      name: 'processProxyMessageIncomplete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Headers (ordered; duplicates retained)`
+  String get processProxyHeaders {
+    return Intl.message(
+      'Headers (ordered; duplicates retained)',
+      name: 'processProxyHeaders',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Header metadata is unavailable in this snapshot.`
+  String get processProxyHeadersUnavailable {
+    return Intl.message(
+      'Header metadata is unavailable in this snapshot.',
+      name: 'processProxyHeadersUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trailers`
+  String get processProxyTrailers {
+    return Intl.message(
+      'Trailers',
+      name: 'processProxyTrailers',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Informational response`
+  String get processProxyInformational {
+    return Intl.message(
+      'Informational response',
+      name: 'processProxyInformational',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Datagram boundaries`
+  String get processProxyDatagrams {
+    return Intl.message(
+      'Datagram boundaries',
+      name: 'processProxyDatagrams',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only backend-provided byte offsets and lengths are shown. They describe captured payload datagrams, not IP packets or inferred boundaries. Select a nonempty datagram, then explicitly read its bounded prefix.`
+  String get processProxyDatagramsHelp {
+    return Intl.message(
+      'Only backend-provided byte offsets and lengths are shown. They describe captured payload datagrams, not IP packets or inferred boundaries. Select a nonempty datagram, then explicitly read its bounded prefix.',
+      name: 'processProxyDatagramsHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reported packets: {count}`
+  String processProxyPacketCount(Object count) {
+    return Intl.message(
+      'Reported packets: $count',
+      name: 'processProxyPacketCount',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No datagram index was supplied; boundaries cannot be reconstructed here.`
+  String get processProxyPacketsUnavailable {
+    return Intl.message(
+      'No datagram index was supplied; boundaries cannot be reconstructed here.',
+      name: 'processProxyPacketsUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only the first 128 indexed datagrams per direction are shown; additional or unindexed packets may exist.`
+  String get processProxyPacketLimit {
+    return Intl.message(
+      'Only the first 128 indexed datagrams per direction are shown; additional or unindexed packets may exist.',
+      name: 'processProxyPacketLimit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Datagram {number}: offset {offset}, {length} bytes`
+  String processProxyPacketMetadata(
+    Object number,
+    Object offset,
+    Object length,
+  ) {
+    return Intl.message(
+      'Datagram $number: offset $offset, $length bytes',
+      name: 'processProxyPacketMetadata',
+      desc: '',
+      args: [number, offset, length],
+    );
+  }
+
+  /// `Zero-length datagram; no payload read.`
+  String get processProxyEmptyPacket {
+    return Intl.message(
+      'Zero-length datagram; no payload read.',
+      name: 'processProxyEmptyPacket',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read-only prefix limited to {length} bytes; range and direction are locked.`
+  String processProxyPacketPrefix(Object length) {
+    return Intl.message(
+      'Read-only prefix limited to $length bytes; range and direction are locked.',
+      name: 'processProxyPacketPrefix',
+      desc: '',
+      args: [length],
+    );
+  }
+
+  /// `Encrypted TLS/QUIC payload: plaintext is unavailable in this snapshot. Raw/Hex does not decrypt it.`
+  String get processProxyEncryptedPayload {
+    return Intl.message(
+      'Encrypted TLS/QUIC payload: plaintext is unavailable in this snapshot. Raw/Hex does not decrypt it.',
+      name: 'processProxyEncryptedPayload',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This snapshot has no supported HTTP header or datagram detail. Use the existing metadata and payload views without assuming application message boundaries.`
+  String get processProxySemanticUnavailable {
+    return Intl.message(
+      'This snapshot has no supported HTTP header or datagram detail. Use the existing metadata and payload views without assuming application message boundaries.',
+      name: 'processProxySemanticUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Core state or listener configuration changed; this process-proxy session is invalidated. Injected hooks can remain after the backend or core stops, so new connections may fail. Manually restart the selected apps for a clean state. Apps are never killed or restarted automatically; direct access restoration and a kill switch are not guaranteed.`
+  String get processProxyCoreSessionEnded {
+    return Intl.message(
+      'Core state or listener configuration changed; this process-proxy session is invalidated. Injected hooks can remain after the backend or core stops, so new connections may fail. Manually restart the selected apps for a clean state. Apps are never killed or restarted automatically; direct access restoration and a kill switch are not guaranteed.',
+      name: 'processProxyCoreSessionEnded',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

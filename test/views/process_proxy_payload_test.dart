@@ -25,6 +25,9 @@ const _session = ProcessProxySession(
 class _Service extends ProcessProxyService {
   final requests = <Map<String, dynamic>>[];
   bool fail = false;
+  String body = 'response body';
+  Map<String, dynamic> responsePatch = {};
+  Map<String, dynamic> payloadPatch = {};
   Completer<Map<String, dynamic>>? pending;
   @override
   Future<Map<String, dynamic>> bridgeRequest(
@@ -35,26 +38,34 @@ class _Service extends ProcessProxyService {
     expect(operation, 'query');
     requests.add(arguments);
     if (pending case final waiting?) return waiting.future;
-    if (fail)
+    if (fail) {
       throw const ProcessProxyException(
         'bridgeOperationFailed',
         'SECRET_DETAIL',
       );
+    }
     return {
-      'run_id': 'run-1',
+      'run_id': arguments['run_id'],
       'payload': {
-        'data_base64': base64Encode(utf8.encode('response body')),
-        'direction': 'client',
-        'offset': 0,
+        'data_base64': base64Encode(utf8.encode(body)),
+        'direction': arguments['direction'],
+        'offset': arguments['offset'] ?? 0,
         'decoded': false,
         'decoded_bytes': 13,
-        'cache': {'finished': true, 'pending_chunks': 0, 'request_bytes': 13},
+        'cache': {
+          'id': arguments['cache_id'],
+          'finished': true,
+          'pending_chunks': 0,
+          'request_bytes': 13,
+        },
+        ...payloadPatch,
       },
+      ...responsePatch,
     };
   }
 }
 
-Future<_Service> _pump(WidgetTester tester) async {
+Future<_Service> _pump(WidgetTester tester, {bool bounded = false}) async {
   const size = Size(1200, 1800);
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -75,6 +86,10 @@ Future<_Service> _pump(WidgetTester tester) async {
           session: _session,
           runId: 'run-1',
           cacheId: 7,
+          initialOffset: bounded ? 50 : 0,
+          readLength: bounded ? 5 : 16384,
+          initialClient: !bounded,
+          boundedRange: bounded,
           format: (r) async => formatProcessProxyPayload(r),
         ),
       ),
@@ -180,5 +195,121 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('response body'), findsNothing);
     expect(find.textContaining('SECRET_DETAIL'), findsNothing);
+  });
+
+  testWidgets('datagram prefix locks its direction byte range and actions', (
+    tester,
+  ) async {
+    final service = await _pump(tester, bounded: true);
+    service.body = 'abc';
+    expect(service.requests, isEmpty);
+    for (final field in tester.widgetList<TextFormField>(
+      find.byType(TextFormField),
+    )) {
+      expect(field.enabled, isFalse);
+    }
+    expect(
+      find.text(currentAppLocalizations.processProxyPayloadDecode),
+      findsNothing,
+    );
+    expect(
+      find.text(currentAppLocalizations.processProxyPayloadDns),
+      findsNothing,
+    );
+    await tester.tap(
+      find.widgetWithText(
+        OutlinedButton,
+        currentAppLocalizations.processProxyPayloadRead,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(service.requests.single, {
+      'type': 'cache_read',
+      'run_id': 'run-1',
+      'cache_id': 7,
+      'direction': 'server',
+      'offset': 50,
+      'length': 5,
+    });
+    expect(find.text('abc'), findsOneWidget);
+  });
+
+  testWidgets('payload response from a different run is never displayed', (
+    tester,
+  ) async {
+    final service = await _pump(tester);
+    service.responsePatch = {'run_id': 'other-run'};
+    await tester.tap(
+      find.widgetWithText(
+        OutlinedButton,
+        currentAppLocalizations.processProxyPayloadRead,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('response body'), findsNothing);
+    expect(
+      find.text(currentAppLocalizations.processProxyErrorBridge),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+    'payload response with a different byte offset is never displayed',
+    (tester) async {
+      final service = await _pump(tester);
+      service.payloadPatch = {'offset': 100};
+      await tester.tap(
+        find.widgetWithText(
+          OutlinedButton,
+          currentAppLocalizations.processProxyPayloadRead,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('response body'), findsNothing);
+    },
+  );
+
+  testWidgets('a datagram reply cannot expand the selected prefix', (
+    tester,
+  ) async {
+    await _pump(tester, bounded: true);
+    await tester.tap(
+      find.widgetWithText(
+        OutlinedButton,
+        currentAppLocalizations.processProxyPayloadRead,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('response body'), findsNothing);
+    expect(
+      find.text(currentAppLocalizations.processProxyErrorBridge),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('repeated packet reads are ignored until the first finishes', (
+    tester,
+  ) async {
+    final service = await _pump(tester, bounded: true);
+    service.pending = Completer<Map<String, dynamic>>();
+    final read = find.widgetWithText(
+      OutlinedButton,
+      currentAppLocalizations.processProxyPayloadRead,
+    );
+    await tester.tap(read);
+    await tester.tap(read);
+    await tester.pump();
+    expect(service.requests.length, 1);
+    service.pending!.complete({
+      'run_id': 'run-1',
+      'payload': {
+        'direction': 'server',
+        'offset': 50,
+        'data_base64': 'YWJj',
+        'cache': {'id': 7, 'finished': true},
+      },
+    });
+    await tester.pumpAndSettle();
+    expect(find.text('abc'), findsOneWidget);
   });
 }

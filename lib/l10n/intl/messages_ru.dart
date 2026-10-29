@@ -172,63 +172,102 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m61(port) => "Порт ${port}";
 
-  static String m62(days) => "Осталось дней: ${days}";
+  static String m62(action) =>
+      "Выполнить «${action}» для этого сеанса? Данные могут содержать пароли и личную информацию. Закрытие страницы не останавливает сбор.";
 
-  static String m63(date, days) => "Истекает ${date}, осталось дней: ${days}";
+  static String m63(action) =>
+      "Выполнить «${action}» только для текущего пользователя Windows? Это меняет CA или доверие. Может потребоваться переподключение. Хранилище компьютера не изменяется.";
 
-  static String m64(time) => "Обновлено ${time}";
+  static String m64(application) =>
+      "Запустить новый экземпляр ${application}? Сохраните работу и самостоятельно закройте существующий экземпляр. Приложение может использовать старый процесс без прокси. Автоматической остановки не будет.";
 
-  static String m65(label, profiles) =>
+  static String m65(rule) =>
+      "Этот CIDR нельзя безопасно преобразовать: ${rule}. Используйте точный IP или поддерживаемый сетевой префикс.";
+
+  static String m66(rule) =>
+      "Некорректное правило IP/домена: ${rule}. По одному IP, CIDR или доменному шаблону в строке, без URL и портов.";
+
+  static String m67(error) => "Ошибка операции: ${error}";
+
+  static String m68(count) => "Сообщённое число пакетов: ${count}";
+
+  static String m69(number, offset, length) =>
+      "Датаграмма ${number}: смещение ${offset}, ${length} байт";
+
+  static String m70(length) =>
+      "Префикс только для чтения ограничен ${length} байтами; диапазон и направление фиксированы.";
+
+  static String m71(count) =>
+      "Добавить профилей: ${count}? Существующие сохранятся; совпадающие имена и ID отклоняются. Программы не запускаются. Проверьте пути ниже.";
+
+  static String m72(name) =>
+      "Загрузить «${name}» в форму? Ничего не будет запущено; доверие и согласия будут сброшены.";
+
+  static String m73(count) =>
+      "Разорвать выбранные TCP-соединения (${count}), включая прямые? Загрузки и сеансы могут прерваться. Приложения должны подключиться заново; успех не гарантирован. UDP не затрагивается.";
+
+  static String m74(start, end, total, all) =>
+      "Записи ${start}–${end} из ${total} совпадений (всего ${all})";
+
+  static String m75(count) => "Предупреждений записи: ${count}";
+
+  static String m76(days) => "Осталось дней: ${days}";
+
+  static String m77(date, days) => "Истекает ${date}, осталось дней: ${days}";
+
+  static String m78(time) => "Обновлено ${time}";
+
+  static String m79(label, profiles) =>
       "«${label}» всё ещё используется профилями: ${profiles}. После удаления они будут работать неправильно. Вы уверены, что хотите удалить его?";
 
-  static String m66(count, label) =>
+  static String m80(count, label) =>
       "${Intl.plural(count, other: '${label} прокси')}";
 
-  static String m67(name, count) => "${name} и другие (${count} прокси)";
+  static String m81(name, count) => "${name} и другие (${count} прокси)";
 
-  static String m68(removed) =>
+  static String m82(removed) =>
       "Будут удалены прокси: ${removed}. Строка с изменённым именем считается новым прокси, а пользовательские профили, ссылающиеся на удалённые, пометят их как отсутствующие. Применить?";
 
-  static String m69(removed, added) =>
+  static String m83(removed, added) =>
       "Будут удалены прокси: ${removed}. Будут добавлены: ${added}. Строка с изменённым именем считается новым прокси, а пользовательские профили, ссылающиеся на удалённые, пометят их как отсутствующие. Применить?";
 
-  static String m70(label) =>
+  static String m84(label) =>
       "На «${label}» всё ещё ссылаются правила, группы прокси, прокси для подключения, DNS или NTP этого профиля, и после удаления эти ссылки перестанут работать. Вы уверены, что хотите удалить её?";
 
-  static String m71(count, label) =>
+  static String m85(count, label) =>
       "${Intl.plural(count, one: '${label} группа прокси', few: '${label} группы прокси', many: '${label} групп прокси', other: '${label} группы прокси')}";
 
-  static String m72(count, label) =>
+  static String m86(count, label) =>
       "${Intl.plural(count, one: '${label} правило', few: '${label} правила', many: '${label} правил', other: '${label} правила')}";
 
-  static String m73(appName) => "${appName} (Безопасный режим)";
+  static String m87(appName) => "${appName} (Безопасный режим)";
 
-  static String m74(count) =>
+  static String m88(count) =>
       "${Intl.plural(count, one: '${count} секунда', few: '${count} секунды', many: '${count} секунд', other: '${count} секунды')}";
 
-  static String m75(count) => "Действуют: ${count}";
+  static String m89(count) => "Действуют: ${count}";
 
-  static String m76(count) => "Проблем: ${count}";
+  static String m90(count) => "Проблем: ${count}";
 
-  static String m77(count) =>
+  static String m91(count) =>
       "${Intl.plural(count, one: '${count} настройка', few: '${count} настройки', many: '${count} настроек', other: '${count} настройки')}";
 
-  static String m78(link) => "Не удалось прочитать прокси из ${link}";
+  static String m92(link) => "Не удалось прочитать прокси из ${link}";
 
-  static String m79(label) => "«${label}» — только одно значение";
+  static String m93(label) => "«${label}» — только одно значение";
 
-  static String m80(value) => "Пик ${value}";
+  static String m94(value) => "Пик ${value}";
 
-  static String m81(value) => "Всего ${value}";
+  static String m95(value) => "Всего ${value}";
 
-  static String m82(transport) => "Заголовки ${transport}";
+  static String m96(transport) => "Заголовки ${transport}";
 
-  static String m83(label) => "Значение «${label}» должно быть URL";
+  static String m97(label) => "Значение «${label}» должно быть URL";
 
-  static String m84(count) =>
+  static String m98(count) =>
       "${Intl.plural(count, one: '${count} год назад', few: '${count} года назад', many: '${count} лет назад', other: '${count} года назад')}";
 
-  static String m85(count) =>
+  static String m99(count) =>
       "${Intl.plural(count, one: '${count} г. назад', few: '${count} г. назад', many: '${count} л. назад', other: '${count} г. назад')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -1390,13 +1429,536 @@ class MessageLookup extends MessageLookupByLibrary {
       "Пароль закрытого ключа",
     ),
     "process": MessageLookupByLibrary.simpleMessage("Процесс"),
+    "processProxy": MessageLookupByLibrary.simpleMessage("Прокси процессов"),
+    "processProxyAdvanced": MessageLookupByLibrary.simpleMessage(
+      "Расширенные функции — экспериментальные",
+    ),
+    "processProxyAdvancedHelp": MessageLookupByLibrary.simpleMessage(
+      "Расшифровка HTTPS/QUIC, доверие CA, мониторинг, запись и воспроизведение ещё не полностью перенесены в FlClash. Всё выключено по умолчанию. Выбор расшифровки не устанавливает сертификат и не запускает мониторинг.",
+    ),
+    "processProxyApplications": MessageLookupByLibrary.simpleMessage(
+      "Установленные приложения",
+    ),
+    "processProxyApplicationsHelp": MessageLookupByLibrary.simpleMessage(
+      "Поиск локальных EXE в App Paths и меню «Пуск» только для чтения. Сохраняет аргументы и рабочие папки ярлыков. Не запускает, не подключается и не завершает процессы. UWP и скрипты не поддерживаются.",
+    ),
+    "processProxyApplyCapture": MessageLookupByLibrary.simpleMessage(
+      "Применить лимиты сбора",
+    ),
+    "processProxyArguments": MessageLookupByLibrary.simpleMessage(
+      "Аргументы (JSON-массив строк)",
+    ),
+    "processProxyArgumentsHelp": MessageLookupByLibrary.simpleMessage(
+      "Пример: [\"--profile\", \"Work\"]. Оболочка не используется. Не вводите пароли или токены.",
+    ),
+    "processProxyBackend": MessageLookupByLibrary.simpleMessage(
+      "Бэкенд ProxyLane",
+    ),
+    "processProxyBackendHelp": MessageLookupByLibrary.simpleMessage(
+      "Выберите доверенную полную установку ProxyLane v1.3.5. Используется отдельная копия сеанса без изменения исходных настроек.",
+    ),
+    "processProxyBackendPath": MessageLookupByLibrary.simpleMessage(
+      "Путь к официальному ProxyLane64.exe",
+    ),
+    "processProxyBackendRunning": MessageLookupByLibrary.simpleMessage(
+      "Бэкенд работает; проверьте трафик",
+    ),
+    "processProxyBlockUdp": MessageLookupByLibrary.simpleMessage(
+      "Блокировать UDP (QUIC использует TCP, если поддерживается)",
+    ),
+    "processProxyBypass": MessageLookupByLibrary.simpleMessage(
+      "Исключения IP, CIDR и доменов — по одному на строку",
+    ),
+    "processProxyBypassHelp": MessageLookupByLibrary.simpleMessage(
+      "Исключённые адреса подключаются напрямую. Явно добавьте внутренние домены. Правила IP действуют, если известен IP назначения; имя узла имеет приоритет.",
+    ),
+    "processProxyCaWarning": MessageLookupByLibrary.simpleMessage(
+      "Сертификаты не устанавливаются автоматически. Доверенный локальный CA может подписывать перехваченные TLS-соединения для этого пользователя. Проверяйте только разрешённые приложения и трафик.",
+    ),
+    "processProxyCacheId": MessageLookupByLibrary.simpleMessage("ID кэша"),
+    "processProxyCaptureOptions": MessageLookupByLibrary.simpleMessage(
+      "Лимиты сбора (JSON-объект)",
+    ),
+    "processProxyCapturePrivacy": MessageLookupByLibrary.simpleMessage(
+      "Расшифровка и запись по умолчанию отключены. Проверяйте только разрешённый трафик своих приложений. Записи остаются в выбранной локальной папке; защищайте и удаляйте их по необходимости. Остановка мониторинга отключает захват и расшифровку новых соединений, но существующие TLS-мосты могут сохраняться до завершения соединений или явного переподключения. Доверенные CA нужно удалять отдельно. Переподключение может прервать передачу и никогда не выполняется автоматически.",
+    ),
+    "processProxyCertificates": MessageLookupByLibrary.simpleMessage(
+      "Сертификаты",
+    ),
+    "processProxyChildRuleInclude": MessageLookupByLibrary.simpleMessage(
+      "Внедрять только в совпавшие дочерние процессы",
+    ),
+    "processProxyChildRules": MessageLookupByLibrary.simpleMessage(
+      "Правила путей / имён дочерних процессов",
+    ),
+    "processProxyChildRulesHelp": MessageLookupByLibrary.simpleMessage(
+      "До 128 полных локальных путей/масок или имён EXE, по одному в строке. Нужно проксирование дочерних процессов. По умолчанию совпавшие исключаются; переключатель оставляет только совпавшие. Пусто — все дочерние. Корневой процесс не затронут. В исключённые процессы модуль не внедряется, поэтому их потомки не наследуют прокси; включайте промежуточные программы запуска.",
+    ),
+    "processProxyChildren": MessageLookupByLibrary.simpleMessage(
+      "Включать дочерние процессы",
+    ),
+    "processProxyClient": MessageLookupByLibrary.simpleMessage(
+      "Клиент → сервер",
+    ),
+    "processProxyCloseReplay": MessageLookupByLibrary.simpleMessage(
+      "Закрыть воспроизведение",
+    ),
+    "processProxyConfirmAdvanced": m62,
+    "processProxyConfirmCa": m63,
+    "processProxyConfirmLaunch": m64,
+    "processProxyCoreRequired": MessageLookupByLibrary.simpleMessage(
+      "Сначала запустите FlClash на главной странице.",
+    ),
+    "processProxyCoreSessionEnded": MessageLookupByLibrary.simpleMessage(
+      "Состояние ядра или параметры прослушивания изменились; этот сеанс прокси процесса аннулирован. После остановки серверной части или ядра внедрённые перехватчики могут остаться, и новые соединения могут не установиться. Для чистого состояния вручную перезапустите выбранные приложения. Приложения не завершаются и не перезапускаются автоматически; восстановление прямого доступа и блокировка утечек не гарантируются.",
+    ),
+    "processProxyDataTruncated": MessageLookupByLibrary.simpleMessage(
+      "Показаны первые 48 КиБ. Уточните запрос или прочтите другую страницу.",
+    ),
+    "processProxyDatagrams": MessageLookupByLibrary.simpleMessage(
+      "Границы датаграмм",
+    ),
+    "processProxyDatagramsHelp": MessageLookupByLibrary.simpleMessage(
+      "Показаны только смещения в байтах и длины, предоставленные серверной частью. Это датаграммы захваченных данных, а не IP-пакеты или предполагаемые границы. Выберите непустую датаграмму и явно прочитайте ограниченный префикс.",
+    ),
+    "processProxyDecryptHttps": MessageLookupByLibrary.simpleMessage(
+      "Разрешать HTTPS-расшифровку при явном запуске мониторинга",
+    ),
+    "processProxyDecryptQuic": MessageLookupByLibrary.simpleMessage(
+      "Разрешать QUIC-расшифровку при явном запуске мониторинга",
+    ),
+    "processProxyDirectMode": MessageLookupByLibrary.simpleMessage(
+      "Выбран прямой режим. Перед запуском выберите режим правил или глобальный режим и прокси. Страница не меняет режим автоматически.",
+    ),
+    "processProxyDirectory": MessageLookupByLibrary.simpleMessage(
+      "Абсолютный путь локальной папки",
+    ),
+    "processProxyDnsHelp": MessageLookupByLibrary.simpleMessage(
+      "По умолчанию выключено для локального и корпоративного DNS. Локальные DNS-запросы могут быть видны сети. Частный DNS не перенаправляется принудительно.",
+    ),
+    "processProxyEmptyPacket": MessageLookupByLibrary.simpleMessage(
+      "Датаграмма нулевой длины; чтение не выполняется.",
+    ),
+    "processProxyEncryptedPayload": MessageLookupByLibrary.simpleMessage(
+      "Зашифрованные данные TLS/QUIC: открытый текст в снимке отсутствует. Raw/Hex их не расшифровывает.",
+    ),
+    "processProxyEndpoint": MessageLookupByLibrary.simpleMessage(
+      "Текущий локальный адрес",
+    ),
+    "processProxyErrorArchitecture": MessageLookupByLibrary.simpleMessage(
+      "Экспериментальный мост пока поддерживает только корневые приложения x64. Выберите x64-файл; существующие процессы автоматически не перехватываются.",
+    ),
+    "processProxyErrorAuthentication": MessageLookupByLibrary.simpleMessage(
+      "Локальный прокси отклонил авторизацию. Проверьте имя пользователя и пароль в FlClash. Учётные данные не выводятся.",
+    ),
+    "processProxyErrorBackendVersion": MessageLookupByLibrary.simpleMessage(
+      "Выберите официальный ProxyLane64.exe из полной установки ProxyLane v1.3.5. Выбранная версия не поддерживается.",
+    ),
+    "processProxyErrorBridge": MessageLookupByLibrary.simpleMessage(
+      "Мост недоступен или отклонил операцию. Проверьте совместимую сборку Windows и бэкенд, затем создайте новый сеанс.",
+    ),
+    "processProxyErrorBusy": MessageLookupByLibrary.simpleMessage(
+      "Запуск уже выполняется. Дождитесь завершения и повторите попытку.",
+    ),
+    "processProxyErrorCaRequired": MessageLookupByLibrary.simpleMessage(
+      "Для расшифровки требуется инициализированный CA, которому явно доверяет текущий пользователь. Откройте вкладку сертификатов. Доверие автоматически не устанавливается.",
+    ),
+    "processProxyErrorChildRule": MessageLookupByLibrary.simpleMessage(
+      "Некорректное правило дочернего процесса. Укажите полный локальный путь/маску или имя EXE; UNC, обход каталогов и командная строка запрещены.",
+    ),
+    "processProxyErrorCidr": m65,
+    "processProxyErrorComponents": MessageLookupByLibrary.simpleMessage(
+      "Отсутствуют компоненты ProxyLane. Распакуйте полный официальный пакет в одну папку и выберите ProxyLane64.exe снова.",
+    ),
+    "processProxyErrorCoreChanged": MessageLookupByLibrary.simpleMessage(
+      "Во время запуска FlClash остановился или конфигурация изменилась. Проверьте состояние и создайте новый сеанс.",
+    ),
+    "processProxyErrorDirectory": MessageLookupByLibrary.simpleMessage(
+      "Укажите абсолютный путь существующей локальной папки. Сетевые ресурсы и ссылки не принимаются.",
+    ),
+    "processProxyErrorExecutable": MessageLookupByLibrary.simpleMessage(
+      "Выберите локальный файл .exe с абсолютным путём. Ярлыки, сетевые пути и командные строки не поддерживаются.",
+    ),
+    "processProxyErrorGeneric": MessageLookupByLibrary.simpleMessage(
+      "Операция не выполнена. Проверьте файлы и состояние ядра, затем повторите. Потенциально конфиденциальные подробности скрыты.",
+    ),
+    "processProxyErrorHook": MessageLookupByLibrary.simpleMessage(
+      "Не удалось включить прокси в приложении: оно может быть несовместимо или защищено. Не отключайте защиту; попробуйте поддерживаемое приложение.",
+    ),
+    "processProxyErrorListener": MessageLookupByLibrary.simpleMessage(
+      "Локальный прокси не ответил на проверку протокола. Убедитесь, что FlClash и порт mixed, SOCKS или HTTP включены.",
+    ),
+    "processProxyErrorMonitoringActive": MessageLookupByLibrary.simpleMessage(
+      "Сначала остановите мониторинг и запись, затем меняйте лимиты, открывайте воспроизведение или меняйте доверие сертификатов.",
+    ),
+    "processProxyErrorNativeRequired": MessageLookupByLibrary.simpleMessage(
+      "Эта настройка требует FlClashProxyBridge.exe. Режим совместимости не может безопасно её применить.",
+    ),
+    "processProxyErrorPathLength": MessageLookupByLibrary.simpleMessage(
+      "Пути ограничены 240 байтами UTF-8. Выберите более короткий локальный путь. Unicode и временные пути требуют проверки в Windows.",
+    ),
+    "processProxyErrorProcessQuery": MessageLookupByLibrary.simpleMessage(
+      "Не удалось получить список доступных процессов Windows. Повторите поиск или выберите файл .exe напрямую.",
+    ),
+    "processProxyErrorQuic": MessageLookupByLibrary.simpleMessage(
+      "Для расшифровки QUIC требуется UDP. Сначала явно отключите блокировку UDP.",
+    ),
+    "processProxyErrorQuicPrepare": MessageLookupByLibrary.simpleMessage(
+      "Программа не подготовлена к QUIC. Закройте её самостоятельно и перезапустите с явной подготовкой QUIC перед включением расшифровки.",
+    ),
+    "processProxyErrorQuicSocks": MessageLookupByLibrary.simpleMessage(
+      "Для QUIC нужен SOCKS5 или mixed-порт работающего ядра, не только HTTP.",
+    ),
+    "processProxyErrorRecordingState": MessageLookupByLibrary.simpleMessage(
+      "Серверная часть не подтвердила запрошенное состояние записи. Не считайте, что запись началась или остановилась. Остановите сеанс, проверьте его локальную папку записей и создайте новый сеанс, прежде чем снова включать мониторинг или запись.",
+    ),
+    "processProxyErrorResponseLarge": MessageLookupByLibrary.simpleMessage(
+      "Запрос или ответ превышает безопасный размер. Уменьшите число записей, предпросмотр или длину ввода.",
+    ),
+    "processProxyErrorRule": m66,
+    "processProxyErrorRuleLimit": MessageLookupByLibrary.simpleMessage(
+      "Превышен лимит: 512 правил IP/доменов или 128 правил дочерних процессов, до 16 КиБ текста на список.",
+    ),
+    "processProxyErrorSession": MessageLookupByLibrary.simpleMessage(
+      "Этот сеанс недоступен. При необходимости самостоятельно закройте приложение и запустите новый сеанс.",
+    ),
+    "processProxyErrorSettings": MessageLookupByLibrary.simpleMessage(
+      "Не удалось прочитать сохранённые настройки. Введите и сохраните их заново.",
+    ),
+    "processProxyErrorTrust": MessageLookupByLibrary.simpleMessage(
+      "Проверьте путь к бэкенду и явно подтвердите доверие.",
+    ),
+    "processProxyErrorWindows": MessageLookupByLibrary.simpleMessage(
+      "Пока требуется Windows со стандартными средствами локального опроса процессов.",
+    ),
+    "processProxyErrorWorkingDirectory": MessageLookupByLibrary.simpleMessage(
+      "Укажите существующую абсолютную локальную папку, без UNC, обхода каталогов или потоков данных.",
+    ),
+    "processProxyExited": MessageLookupByLibrary.simpleMessage(
+      "Бэкенд завершён",
+    ),
+    "processProxyExperimentalHint": MessageLookupByLibrary.simpleMessage(
+      "Экспериментально: проверка на Windows ещё не выполнена. Показаны реальные данные текущего сеанса, не имитация. Обновление вручную.",
+    ),
+    "processProxyFailed": m67,
+    "processProxyGoncUnsupported": MessageLookupByLibrary.simpleMessage(
+      "Зашифрованный прокси GONC TLS-PSK несовместим с обычным локальным портом FlClash. Переход на удалённый сервер в обход выбранного узла не выполняется.",
+    ),
+    "processProxyHeaders": MessageLookupByLibrary.simpleMessage(
+      "Заголовки (порядок и дубликаты сохранены)",
+    ),
+    "processProxyHeadersUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Метаданные заголовков недоступны в этом снимке.",
+    ),
+    "processProxyHex": MessageLookupByLibrary.simpleMessage(
+      "Шестнадцатеричный",
+    ),
+    "processProxyInformational": MessageLookupByLibrary.simpleMessage(
+      "Информационный ответ",
+    ),
+    "processProxyInitializeCa": MessageLookupByLibrary.simpleMessage(
+      "Инициализировать CA",
+    ),
+    "processProxyIntro": MessageLookupByLibrary.simpleMessage(
+      "Запускайте выбранные приложения через текущий прокси FlClash. Системный прокси и TUN остаются выключенными.",
+    ),
+    "processProxyInvalidArguments": MessageLookupByLibrary.simpleMessage(
+      "Аргументы должны быть JSON-массивом строк.",
+    ),
+    "processProxyJsonObjectRequired": MessageLookupByLibrary.simpleMessage(
+      "Введите корректный JSON-объект с указанными полями.",
+    ),
+    "processProxyLaunch": MessageLookupByLibrary.simpleMessage(
+      "Запустить через прокси",
+    ),
+    "processProxyMessageIncomplete": MessageLookupByLibrary.simpleMessage(
+      "Завершение сообщения не подтверждено.",
+    ),
+    "processProxyMonitor": MessageLookupByLibrary.simpleMessage(
+      "Мониторинг трафика",
+    ),
+    "processProxyNativeWorkspace": MessageLookupByLibrary.simpleMessage(
+      "Встроенные расширенные функции",
+    ),
+    "processProxyNoData": MessageLookupByLibrary.simpleMessage(
+      "Ответ ещё не загружен. Нажмите чтение или обновление.",
+    ),
+    "processProxyNoPort": MessageLookupByLibrary.simpleMessage(
+      "Нет включённого локального порта прокси.",
+    ),
+    "processProxyNoProcesses": MessageLookupByLibrary.simpleMessage(
+      "Нет подходящих доступных приложений. Можно выбрать файл .exe.",
+    ),
+    "processProxyOffset": MessageLookupByLibrary.simpleMessage(
+      "Смещение в байтах",
+    ),
+    "processProxyOnlyRules": MessageLookupByLibrary.simpleMessage(
+      "Проксировать только эти IP / домены",
+    ),
+    "processProxyOnlyRulesHelp": MessageLookupByLibrary.simpleMessage(
+      "По одному IP, поддерживаемому CIDR или доменному шаблону в строке. Пусто — все адреса; несовпавшие идут напрямую. Исключения приоритетны. IP сопоставляется только если приложение передаёт его модулю; внутренние домены добавляйте явно. Изменения — со следующего запуска.",
+    ),
+    "processProxyOpenBackend": MessageLookupByLibrary.simpleMessage(
+      "Расширенное окно ProxyLane",
+    ),
+    "processProxyOpenReplay": MessageLookupByLibrary.simpleMessage(
+      "Открыть папку записи",
+    ),
+    "processProxyOverview": MessageLookupByLibrary.simpleMessage("Обзор"),
+    "processProxyPacketCount": m68,
+    "processProxyPacketLimit": MessageLookupByLibrary.simpleMessage(
+      "Показаны первые 128 индексированных датаграмм каждого направления; возможны дополнительные или неиндексированные пакеты.",
+    ),
+    "processProxyPacketMetadata": m69,
+    "processProxyPacketPrefix": m70,
+    "processProxyPacketsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Индекс датаграмм не предоставлен; восстановить границы здесь нельзя.",
+    ),
+    "processProxyPayloadDecode": MessageLookupByLibrary.simpleMessage(
+      "Прочитать декодированный просмотр",
+    ),
+    "processProxyPayloadDns": MessageLookupByLibrary.simpleMessage(
+      "Разобрать DNS",
+    ),
+    "processProxyPayloadDoh": MessageLookupByLibrary.simpleMessage(
+      "Разобрать DoH",
+    ),
+    "processProxyPayloadHelp": MessageLookupByLibrary.simpleMessage(
+      "Чтение только захваченных или воспроизводимых данных, до 64 КиБ за запрос. Это тело/поток данных, а не сырые сетевые кадры HTTP/2 или QUIC.",
+    ),
+    "processProxyPayloadRead": MessageLookupByLibrary.simpleMessage(
+      "Прочитать исходное тело",
+    ),
+    "processProxyPayloadUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Тело ещё не готово, удалено из кэша или неполно. Проверьте состояние и предупреждения ниже.",
+    ),
+    "processProxyPayloadViewer": MessageLookupByLibrary.simpleMessage(
+      "Предпросмотр тела Raw / Hex",
+    ),
+    "processProxyPrepareQuic": MessageLookupByLibrary.simpleMessage(
+      "Подготовить запуск для проверки QUIC",
+    ),
+    "processProxyPrepareQuicHelp": MessageLookupByLibrary.simpleMessage(
+      "Нужно отдельное согласие до запуска, нативный мост, SOCKS5 и разрешённый UDP. Настройки совместимости браузера действуют для дерева процессов до выхода программ. Мониторинг, расшифровка и установка сертификатов не запускаются.",
+    ),
+    "processProxyPrivate": MessageLookupByLibrary.simpleMessage(
+      "Исключать частные сети",
+    ),
+    "processProxyProfiles": MessageLookupByLibrary.simpleMessage(
+      "Профили запуска",
+    ),
+    "processProxyProfilesConflict": MessageLookupByLibrary.simpleMessage(
+      "Имя или ID профиля повторяется. Переименуйте или удалите конфликтующий профиль; ничего не перезаписано.",
+    ),
+    "processProxyProfilesEmpty": MessageLookupByLibrary.simpleMessage(
+      "Профилей запуска пока нет.",
+    ),
+    "processProxyProfilesExport": MessageLookupByLibrary.simpleMessage(
+      "Экспорт профилей",
+    ),
+    "processProxyProfilesExportConfirm": MessageLookupByLibrary.simpleMessage(
+      "Экспортировать JSON без шифрования с выбранной настройкой аргументов? Перед передачей проверьте пути и аргументы на секреты. Доверие, учётные данные прокси и согласия не экспортируются.",
+    ),
+    "processProxyProfilesExportHelp": MessageLookupByLibrary.simpleMessage(
+      "По умолчанию аргументы не экспортируются. Пути, имена и исключения остаются открытым текстом. Аргументы могут раскрыть пароли или токены; сохраняйте только в доверенное место.",
+    ),
+    "processProxyProfilesHelp": MessageLookupByLibrary.simpleMessage(
+      "Можно сохранить до 32 профилей локально. Настройки и резервные копии не зашифрованы; аргументы могут содержать секреты. Загрузка только заполняет форму, не запускает программу и не меняет сеансы. Доверие и согласие на захват/QUIC сбрасываются.",
+    ),
+    "processProxyProfilesImport": MessageLookupByLibrary.simpleMessage(
+      "Импорт профилей",
+    ),
+    "processProxyProfilesImportConfirm": m71,
+    "processProxyProfilesIncludeArguments":
+        MessageLookupByLibrary.simpleMessage("Включить аргументы в экспорт"),
+    "processProxyProfilesInvalid": MessageLookupByLibrary.simpleMessage(
+      "Некорректный JSON, версия, имя или тип поля. Существующие профили не изменены.",
+    ),
+    "processProxyProfilesLimit": MessageLookupByLibrary.simpleMessage(
+      "Допускается не более 32 профилей. Удалите ненужный профиль.",
+    ),
+    "processProxyProfilesLoadConfirm": m72,
+    "processProxyProfilesSaveCurrent": MessageLookupByLibrary.simpleMessage(
+      "Сохранить текущую форму",
+    ),
+    "processProxyProfilesStorage": MessageLookupByLibrary.simpleMessage(
+      "Не удалось прочитать или сохранить файл. Проверьте права и свободное место.",
+    ),
+    "processProxyProfilesTooLarge": MessageLookupByLibrary.simpleMessage(
+      "Файл не должен превышать 256 КиБ. Существующие профили не изменены.",
+    ),
+    "processProxyReadDetails": MessageLookupByLibrary.simpleMessage(
+      "Прочитать детали",
+    ),
+    "processProxyReadNext": MessageLookupByLibrary.simpleMessage(
+      "Прочитать следующие записи",
+    ),
+    "processProxyReadQuery": MessageLookupByLibrary.simpleMessage(
+      "Запрос деталей только для чтения (JSON)",
+    ),
+    "processProxyReadQueryHelp": MessageLookupByLibrary.simpleMessage(
+      "Используйте ID из ответа. Поддерживаются poll, stats, cache_read, cache_decode, dns_read, recording_page и recording_detail. Команды выполнять нельзя.",
+    ),
+    "processProxyRebuildIndex": MessageLookupByLibrary.simpleMessage(
+      "Восстановить индекс записи",
+    ),
+    "processProxyRebuildIndexWarning": MessageLookupByLibrary.simpleMessage(
+      "Индекс восстанавливается только в явно выбранной локальной папке записи. Метаданные изменяются, сетевые запросы не повторяются. Ошибки и тайм-ауты не вызывают автоповтор. Проверьте резервную копию и остановите мониторинг.",
+    ),
+    "processProxyReconnect": MessageLookupByLibrary.simpleMessage(
+      "Пересоздать TCP-соединения сеанса",
+    ),
+    "processProxyReconnectConfirm": m73,
+    "processProxyReconnectNone": MessageLookupByLibrary.simpleMessage(
+      "В этом сеансе нет TCP-соединений для пересоздания.",
+    ),
+    "processProxyRecording": MessageLookupByLibrary.simpleMessage("Запись"),
+    "processProxyRecordingAll": MessageLookupByLibrary.simpleMessage(
+      "Все протоколы",
+    ),
+    "processProxyRecordingBrowser": MessageLookupByLibrary.simpleMessage(
+      "Просмотр офлайн-записи",
+    ),
+    "processProxyRecordingBrowserHelp": MessageLookupByLibrary.simpleMessage(
+      "Сначала откройте локальную запись в рабочей области записи. Здесь данные только читаются: запросы не повторяются, мониторинг не запускается. Задайте фильтры и обновите. Страницы используют смещение записей, а не курсор живого трафика.",
+    ),
+    "processProxyRecordingCapacity": MessageLookupByLibrary.simpleMessage(
+      "Лимит записи (МиБ)",
+    ),
+    "processProxyRecordingChanged": MessageLookupByLibrary.simpleMessage(
+      "Во время перехода открытая запись изменилась. Старые строки удалены; обновите с первой страницы перед просмотром деталей.",
+    ),
+    "processProxyRecordingDetails": MessageLookupByLibrary.simpleMessage(
+      "Детали записанного сеанса",
+    ),
+    "processProxyRecordingNext": MessageLookupByLibrary.simpleMessage(
+      "Следующая страница",
+    ),
+    "processProxyRecordingNoPayload": MessageLookupByLibrary.simpleMessage(
+      "Эта запись содержит только соединение без ID кэша тела. Метаданные показаны ниже.",
+    ),
+    "processProxyRecordingPageSize": MessageLookupByLibrary.simpleMessage(
+      "Записей на странице",
+    ),
+    "processProxyRecordingPageSummary": m74,
+    "processProxyRecordingPrevious": MessageLookupByLibrary.simpleMessage(
+      "Предыдущая страница",
+    ),
+    "processProxyRecordingQueryInvalid": MessageLookupByLibrary.simpleMessage(
+      "Фильтр — до 256 байт UTF-8 без управляющих символов, 1–64 записи на странице и неотрицательное смещение.",
+    ),
+    "processProxyRecordingReserve": MessageLookupByLibrary.simpleMessage(
+      "Минимум свободного места (МиБ)",
+    ),
+    "processProxyRecordingStalled": MessageLookupByLibrary.simpleMessage(
+      "До заявленного конца получена пустая страница. Переход остановлен, чтобы не пропускать записи и не зациклиться. Обновите или проверьте состояние записи.",
+    ),
+    "processProxyRecordingWarnings": m75,
+    "processProxyRefresh": MessageLookupByLibrary.simpleMessage("Обновить"),
+    "processProxyRemoteDns": MessageLookupByLibrary.simpleMessage(
+      "Разрешать публичные имена через прокси",
+    ),
+    "processProxyRemoveCa": MessageLookupByLibrary.simpleMessage(
+      "Удалить доверие CA текущего пользователя",
+    ),
+    "processProxyReplay": MessageLookupByLibrary.simpleMessage(
+      "Офлайн-воспроизведение",
+    ),
+    "processProxyRequested": MessageLookupByLibrary.simpleMessage(
+      "Запуск запрошен",
+    ),
+    "processProxyRules": MessageLookupByLibrary.simpleMessage(
+      "Маршрутизация и исключения",
+    ),
+    "processProxyRunId": MessageLookupByLibrary.simpleMessage("ID запуска"),
+    "processProxySafeMode": MessageLookupByLibrary.simpleMessage(
+      "Запуск отключён в безопасном режиме.",
+    ),
+    "processProxySearch": MessageLookupByLibrary.simpleMessage(
+      "Найти запущенное приложение",
+    ),
+    "processProxySearchHelp": MessageLookupByLibrary.simpleMessage(
+      "Выбор заполняет путь для нового запуска. Текущий процесс не перехватывается, не останавливается и не перезапускается.",
+    ),
+    "processProxySearchHint": MessageLookupByLibrary.simpleMessage(
+      "Поиск по имени, PID или пути",
+    ),
+    "processProxySelectFile": MessageLookupByLibrary.simpleMessage(
+      "Выбрать исполняемый файл",
+    ),
+    "processProxySemanticDetails": MessageLookupByLibrary.simpleMessage(
+      "Сведения о протоколе",
+    ),
+    "processProxySemanticHelp": MessageLookupByLibrary.simpleMessage(
+      "Снимок выбранного запуска и записи только для чтения. Поля HTTP — семантические метаданные, не исходные сетевые байты. Открытие страницы не читает данные и не запускает захват.",
+    ),
+    "processProxySemanticUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Нет поддерживаемых сведений о заголовках HTTP или датаграммах. Просматривайте метаданные и содержимое, не предполагая границ сообщений приложения.",
+    ),
+    "processProxyServer": MessageLookupByLibrary.simpleMessage(
+      "Сервер → клиент",
+    ),
+    "processProxySessionHelp": MessageLookupByLibrary.simpleMessage(
+      "Статус отражает процесс бэкенда, а не проверенный трафик. Закрытие страницы не завершает приложения. При остановке ядра или смене порта закройте приложение и создайте новый сеанс.",
+    ),
+    "processProxySessionStopWarning": MessageLookupByLibrary.simpleMessage(
+      "Остановить наблюдение, запись и этот прокси? Приложения не завершатся, но их соединения могут прерваться. После остановки серверной части или ядра внедрённые перехватчики могут остаться, и новые соединения могут не установиться. Для чистого состояния вручную перезапустите выбранные приложения. Приложения не завершаются и не перезапускаются автоматически; восстановление прямого доступа и блокировка утечек не гарантируются.",
+    ),
+    "processProxySessions": MessageLookupByLibrary.simpleMessage(
+      "Сеансы этого окна",
+    ),
+    "processProxyStartMonitor": MessageLookupByLibrary.simpleMessage(
+      "Начать мониторинг",
+    ),
+    "processProxyStartRecording": MessageLookupByLibrary.simpleMessage(
+      "Начать запись",
+    ),
+    "processProxyStats": MessageLookupByLibrary.simpleMessage(
+      "Статистика трафика",
+    ),
+    "processProxyStatus": MessageLookupByLibrary.simpleMessage(
+      "Состояние бэкенда",
+    ),
+    "processProxyStopMonitor": MessageLookupByLibrary.simpleMessage(
+      "Остановить мониторинг",
+    ),
+    "processProxyStopRecording": MessageLookupByLibrary.simpleMessage(
+      "Остановить запись и мониторинг",
+    ),
+    "processProxyStopSession": MessageLookupByLibrary.simpleMessage(
+      "Остановить сеанс прокси",
+    ),
+    "processProxyTakeoverOff": MessageLookupByLibrary.simpleMessage(
+      "Отключите системный прокси и TUN для проксирования только выбранных процессов.",
+    ),
+    "processProxyTarget": MessageLookupByLibrary.simpleMessage(
+      "Запускаемое приложение",
+    ),
+    "processProxyTargetPath": MessageLookupByLibrary.simpleMessage(
+      "Путь к .exe приложения",
+    ),
+    "processProxyTrailers": MessageLookupByLibrary.simpleMessage(
+      "Концевые поля",
+    ),
+    "processProxyTrust": MessageLookupByLibrary.simpleMessage(
+      "Я доверяю этому бэкенду и разрешаю проксировать запускаемое мной приложение.",
+    ),
+    "processProxyTrustCa": MessageLookupByLibrary.simpleMessage(
+      "Доверять CA для текущего пользователя",
+    ),
+    "processProxyWorkingDirectory": MessageLookupByLibrary.simpleMessage(
+      "Рабочая папка (необязательно)",
+    ),
+    "processProxyWorkingDirectoryHelp": MessageLookupByLibrary.simpleMessage(
+      "Абсолютный локальный путь; пусто — папка программы. При указании нужен нативный мост.",
+    ),
     "profile": MessageLookupByLibrary.simpleMessage("Профиль"),
     "profileAutoUpdateIntervalInvalidValidationDesc":
         MessageLookupByLibrary.simpleMessage("Введите корректный интервал"),
     "profileAutoUpdateIntervalNullValidationDesc":
         MessageLookupByLibrary.simpleMessage("Введите интервал автообновления"),
-    "profileDaysLeft": m62,
-    "profileExpiresIn": m63,
+    "profileDaysLeft": m76,
+    "profileExpiresIn": m77,
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "Профиль изменён. Отключить автообновление?",
     ),
@@ -1409,7 +1971,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileTunSettingsDesc": MessageLookupByLibrary.simpleMessage(
       "Действует только для этого профиля и имеет приоритет над переопределяемыми параметрами TUN в настройках сети.",
     ),
-    "profileUpdatedAt": m64,
+    "profileUpdatedAt": m78,
     "profileUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
       "Введите корректный URL профиля",
     ),
@@ -1422,26 +1984,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "protocol": MessageLookupByLibrary.simpleMessage("Протокол"),
     "protocolParam": MessageLookupByLibrary.simpleMessage("Параметр протокола"),
     "protocolVersion": MessageLookupByLibrary.simpleMessage("Версия протокола"),
-    "providerInUse": m65,
+    "providerInUse": m79,
     "providerUrlTip": MessageLookupByLibrary.simpleMessage(
       "Поддерживаются только удалённые ресурсы",
     ),
     "providers": MessageLookupByLibrary.simpleMessage("Внешние ресурсы"),
     "proxies": MessageLookupByLibrary.simpleMessage("Прокси"),
-    "proxiesCount": m66,
-    "proxiesProfileLabel": m67,
-    "proxiesRemovedTip": m68,
-    "proxiesReplacedTip": m69,
+    "proxiesCount": m80,
+    "proxiesProfileLabel": m81,
+    "proxiesRemovedTip": m82,
+    "proxiesReplacedTip": m83,
     "proxyChains": MessageLookupByLibrary.simpleMessage("Цепочка прокси"),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("Группа прокси"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage(
       "Группа прокси пуста",
     ),
-    "proxyGroupInUse": m70,
+    "proxyGroupInUse": m84,
     "proxyGroupsAfterStart": MessageLookupByLibrary.simpleMessage(
       "Группы появятся здесь после запуска ядра",
     ),
-    "proxyGroupsCount": m71,
+    "proxyGroupsCount": m85,
     "proxyProviders": MessageLookupByLibrary.simpleMessage("Провайдеры прокси"),
     "proxyType": MessageLookupByLibrary.simpleMessage("Тип прокси"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("Очистить кэш"),
@@ -1688,14 +2250,14 @@ class MessageLookup extends MessageLookupByLibrary {
       "Правило должно начинаться с поддерживаемого типа, например DOMAIN,example.com,DIRECT",
     ),
     "rules": MessageLookupByLibrary.simpleMessage("Правила"),
-    "rulesCount": m72,
+    "rulesCount": m86,
     "runTime": MessageLookupByLibrary.simpleMessage("Время работы"),
     "running": MessageLookupByLibrary.simpleMessage("Работает"),
     "runtimeConfig": MessageLookupByLibrary.simpleMessage(
       "Конфигурация выполнения",
     ),
     "safeMode": MessageLookupByLibrary.simpleMessage("Безопасный режим"),
-    "safeModeAppTitle": m73,
+    "safeModeAppTitle": m87,
     "saturation": MessageLookupByLibrary.simpleMessage("Насыщенность"),
     "save": MessageLookupByLibrary.simpleMessage("Сохранить"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("Сохранить изменения?"),
@@ -1708,9 +2270,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "search": MessageLookupByLibrary.simpleMessage("Поиск"),
     "seconds": MessageLookupByLibrary.simpleMessage("секунд"),
-    "secondsCount": m74,
+    "secondsCount": m88,
     "secretKey": MessageLookupByLibrary.simpleMessage("Ключ"),
-    "sectionsInEffect": m75,
+    "sectionsInEffect": m89,
     "select": MessageLookupByLibrary.simpleMessage("Выбрать"),
     "selectAll": MessageLookupByLibrary.simpleMessage("Выбрать всё"),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage(
@@ -1745,7 +2307,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Отсканируйте код камерой телефона и вставьте ссылку на открывшейся странице. Оба устройства должны быть в одной сети.",
     ),
     "server": MessageLookupByLibrary.simpleMessage("Сервер"),
-    "serviceAbnormalCount": m76,
+    "serviceAbnormalCount": m90,
     "serviceAllAvailable": MessageLookupByLibrary.simpleMessage("Все доступны"),
     "serviceAvailable": MessageLookupByLibrary.simpleMessage("Доступен"),
     "serviceBlocked": MessageLookupByLibrary.simpleMessage("Заблокировано"),
@@ -1775,8 +2337,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settingEntries": MessageLookupByLibrary.simpleMessage("параметры"),
     "settings": MessageLookupByLibrary.simpleMessage("Настройки"),
-    "settingsCount": m77,
-    "shareLinkUnreadable": m78,
+    "settingsCount": m91,
+    "shareLinkUnreadable": m92,
     "shareLinksInvalid": MessageLookupByLibrary.simpleMessage(
       "Не удалось прочитать прокси из ссылок",
     ),
@@ -1803,7 +2365,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "singleShareLinkOnly": MessageLookupByLibrary.simpleMessage(
       "Здесь укажите одну ссылку, несколько можно задать в быстром редактировании списка",
     ),
-    "singleValueTip": m79,
+    "singleValueTip": m93,
     "size": MessageLookupByLibrary.simpleMessage("Размер"),
     "skipCertVerify": MessageLookupByLibrary.simpleMessage(
       "Пропускать проверку сертификата",
@@ -1921,11 +2483,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("Отдано"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Порт TProxy"),
     "traffic": MessageLookupByLibrary.simpleMessage("Трафик"),
-    "trafficPeak": m80,
-    "trafficTotal": m81,
+    "trafficPeak": m94,
+    "trafficTotal": m95,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Статистика трафика"),
     "transport": MessageLookupByLibrary.simpleMessage("Транспорт"),
-    "transportHeaders": m82,
+    "transportHeaders": m96,
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunAuthorizationFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось получить права для TUN, поэтому он выключен.",
@@ -1959,7 +2521,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("Отдача"),
     "uploadBandwidth": MessageLookupByLibrary.simpleMessage("Скорость отдачи"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m83,
+    "urlTip": m97,
     "useHosts": MessageLookupByLibrary.simpleMessage("Использовать hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage(
       "Использовать системный hosts",
@@ -1992,8 +2554,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "«Записывать в систему» также устанавливает системные часы; Android это игнорирует.",
     ),
-    "yearsAgo": m84,
-    "yearsAgoShort": m85,
+    "yearsAgo": m98,
+    "yearsAgoShort": m99,
     "yes": MessageLookupByLibrary.simpleMessage("Да"),
     "zhCN": MessageLookupByLibrary.simpleMessage("Упрощённый китайский"),
   };

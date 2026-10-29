@@ -149,60 +149,96 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m61(port) => "端口 ${port}";
 
-  static String m62(days) => "剩余 ${days} 天";
+  static String m62(action) =>
+      "对当前会话执行“${action}”？监视与录制内容可能包含凭据或隐私。关闭本页面不会停止已启用的采集。";
 
-  static String m63(date, days) => "${date} 到期，剩余 ${days} 天";
+  static String m63(action) =>
+      "确认仅为当前 Windows 用户执行“${action}”？此操作会改变本地 CA 材料或信任状态，应用可能需要重新连接；不会修改计算机级证书库。";
 
-  static String m64(time) => "更新于 ${time}";
+  static String m64(application) =>
+      "启动 ${application} 的新实例？请先保存工作并自行退出已运行的同一程序。单实例应用可能复用旧的未代理进程；不会自动终止任何现有进程。";
 
-  static String m65(label, profiles) =>
+  static String m65(rule) => "此 CIDR 无法安全转换为当前后端规则：${rule}。请使用精确 IP 或受支持的网段前缀。";
+
+  static String m66(rule) =>
+      "IP / 域名规则无效：${rule}。每行填写一个 IP、支持的 CIDR 或域名模式，不要输入 URL 或端口。";
+
+  static String m67(error) => "操作失败：${error}";
+
+  static String m68(count) => "后端报告的数据报数：${count}";
+
+  static String m69(number, offset, length) =>
+      "数据报 ${number}：偏移 ${offset}，${length} 字节";
+
+  static String m70(length) => "只读前缀最多 ${length} 字节；范围和方向已锁定。";
+
+  static String m71(count) =>
+      "添加以下 ${count} 个配置？保留现有配置，名称或 ID 冲突会拒绝导入，不会启动程序。请核对下方可执行文件路径。";
+
+  static String m72(name) => "将“${name}”加载到启动表单？不会启动任何程序，并会清除后端信任及敏感功能授权。";
+
+  static String m73(count) =>
+      "将断开本会话选中的 ${count} 条现有 TCP 连接（包含绕过直连），可能中断上传或会话。应用需自行重连，不保证成功；UDP 不受影响。是否继续？";
+
+  static String m74(start, end, total, all) =>
+      "匹配记录 ${start}–${end} / ${total}（录制总计 ${all} 条）";
+
+  static String m75(count) => "录制警告：${count}";
+
+  static String m76(days) => "剩余 ${days} 天";
+
+  static String m77(date, days) => "${date} 到期，剩余 ${days} 天";
+
+  static String m78(time) => "更新于 ${time}";
+
+  static String m79(label, profiles) =>
       "${label} 仍被 ${profiles} 使用，删除后这些配置会异常。确定删除吗？";
 
-  static String m66(count, label) =>
+  static String m80(count, label) =>
       "${Intl.plural(count, other: '${label} 个代理')}";
 
-  static String m67(name, count) => "${name} 等 ${count} 个代理";
+  static String m81(name, count) => "${name} 等 ${count} 个代理";
 
-  static String m68(removed) =>
+  static String m82(removed) =>
       "以下代理将被删除：${removed}。改了名字的行按新代理处理，自定义配置中对被删除代理的引用会标为缺失。确定应用吗？";
 
-  static String m69(removed, added) =>
+  static String m83(removed, added) =>
       "以下代理将被删除：${removed}。以下代理将新增：${added}。改了名字的行按新代理处理，自定义配置中对被删除代理的引用会标为缺失。确定应用吗？";
 
-  static String m70(label) =>
+  static String m84(label) =>
       "${label} 仍被当前配置的规则、策略组、拨号代理、DNS 或 NTP 引用，删除后这些引用会失效。确定删除吗？";
 
-  static String m71(count, label) =>
+  static String m85(count, label) =>
       "${Intl.plural(count, other: '${label} 个策略组')}";
 
-  static String m72(count, label) =>
+  static String m86(count, label) =>
       "${Intl.plural(count, other: '${label} 条规则')}";
 
-  static String m73(appName) => "${appName}（安全模式）";
+  static String m87(appName) => "${appName}（安全模式）";
 
-  static String m74(count) => "${count} 秒";
+  static String m88(count) => "${count} 秒";
 
-  static String m75(count) => "${count} 项生效";
+  static String m89(count) => "${count} 项生效";
 
-  static String m76(count) => "${count} 项异常";
+  static String m90(count) => "${count} 项异常";
 
-  static String m77(count) => "${count} 项设置";
+  static String m91(count) => "${count} 项设置";
 
-  static String m78(link) => "无法从 ${link} 中读取代理";
+  static String m92(link) => "无法从 ${link} 中读取代理";
 
-  static String m79(label) => "${label}只能是一项";
+  static String m93(label) => "${label}只能是一项";
 
-  static String m80(value) => "峰值 ${value}";
+  static String m94(value) => "峰值 ${value}";
 
-  static String m81(value) => "累计 ${value}";
+  static String m95(value) => "累计 ${value}";
 
-  static String m82(transport) => "${transport} 请求头";
+  static String m96(transport) => "${transport} 请求头";
 
-  static String m83(label) => "${label}必须为URL";
+  static String m97(label) => "${label}必须为URL";
 
-  static String m84(count) => "${count} 年前";
+  static String m98(count) => "${count} 年前";
 
-  static String m85(count) => "${count} 年前";
+  static String m99(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1034,13 +1070,442 @@ class MessageLookup extends MessageLookupByLibrary {
     "privateKey": MessageLookupByLibrary.simpleMessage("私钥"),
     "privateKeyPassphrase": MessageLookupByLibrary.simpleMessage("私钥密码"),
     "process": MessageLookupByLibrary.simpleMessage("进程"),
+    "processProxy": MessageLookupByLibrary.simpleMessage("进程代理"),
+    "processProxyAdvanced": MessageLookupByLibrary.simpleMessage("高级能力 · 实验性"),
+    "processProxyAdvancedHelp": MessageLookupByLibrary.simpleMessage(
+      "HTTPS/QUIC 解密、CA 信任、监视、录制和回放尚未全部迁移到 FlClash 原生界面。默认全部关闭；修改解密选项不会安装证书或启动监视。",
+    ),
+    "processProxyApplications": MessageLookupByLibrary.simpleMessage("已安装应用"),
+    "processProxyApplicationsHelp": MessageLookupByLibrary.simpleMessage(
+      "只读搜索 App Paths 与开始菜单中的本地 EXE；保留快捷方式参数和工作目录。不会启动、附着或结束任何现有进程；不支持 UWP 或脚本。",
+    ),
+    "processProxyApplyCapture": MessageLookupByLibrary.simpleMessage("应用采集限制"),
+    "processProxyArguments": MessageLookupByLibrary.simpleMessage(
+      "启动参数（JSON 字符串数组）",
+    ),
+    "processProxyArgumentsHelp": MessageLookupByLibrary.simpleMessage(
+      "例如：[\"--profile\", \"Work\"]。不通过 shell 执行；请勿输入密码或令牌。",
+    ),
+    "processProxyBackend": MessageLookupByLibrary.simpleMessage("ProxyLane 后端"),
+    "processProxyBackendHelp": MessageLookupByLibrary.simpleMessage(
+      "选择可信的完整 ProxyLane v1.3.5 安装。FlClash 使用隔离会话副本，不覆盖原有配置。",
+    ),
+    "processProxyBackendPath": MessageLookupByLibrary.simpleMessage(
+      "官方 ProxyLane64.exe 路径",
+    ),
+    "processProxyBackendRunning": MessageLookupByLibrary.simpleMessage(
+      "后端运行中，请核验流量",
+    ),
+    "processProxyBlockUdp": MessageLookupByLibrary.simpleMessage(
+      "阻止 UDP（QUIC 在支持时回退 TCP）",
+    ),
+    "processProxyBypass": MessageLookupByLibrary.simpleMessage(
+      "排除 IP、CIDR 和域名（每行一项）",
+    ),
+    "processProxyBypassHelp": MessageLookupByLibrary.simpleMessage(
+      "排除目标将直连。请明确添加内网域名；仅当后端获得目标 IP 时 IP 规则才生效，域名匹配优先。",
+    ),
+    "processProxyCaWarning": MessageLookupByLibrary.simpleMessage(
+      "不会自动安装证书。信任本地 CA 后，该 CA 可为当前用户的被代理 TLS 连接签发受信任证书。仅检查你有权检查的程序和流量。",
+    ),
+    "processProxyCacheId": MessageLookupByLibrary.simpleMessage("缓存 ID"),
+    "processProxyCaptureOptions": MessageLookupByLibrary.simpleMessage(
+      "采集限制（JSON 对象）",
+    ),
+    "processProxyCapturePrivacy": MessageLookupByLibrary.simpleMessage(
+      "解密和录制默认关闭，仅检查您有权检查的应用流量。录制保存在您选择的本地目录，请按需保护和删除。停止监视会关闭采集和新连接解密，但已有 TLS 桥接可能持续到连接结束或您明确重连。已信任的 CA 须单独移除。重连可能中断传输，绝不会自动执行。",
+    ),
+    "processProxyCertificates": MessageLookupByLibrary.simpleMessage("证书"),
+    "processProxyChildRuleInclude": MessageLookupByLibrary.simpleMessage(
+      "仅注入匹配规则的子进程",
+    ),
+    "processProxyChildRules": MessageLookupByLibrary.simpleMessage(
+      "子进程路径 / 名称规则",
+    ),
+    "processProxyChildRulesHelp": MessageLookupByLibrary.simpleMessage(
+      "每行一个本机完整路径、通配模式或 EXE 文件名，最多 128 条。仅在开启子进程代理时生效；默认排除匹配子进程，开启下方开关则仅包含匹配项。留空表示所有子进程，不影响根进程。被排除的子进程不会注入，其后代也不会自动继承代理；请包含中间启动器。",
+    ),
+    "processProxyChildren": MessageLookupByLibrary.simpleMessage("代理子进程"),
+    "processProxyClient": MessageLookupByLibrary.simpleMessage("客户端 → 服务端"),
+    "processProxyCloseReplay": MessageLookupByLibrary.simpleMessage("关闭回放"),
+    "processProxyConfirmAdvanced": m62,
+    "processProxyConfirmCa": m63,
+    "processProxyConfirmLaunch": m64,
+    "processProxyCoreRequired": MessageLookupByLibrary.simpleMessage(
+      "请先在首页启动 FlClash，再启动代理程序。",
+    ),
+    "processProxyCoreSessionEnded": MessageLookupByLibrary.simpleMessage(
+      "核心状态或监听配置已变化；此进程代理会话已失效。 后端或核心停止后，注入钩子可能仍在，因此新连接可能失败。请手动重启所选应用以恢复干净状态。不会自动结束或重启应用，也不保证恢复直连或具备断网保护。",
+    ),
+    "processProxyDataTruncated": MessageLookupByLibrary.simpleMessage(
+      "仅展示前 48 KiB。请缩小查询范围或读取其他分页获取更多数据。",
+    ),
+    "processProxyDatagrams": MessageLookupByLibrary.simpleMessage("数据报边界"),
+    "processProxyDatagramsHelp": MessageLookupByLibrary.simpleMessage(
+      "仅显示后端提供的字节偏移和长度，表示已捕获的载荷数据报，而非 IP 包或推测的边界。选择非空数据报后，再明确读取其有界前缀。",
+    ),
+    "processProxyDecryptHttps": MessageLookupByLibrary.simpleMessage(
+      "显式开始监视后允许 HTTPS 解密",
+    ),
+    "processProxyDecryptQuic": MessageLookupByLibrary.simpleMessage(
+      "显式开始监视后允许 QUIC 解密",
+    ),
+    "processProxyDirectMode": MessageLookupByLibrary.simpleMessage(
+      "当前为直连模式。请先选择规则或全局模式及代理节点，再启动程序；本页不会自动修改路由模式。",
+    ),
+    "processProxyDirectory": MessageLookupByLibrary.simpleMessage("本地目录绝对路径"),
+    "processProxyDnsHelp": MessageLookupByLibrary.simpleMessage(
+      "默认关闭以保留本地及公司分流 DNS。使用本地 DNS 时查询可能对当前网络可见；不会强制重定向私有 DNS。",
+    ),
+    "processProxyEmptyPacket": MessageLookupByLibrary.simpleMessage(
+      "零长度数据报，不读取载荷。",
+    ),
+    "processProxyEncryptedPayload": MessageLookupByLibrary.simpleMessage(
+      "此快照为加密 TLS／QUIC 载荷，没有明文；Raw／Hex 不会对其解密。",
+    ),
+    "processProxyEndpoint": MessageLookupByLibrary.simpleMessage("当前本地代理端点"),
+    "processProxyErrorArchitecture": MessageLookupByLibrary.simpleMessage(
+      "实验性原生桥接目前仅支持 x64 根程序。请选择受支持的 x64 可执行文件；不会自动接管已有进程。",
+    ),
+    "processProxyErrorAuthentication": MessageLookupByLibrary.simpleMessage(
+      "本地代理认证失败，请检查 FlClash 的代理用户名和密码设置。本提示不会显示凭据。",
+    ),
+    "processProxyErrorBackendVersion": MessageLookupByLibrary.simpleMessage(
+      "请选择完整 ProxyLane v1.3.5 安装中的官方 ProxyLane64.exe；当前后端版本不受支持。",
+    ),
+    "processProxyErrorBridge": MessageLookupByLibrary.simpleMessage(
+      "原生桥接不可用或拒绝了此操作。请核对匹配的 Windows 桥接构建与所选后端，然后重新启动会话。",
+    ),
+    "processProxyErrorBusy": MessageLookupByLibrary.simpleMessage(
+      "已有启动任务正在进行，请等待完成后重试。",
+    ),
+    "processProxyErrorCaRequired": MessageLookupByLibrary.simpleMessage(
+      "解密需要已初始化且经你明确同意信任的当前用户 CA。请查看“证书”页；本操作不会自动安装信任。",
+    ),
+    "processProxyErrorChildRule": MessageLookupByLibrary.simpleMessage(
+      "子进程规则无效。每行填写本机完整路径、通配模式或 EXE 文件名；不允许 UNC、目录回溯或命令行语法。",
+    ),
+    "processProxyErrorCidr": m65,
+    "processProxyErrorComponents": MessageLookupByLibrary.simpleMessage(
+      "缺少必要的 ProxyLane 组件。请将完整官方压缩包解压到同一文件夹，再选择其中的 ProxyLane64.exe。",
+    ),
+    "processProxyErrorCoreChanged": MessageLookupByLibrary.simpleMessage(
+      "启动过程中 FlClash 已停止或代理配置发生变化。请检查当前状态后重新启动会话。",
+    ),
+    "processProxyErrorDirectory": MessageLookupByLibrary.simpleMessage(
+      "请使用绝对路径选择已存在的本地目录；不接受网络共享或链接。",
+    ),
+    "processProxyErrorExecutable": MessageLookupByLibrary.simpleMessage(
+      "请选择本地存在的 .exe 文件，使用完整绝对路径；不支持快捷方式、网络路径或命令字符串。",
+    ),
+    "processProxyErrorGeneric": MessageLookupByLibrary.simpleMessage(
+      "操作未能完成。请检查所选文件和当前核心状态后重试；可能包含敏感内容的诊断详情已隐藏。",
+    ),
+    "processProxyErrorHook": MessageLookupByLibrary.simpleMessage(
+      "ProxyLane 无法在所选程序中初始化代理，程序可能不兼容或受到保护。请勿关闭安全防护；可改用受支持的程序。",
+    ),
+    "processProxyErrorListener": MessageLookupByLibrary.simpleMessage(
+      "配置中的本地代理未通过协议握手。请确认 FlClash 正在运行，且 mixed、SOCKS 或 HTTP 监听已启用。",
+    ),
+    "processProxyErrorMonitoringActive": MessageLookupByLibrary.simpleMessage(
+      "请先停止监视和录制，再修改采集限制、打开回放或变更证书信任。",
+    ),
+    "processProxyErrorNativeRequired": MessageLookupByLibrary.simpleMessage(
+      "此选项需要 FlClashProxyBridge.exe；兼容启动器无法安全应用该选项。",
+    ),
+    "processProxyErrorPathLength": MessageLookupByLibrary.simpleMessage(
+      "当前后端路径暂限 UTF-8 编码 240 字节，请选择更短的本地路径；中文及会话暂存路径兼容性仍需 Windows 验证。",
+    ),
+    "processProxyErrorProcessQuery": MessageLookupByLibrary.simpleMessage(
+      "Windows 未能完成可访问进程列表查询。请重试搜索，或直接选择程序的 .exe 文件。",
+    ),
+    "processProxyErrorQuic": MessageLookupByLibrary.simpleMessage(
+      "QUIC 解密需要 UDP，请先明确关闭“阻止 UDP”再启用此选项。",
+    ),
+    "processProxyErrorQuicPrepare": MessageLookupByLibrary.simpleMessage(
+      "此程序启动时未预备 QUIC 检查。请自行退出程序，在重新启动前明确启用 QUIC 预备，再开启 QUIC 解密。",
+    ),
+    "processProxyErrorQuicSocks": MessageLookupByLibrary.simpleMessage(
+      "QUIC 预备需要已运行内核的 SOCKS5 或 mixed 监听，不能仅使用 HTTP。",
+    ),
+    "processProxyErrorRecordingState": MessageLookupByLibrary.simpleMessage(
+      "后端未确认所请求的录制状态。不要假定录制已经开始或停止。请停止此会话、检查其本地录制目录，再启动新会话后重新开启监视或录制。",
+    ),
+    "processProxyErrorResponseLarge": MessageLookupByLibrary.simpleMessage(
+      "请求或响应超过安全大小限制。请减少记录数量、预览大小或输入长度后重试。",
+    ),
+    "processProxyErrorRule": m66,
+    "processProxyErrorRuleLimit": MessageLookupByLibrary.simpleMessage(
+      "规则列表超过限制：IP / 域名最多 512 条、子进程最多 128 条，每个列表文本最多 16 KiB。",
+    ),
+    "processProxyErrorSession": MessageLookupByLibrary.simpleMessage(
+      "此后端会话已不可用。如需重试，请自行关闭目标程序后重新启动会话。",
+    ),
+    "processProxyErrorSettings": MessageLookupByLibrary.simpleMessage(
+      "无法读取已保存的进程代理设置，请重新填写并保存。",
+    ),
+    "processProxyErrorTrust": MessageLookupByLibrary.simpleMessage(
+      "请核对后端路径，并明确勾选信任此后端。",
+    ),
+    "processProxyErrorWindows": MessageLookupByLibrary.simpleMessage(
+      "进程代理目前仅支持 Windows，并需要系统自带的本地进程查询工具。",
+    ),
+    "processProxyErrorWorkingDirectory": MessageLookupByLibrary.simpleMessage(
+      "请使用存在的本机绝对工作目录，不支持 UNC、目录回溯或备用数据流。",
+    ),
+    "processProxyExited": MessageLookupByLibrary.simpleMessage("后端已退出"),
+    "processProxyExperimentalHint": MessageLookupByLibrary.simpleMessage(
+      "实验性：尚待 Windows 实机验证。下方只展示当前会话后端的真实响应，不使用模拟数据；仅手动刷新。",
+    ),
+    "processProxyFailed": m67,
+    "processProxyGoncUnsupported": MessageLookupByLibrary.simpleMessage(
+      "GONC TLS-PSK 加密代理入口不兼容普通本地 FlClash 监听；不会改走远端以绕过当前节点。",
+    ),
+    "processProxyHeaders": MessageLookupByLibrary.simpleMessage(
+      "请求头／响应头（保留顺序和重复项）",
+    ),
+    "processProxyHeadersUnavailable": MessageLookupByLibrary.simpleMessage(
+      "此快照没有可用的头部元数据。",
+    ),
+    "processProxyHex": MessageLookupByLibrary.simpleMessage("十六进制"),
+    "processProxyInformational": MessageLookupByLibrary.simpleMessage("临时响应"),
+    "processProxyInitializeCa": MessageLookupByLibrary.simpleMessage(
+      "初始化 CA 材料",
+    ),
+    "processProxyIntro": MessageLookupByLibrary.simpleMessage(
+      "仅让你启动的指定程序通过当前 FlClash 代理；保持系统代理和 TUN 关闭。",
+    ),
+    "processProxyInvalidArguments": MessageLookupByLibrary.simpleMessage(
+      "启动参数必须是只包含字符串的 JSON 数组。",
+    ),
+    "processProxyJsonObjectRequired": MessageLookupByLibrary.simpleMessage(
+      "请输入包含规定字段的有效 JSON 对象。",
+    ),
+    "processProxyLaunch": MessageLookupByLibrary.simpleMessage("启动并代理"),
+    "processProxyMessageIncomplete": MessageLookupByLibrary.simpleMessage(
+      "尚未确认消息完整。",
+    ),
+    "processProxyMonitor": MessageLookupByLibrary.simpleMessage("流量监视"),
+    "processProxyNativeWorkspace": MessageLookupByLibrary.simpleMessage(
+      "原生高级工作区",
+    ),
+    "processProxyNoData": MessageLookupByLibrary.simpleMessage(
+      "尚未读取响应，请点击读取或刷新。",
+    ),
+    "processProxyNoPort": MessageLookupByLibrary.simpleMessage(
+      "当前未启用可用的 mixed / SOCKS / HTTP 代理端口。",
+    ),
+    "processProxyNoProcesses": MessageLookupByLibrary.simpleMessage(
+      "没有匹配且可访问的程序；也可以直接选择 .exe 文件。",
+    ),
+    "processProxyOffset": MessageLookupByLibrary.simpleMessage("字节偏移"),
+    "processProxyOnlyRules": MessageLookupByLibrary.simpleMessage(
+      "仅代理这些 IP / 域名（可选）",
+    ),
+    "processProxyOnlyRulesHelp": MessageLookupByLibrary.simpleMessage(
+      "每行一个 IP、支持的 CIDR 或域名模式。留空表示所有目标；未匹配目标直连，绕过规则始终优先。仅当程序向后端提供 IP 时才能按 IP 匹配；内网域名请明确添加。更改于下次启动生效。",
+    ),
+    "processProxyOpenBackend": MessageLookupByLibrary.simpleMessage(
+      "高级工作区（ProxyLane 原生窗口）",
+    ),
+    "processProxyOpenReplay": MessageLookupByLibrary.simpleMessage("打开录制目录"),
+    "processProxyOverview": MessageLookupByLibrary.simpleMessage("概览"),
+    "processProxyPacketCount": m68,
+    "processProxyPacketLimit": MessageLookupByLibrary.simpleMessage(
+      "每个方向仅显示前 128 条索引；可能存在更多数据报或未建立索引的数据报。",
+    ),
+    "processProxyPacketMetadata": m69,
+    "processProxyPacketPrefix": m70,
+    "processProxyPacketsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "后端未提供数据报索引，此处无法重建边界。",
+    ),
+    "processProxyPayloadDecode": MessageLookupByLibrary.simpleMessage("读取解码预览"),
+    "processProxyPayloadDns": MessageLookupByLibrary.simpleMessage("解析 DNS"),
+    "processProxyPayloadDoh": MessageLookupByLibrary.simpleMessage("解析 DoH"),
+    "processProxyPayloadHelp": MessageLookupByLibrary.simpleMessage(
+      "只读取已采集或回放数据，每次最多 64 KiB；这是正文/流数据，不是原始 HTTP/2 或 QUIC 网络帧。",
+    ),
+    "processProxyPayloadRead": MessageLookupByLibrary.simpleMessage("读取原始正文"),
+    "processProxyPayloadUnavailable": MessageLookupByLibrary.simpleMessage(
+      "正文未就绪、已被淘汰或不完整；请检查下方状态与警告。",
+    ),
+    "processProxyPayloadViewer": MessageLookupByLibrary.simpleMessage(
+      "正文 Raw / Hex 预览",
+    ),
+    "processProxyPrepareQuic": MessageLookupByLibrary.simpleMessage(
+      "为本次启动预备 QUIC 检查",
+    ),
+    "processProxyPrepareQuicHelp": MessageLookupByLibrary.simpleMessage(
+      "必须在启动前单独授权，需要原生桥接、SOCKS5 且未阻止 UDP。将为该进程树预设浏览器兼容选项，持续到相关程序退出。不会开始监视、解密或安装证书。",
+    ),
+    "processProxyPrivate": MessageLookupByLibrary.simpleMessage("排除私有网络"),
+    "processProxyProfiles": MessageLookupByLibrary.simpleMessage("启动配置"),
+    "processProxyProfilesConflict": MessageLookupByLibrary.simpleMessage(
+      "配置名称或 ID 重复。请重命名或移除冲突配置；未覆盖任何内容。",
+    ),
+    "processProxyProfilesEmpty": MessageLookupByLibrary.simpleMessage(
+      "尚无启动配置。",
+    ),
+    "processProxyProfilesExport": MessageLookupByLibrary.simpleMessage(
+      "导出启动配置",
+    ),
+    "processProxyProfilesExportConfirm": MessageLookupByLibrary.simpleMessage(
+      "按本页“包含启动参数”选项导出明文 JSON 文件？分享前请检查路径和参数中的秘密。后端信任、代理凭据及敏感功能授权永不导出。",
+    ),
+    "processProxyProfilesExportHelp": MessageLookupByLibrary.simpleMessage(
+      "默认导出时省略全部启动参数。路径、名称及绕过规则仍为明文。包含参数可能泄露密码或令牌，请仅保存到可信位置。",
+    ),
+    "processProxyProfilesHelp": MessageLookupByLibrary.simpleMessage(
+      "最多在本地保存 32 个启动配置。配置及备份为明文，启动参数可能含密钥。加载仅填入表单，不启动程序，也不改变现有会话；后端信任、捕获及 QUIC 授权始终重置。",
+    ),
+    "processProxyProfilesImport": MessageLookupByLibrary.simpleMessage(
+      "导入启动配置",
+    ),
+    "processProxyProfilesImportConfirm": m71,
+    "processProxyProfilesIncludeArguments":
+        MessageLookupByLibrary.simpleMessage("导出时包含启动参数"),
+    "processProxyProfilesInvalid": MessageLookupByLibrary.simpleMessage(
+      "启动配置 JSON、版本、名称或字段类型无效。现有配置未修改。",
+    ),
+    "processProxyProfilesLimit": MessageLookupByLibrary.simpleMessage(
+      "最多允许 32 个配置，请先删除不再使用的配置。",
+    ),
+    "processProxyProfilesLoadConfirm": m72,
+    "processProxyProfilesSaveCurrent": MessageLookupByLibrary.simpleMessage(
+      "将当前表单保存为配置",
+    ),
+    "processProxyProfilesStorage": MessageLookupByLibrary.simpleMessage(
+      "无法读取或保存本地配置文件。请检查文件权限及剩余空间后重试。",
+    ),
+    "processProxyProfilesTooLarge": MessageLookupByLibrary.simpleMessage(
+      "配置文件不得超过 256 KiB。现有配置未修改。",
+    ),
+    "processProxyReadDetails": MessageLookupByLibrary.simpleMessage("读取详情"),
+    "processProxyReadNext": MessageLookupByLibrary.simpleMessage("读取后续记录"),
+    "processProxyReadQuery": MessageLookupByLibrary.simpleMessage(
+      "只读详情查询（JSON 对象）",
+    ),
+    "processProxyReadQueryHelp": MessageLookupByLibrary.simpleMessage(
+      "使用响应中的后端标识。支持 poll、stats、cache_read、cache_decode、dns_read、recording_page、recording_detail 等只读类型；此字段不能执行命令。",
+    ),
+    "processProxyRebuildIndex": MessageLookupByLibrary.simpleMessage("恢复录制索引"),
+    "processProxyRebuildIndexWarning": MessageLookupByLibrary.simpleMessage(
+      "只为明确选择的本地录制目录重建索引，将写入索引元数据但不重发网络请求；失败或超时不会自动重试。请确认备份，并保持监视停止。",
+    ),
+    "processProxyReconnect": MessageLookupByLibrary.simpleMessage(
+      "重建本会话 TCP 连接",
+    ),
+    "processProxyReconnectConfirm": m73,
+    "processProxyReconnectNone": MessageLookupByLibrary.simpleMessage(
+      "本会话没有可重建的 TCP 连接。",
+    ),
+    "processProxyRecording": MessageLookupByLibrary.simpleMessage("录制"),
+    "processProxyRecordingAll": MessageLookupByLibrary.simpleMessage("所有协议"),
+    "processProxyRecordingBrowser": MessageLookupByLibrary.simpleMessage(
+      "浏览离线录制",
+    ),
+    "processProxyRecordingBrowserHelp": MessageLookupByLibrary.simpleMessage(
+      "请先在录制工作区打开本地录制目录。本页只读取该录制，不会重发已捕获请求或开始监视。设置筛选条件后点击刷新；分页使用记录偏移，不使用实时流量游标。",
+    ),
+    "processProxyRecordingCapacity": MessageLookupByLibrary.simpleMessage(
+      "录制容量上限（MiB）",
+    ),
+    "processProxyRecordingChanged": MessageLookupByLibrary.simpleMessage(
+      "翻页期间打开的录制已改变。旧记录已清除；请从首页刷新后再读取详情。",
+    ),
+    "processProxyRecordingDetails": MessageLookupByLibrary.simpleMessage(
+      "录制会话详情",
+    ),
+    "processProxyRecordingNext": MessageLookupByLibrary.simpleMessage("下一页"),
+    "processProxyRecordingNoPayload": MessageLookupByLibrary.simpleMessage(
+      "此记录仅包含连接信息，没有正文缓存 ID；下方显示其元数据。",
+    ),
+    "processProxyRecordingPageSize": MessageLookupByLibrary.simpleMessage(
+      "每页记录数",
+    ),
+    "processProxyRecordingPageSummary": m74,
+    "processProxyRecordingPrevious": MessageLookupByLibrary.simpleMessage(
+      "上一页",
+    ),
+    "processProxyRecordingQueryInvalid": MessageLookupByLibrary.simpleMessage(
+      "筛选条件最多 256 个 UTF-8 字节且不得含控制字符；每页 1–64 条记录，记录偏移须为非负整数。",
+    ),
+    "processProxyRecordingReserve": MessageLookupByLibrary.simpleMessage(
+      "磁盘最小保留空间（MiB）",
+    ),
+    "processProxyRecordingStalled": MessageLookupByLibrary.simpleMessage(
+      "后端在所报总数之前返回了空页。已停止翻页，避免跳过记录或循环；请刷新或检查录制状态。",
+    ),
+    "processProxyRecordingWarnings": m75,
+    "processProxyRefresh": MessageLookupByLibrary.simpleMessage("刷新"),
+    "processProxyRemoteDns": MessageLookupByLibrary.simpleMessage("通过代理解析公网域名"),
+    "processProxyRemoveCa": MessageLookupByLibrary.simpleMessage(
+      "移除当前用户 CA 信任",
+    ),
+    "processProxyReplay": MessageLookupByLibrary.simpleMessage("离线回放"),
+    "processProxyRequested": MessageLookupByLibrary.simpleMessage("已请求启动"),
+    "processProxyRules": MessageLookupByLibrary.simpleMessage("路由与排除"),
+    "processProxyRunId": MessageLookupByLibrary.simpleMessage("运行 ID"),
+    "processProxySafeMode": MessageLookupByLibrary.simpleMessage(
+      "安全模式下禁止启动外部代理进程。",
+    ),
+    "processProxySearch": MessageLookupByLibrary.simpleMessage("搜索运行中的程序"),
+    "processProxySearchHelp": MessageLookupByLibrary.simpleMessage(
+      "选择运行进程仅填入可执行文件路径，供重新启动使用；不会接管、停止或重启该进程。",
+    ),
+    "processProxySearchHint": MessageLookupByLibrary.simpleMessage(
+      "按名称、PID 或程序路径搜索",
+    ),
+    "processProxySelectFile": MessageLookupByLibrary.simpleMessage("选择可执行文件"),
+    "processProxySemanticDetails": MessageLookupByLibrary.simpleMessage("协议详情"),
+    "processProxySemanticHelp": MessageLookupByLibrary.simpleMessage(
+      "所选运行和记录的只读快照。HTTP 字段是语义元数据，不是原始线上字节；打开此页不会读取载荷或开始采集。",
+    ),
+    "processProxySemanticUnavailable": MessageLookupByLibrary.simpleMessage(
+      "此快照没有受支持的 HTTP 头部或数据报详情。可查看现有元数据和载荷，但不要推断应用消息边界。",
+    ),
+    "processProxyServer": MessageLookupByLibrary.simpleMessage("服务端 → 客户端"),
+    "processProxySessionHelp": MessageLookupByLibrary.simpleMessage(
+      "状态仅表示后端进程生命周期，不代表已验证程序流量。关闭页面不会结束程序。核心停止或端口变化会中断代理，请关闭目标程序后创建新会话。",
+    ),
+    "processProxySessionStopWarning": MessageLookupByLibrary.simpleMessage(
+      "停止本会话的监视、录制和代理后端？不会结束正在运行的应用，但其代理连接可能中断。 后端或核心停止后，注入钩子可能仍在，因此新连接可能失败。请手动重启所选应用以恢复干净状态。不会自动结束或重启应用，也不保证恢复直连或具备断网保护。",
+    ),
+    "processProxySessions": MessageLookupByLibrary.simpleMessage("当前窗口会话"),
+    "processProxyStartMonitor": MessageLookupByLibrary.simpleMessage("开始监视"),
+    "processProxyStartRecording": MessageLookupByLibrary.simpleMessage("开始录制"),
+    "processProxyStats": MessageLookupByLibrary.simpleMessage("流量统计"),
+    "processProxyStatus": MessageLookupByLibrary.simpleMessage("后端状态"),
+    "processProxyStopMonitor": MessageLookupByLibrary.simpleMessage("停止监视"),
+    "processProxyStopRecording": MessageLookupByLibrary.simpleMessage(
+      "停止录制和监视",
+    ),
+    "processProxyStopSession": MessageLookupByLibrary.simpleMessage("停止代理会话"),
+    "processProxyTakeoverOff": MessageLookupByLibrary.simpleMessage(
+      "请先关闭系统代理和 TUN，确保仅代理所选程序。",
+    ),
+    "processProxyTarget": MessageLookupByLibrary.simpleMessage("待启动程序"),
+    "processProxyTargetPath": MessageLookupByLibrary.simpleMessage(
+      "程序 .exe 路径",
+    ),
+    "processProxyTrailers": MessageLookupByLibrary.simpleMessage("尾部字段"),
+    "processProxyTrust": MessageLookupByLibrary.simpleMessage(
+      "我信任此后端，并授权其代理我主动启动的程序。",
+    ),
+    "processProxyTrustCa": MessageLookupByLibrary.simpleMessage("为当前用户信任 CA"),
+    "processProxyWorkingDirectory": MessageLookupByLibrary.simpleMessage(
+      "工作目录（可选）",
+    ),
+    "processProxyWorkingDirectoryHelp": MessageLookupByLibrary.simpleMessage(
+      "填写本机绝对目录；留空时使用目标程序所在目录。指定目录需要原生桥接后端。",
+    ),
     "profile": MessageLookupByLibrary.simpleMessage("配置"),
     "profileAutoUpdateIntervalInvalidValidationDesc":
         MessageLookupByLibrary.simpleMessage("请输入有效间隔时间格式"),
     "profileAutoUpdateIntervalNullValidationDesc":
         MessageLookupByLibrary.simpleMessage("请输入自动更新间隔时间"),
-    "profileDaysLeft": m62,
-    "profileExpiresIn": m63,
+    "profileDaysLeft": m76,
+    "profileExpiresIn": m77,
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "配置文件已经修改，是否关闭自动更新？",
     ),
@@ -1053,7 +1518,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileTunSettingsDesc": MessageLookupByLibrary.simpleMessage(
       "仅作用于当前配置，并优先于网络设置中的虚拟网卡覆写项。",
     ),
-    "profileUpdatedAt": m64,
+    "profileUpdatedAt": m78,
     "profileUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
       "请输入有效配置URL",
     ),
@@ -1066,22 +1531,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "protocol": MessageLookupByLibrary.simpleMessage("协议"),
     "protocolParam": MessageLookupByLibrary.simpleMessage("协议参数"),
     "protocolVersion": MessageLookupByLibrary.simpleMessage("协议版本"),
-    "providerInUse": m65,
+    "providerInUse": m79,
     "providerUrlTip": MessageLookupByLibrary.simpleMessage("仅支持远程资源"),
     "providers": MessageLookupByLibrary.simpleMessage("外部资源"),
     "proxies": MessageLookupByLibrary.simpleMessage("代理"),
-    "proxiesCount": m66,
-    "proxiesProfileLabel": m67,
-    "proxiesRemovedTip": m68,
-    "proxiesReplacedTip": m69,
+    "proxiesCount": m80,
+    "proxiesProfileLabel": m81,
+    "proxiesRemovedTip": m82,
+    "proxiesReplacedTip": m83,
     "proxyChains": MessageLookupByLibrary.simpleMessage("代理链"),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("策略组"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage("策略组为空"),
-    "proxyGroupInUse": m70,
+    "proxyGroupInUse": m84,
     "proxyGroupsAfterStart": MessageLookupByLibrary.simpleMessage(
       "启动后在这里显示策略组",
     ),
-    "proxyGroupsCount": m71,
+    "proxyGroupsCount": m85,
     "proxyProviders": MessageLookupByLibrary.simpleMessage("代理集"),
     "proxyType": MessageLookupByLibrary.simpleMessage("代理类型"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("修剪缓存"),
@@ -1258,12 +1723,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "规则必须以受支持的类型开头，例如 DOMAIN,example.com,DIRECT",
     ),
     "rules": MessageLookupByLibrary.simpleMessage("规则"),
-    "rulesCount": m72,
+    "rulesCount": m86,
     "runTime": MessageLookupByLibrary.simpleMessage("运行时长"),
     "running": MessageLookupByLibrary.simpleMessage("运行中"),
     "runtimeConfig": MessageLookupByLibrary.simpleMessage("运行时配置"),
     "safeMode": MessageLookupByLibrary.simpleMessage("安全模式"),
-    "safeModeAppTitle": m73,
+    "safeModeAppTitle": m87,
     "saturation": MessageLookupByLibrary.simpleMessage("饱和度"),
     "save": MessageLookupByLibrary.simpleMessage("保存"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("是否保存更改？"),
@@ -1272,9 +1737,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "scrollToSelected": MessageLookupByLibrary.simpleMessage("滚动到已选"),
     "search": MessageLookupByLibrary.simpleMessage("搜索"),
     "seconds": MessageLookupByLibrary.simpleMessage("秒"),
-    "secondsCount": m74,
+    "secondsCount": m88,
     "secretKey": MessageLookupByLibrary.simpleMessage("密钥"),
-    "sectionsInEffect": m75,
+    "sectionsInEffect": m89,
     "select": MessageLookupByLibrary.simpleMessage("选中"),
     "selectAll": MessageLookupByLibrary.simpleMessage("全选"),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage("请选择规则集"),
@@ -1303,7 +1768,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "用手机相机扫描二维码，在打开的页面里粘贴链接。两台设备需要连在同一个网络。",
     ),
     "server": MessageLookupByLibrary.simpleMessage("服务器"),
-    "serviceAbnormalCount": m76,
+    "serviceAbnormalCount": m90,
     "serviceAllAvailable": MessageLookupByLibrary.simpleMessage("全部可用"),
     "serviceAvailable": MessageLookupByLibrary.simpleMessage("可用"),
     "serviceBlocked": MessageLookupByLibrary.simpleMessage("已被封禁"),
@@ -1321,8 +1786,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "serviceUnsupportedRegion": MessageLookupByLibrary.simpleMessage("地区不支持"),
     "settingEntries": MessageLookupByLibrary.simpleMessage("设置项"),
     "settings": MessageLookupByLibrary.simpleMessage("设置"),
-    "settingsCount": m77,
-    "shareLinkUnreadable": m78,
+    "settingsCount": m91,
+    "shareLinkUnreadable": m92,
     "shareLinksInvalid": MessageLookupByLibrary.simpleMessage("无法从链接中读取代理"),
     "shareQrcodeTip": MessageLookupByLibrary.simpleMessage(
       "在另一台设备上用 FlClash 扫码即可导入此配置。",
@@ -1345,7 +1810,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "singleShareLinkOnly": MessageLookupByLibrary.simpleMessage(
       "这里只能填写一条链接，多条请在列表的快速编辑中填写",
     ),
-    "singleValueTip": m79,
+    "singleValueTip": m93,
     "size": MessageLookupByLibrary.simpleMessage("尺寸"),
     "skipCertVerify": MessageLookupByLibrary.simpleMessage("跳过证书验证"),
     "skipDomain": MessageLookupByLibrary.simpleMessage("跳过域名"),
@@ -1429,11 +1894,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalUpload": MessageLookupByLibrary.simpleMessage("上传总量"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxy端口"),
     "traffic": MessageLookupByLibrary.simpleMessage("流量"),
-    "trafficPeak": m80,
-    "trafficTotal": m81,
+    "trafficPeak": m94,
+    "trafficTotal": m95,
     "trafficUsage": MessageLookupByLibrary.simpleMessage("流量统计"),
     "transport": MessageLookupByLibrary.simpleMessage("传输协议"),
-    "transportHeaders": m82,
+    "transportHeaders": m96,
     "tun": MessageLookupByLibrary.simpleMessage("虚拟网卡"),
     "tunAuthorizationFailed": MessageLookupByLibrary.simpleMessage(
       "虚拟网卡授权失败，已关闭。",
@@ -1461,7 +1926,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("上传"),
     "uploadBandwidth": MessageLookupByLibrary.simpleMessage("上行带宽"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m83,
+    "urlTip": m97,
     "useHosts": MessageLookupByLibrary.simpleMessage("使用Hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("使用系统Hosts"),
     "usedShort": MessageLookupByLibrary.simpleMessage("已用"),
@@ -1484,8 +1949,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "写入系统会同时设置系统时钟，Android 上不生效。",
     ),
-    "yearsAgo": m84,
-    "yearsAgoShort": m85,
+    "yearsAgo": m98,
+    "yearsAgoShort": m99,
     "yes": MessageLookupByLibrary.simpleMessage("是"),
     "zhCN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };

@@ -10,10 +10,12 @@ import 'process_proxy/backend.dart';
 import 'process_proxy/applications.dart';
 import 'process_proxy/bridge_client.dart';
 import 'process_proxy/policy.dart';
+import 'process_proxy/runtime_lease.dart';
 
 export 'process_proxy/backend.dart' show ProcessProxyCandidate;
 export 'process_proxy/applications.dart' show ProcessProxyApplication;
 export 'process_proxy/policy.dart';
+export 'process_proxy/runtime_lease.dart';
 
 class ProcessProxySession {
   final String id;
@@ -41,7 +43,10 @@ class ProcessProxyService extends ChangeNotifier {
   static final shared = ProcessProxyService();
   final Map<String, ProcessProxyBridgeClient> _bridges = {};
   final Map<String, Future<ProcessProxyRuntime> Function()> _runtimeChecks = {};
-  final Map<String, ProcessProxyEndpoint> _endpoints = {};
+  final Map<String, ProcessProxyRuntimeLease> _runtimeLeases = {};
+  final Map<String, void Function()> _runtimeSubscriptions = {};
+  final Map<String, Process> _compatibilityProcesses = {};
+  final Set<String> _invalidated = {};
   bool _busy = false;
   bool _disposed = false;
   final List<ProcessProxySession> _sessions = [];
@@ -55,8 +60,9 @@ class ProcessProxyService extends ChangeNotifier {
 
   Future<Directory> _root() async {
     final support = await getApplicationSupportDirectory();
-    return Directory(p.join(support.path, 'process-proxy'))
-        .create(recursive: true);
+    return Directory(
+      p.join(support.path, 'process-proxy'),
+    ).create(recursive: true);
   }
 
   Future<ProcessProxyLaunchRequest?> loadSettings() async {
@@ -102,6 +108,7 @@ class ProcessProxyService extends ChangeNotifier {
   Future<void> launch({
     required ProcessProxyLaunchRequest request,
     required Future<ProcessProxyRuntime> Function() runtime,
+    required ProcessProxyRuntimeObserver observeRuntime,
   }) async {
     if (_busy) throw const ProcessProxyException('launchBusy');
     if (_disposed) throw const ProcessProxyException('serviceDisposed');
@@ -112,9 +119,32 @@ class ProcessProxyService extends ChangeNotifier {
     _changed();
     Directory? sessionDirectory;
     var started = false;
+    var tracked = false;
+    ProcessProxyRuntimeLease? lease;
+    void Function()? unsubscribe;
+    Process? compatibilityProcess;
+    String? trackedId;
     try {
       request.validate();
-      final endpoint = (await runtime()).endpoint;
+      var changedDuringSetup = false;
+      unsubscribe = observeRuntime((current) {
+        final activeLease = lease;
+        if (activeLease == null) {
+          changedDuringSetup = true;
+        } else {
+          activeLease.observe(current);
+        }
+      });
+      final initialRuntime = await runtime();
+      if (changedDuringSetup) {
+        throw const ProcessProxyException('coreConfigurationChanged');
+      }
+      lease = ProcessProxyRuntimeLease(initialRuntime, () {
+        if (tracked && trackedId != null) {
+          unawaited(_invalidateSession(trackedId));
+        }
+      });
+      final endpoint = lease.endpoint;
       validateProcessProxyAuthentication(endpoint);
       if (request.prepareQuic && endpoint.type != 'SOCKS5') {
         throw const ProcessProxyException('quicNeedsSocks');
@@ -132,8 +162,9 @@ class ProcessProxyService extends ChangeNotifier {
       await verifyBackendVersion(source);
       await probeProcessProxyEndpoint(endpoint);
       final root = await _root();
-      final sessionsRoot = await Directory(p.join(root.path, 'sessions'))
-          .create(recursive: true);
+      final sessionsRoot = await Directory(
+        p.join(root.path, 'sessions'),
+      ).create(recursive: true);
       sessionDirectory = await sessionsRoot.createTemp('session_');
       for (final name in [
         ...processProxyCoreFiles,
@@ -147,6 +178,7 @@ class ProcessProxyService extends ChangeNotifier {
       final id = p
           .basename(sessionDirectory.path)
           .replaceAll(RegExp('[^a-zA-Z0-9_]'), '_');
+      trackedId = id;
       final profile = 'FlClash_$id';
       for (final name in [
         ...processProxyCoreFiles,
@@ -165,14 +197,12 @@ class ProcessProxyService extends ChangeNotifier {
       if ((request.decryptHttps ||
               request.decryptQuic ||
               request.prepareQuic) &&
-          !await File(p.join(sessionDirectory.path, 'ProxyLaneMitm64.dll'))
-              .exists()) {
+          !await File(
+            p.join(sessionDirectory.path, 'ProxyLaneMitm64.dll'),
+          ).exists()) {
         throw const ProcessProxyException('missingAdvancedModule');
       }
-      final latest = (await runtime()).endpoint;
-      if (!endpoint.sameAs(latest)) {
-        throw const ProcessProxyException('coreConfigurationChanged');
-      }
+      lease.requireCurrent(await runtime());
       if (_disposed) throw const ProcessProxyException('serviceDisposed');
       final packagedBridge = File(
         p.join(
@@ -210,9 +240,8 @@ class ProcessProxyService extends ChangeNotifier {
               privateNetworks: request.bypassPrivateNetworks,
             ),
           });
-          if (!endpoint.sameAs((await runtime()).endpoint) || _disposed) {
-            throw const ProcessProxyException('coreConfigurationChanged');
-          }
+          lease.requireCurrent(await runtime());
+          if (_disposed) throw const ProcessProxyException('serviceDisposed');
           final launched = await bridge.request('launch', {
             'executable': request.executable,
             'arguments': request.arguments,
@@ -220,8 +249,11 @@ class ProcessProxyService extends ChangeNotifier {
             'confirm': true,
           });
           started = true;
+          lease.requireCurrent(await runtime());
           _runtimeChecks[id] = runtime;
-          _endpoints[id] = endpoint;
+          _runtimeLeases[id] = lease;
+          _runtimeSubscriptions[id] = unsubscribe;
+          tracked = true;
           _trackSession(
             ProcessProxySession(
               id: id,
@@ -247,8 +279,9 @@ class ProcessProxyService extends ChangeNotifier {
           throw const ProcessProxyException('nativeBridgeRequired');
         }
         final ini = buildProcessProxyIni(request, endpoint, profile);
-        await File(p.join(sessionDirectory.path, 'ProxyLane.ini'))
-            .writeAsBytes(encodeProcessProxyIni(ini), flush: true);
+        await File(
+          p.join(sessionDirectory.path, 'ProxyLane.ini'),
+        ).writeAsBytes(encodeProcessProxyIni(ini), flush: true);
         final executable = p.join(sessionDirectory.path, 'ProxyLane64.exe');
         final process = await Process.start(
           executable,
@@ -264,8 +297,14 @@ class ProcessProxyService extends ChangeNotifier {
           runInShell: false,
         );
         started = true;
+        compatibilityProcess = process;
         unawaited(process.stdout.drain<void>());
         unawaited(process.stderr.drain<void>());
+        lease.requireCurrent(await runtime());
+        _runtimeLeases[id] = lease;
+        _runtimeSubscriptions[id] = unsubscribe;
+        _compatibilityProcesses[id] = process;
+        tracked = true;
         _trackSession(
           ProcessProxySession(
             id: id,
@@ -282,6 +321,11 @@ class ProcessProxyService extends ChangeNotifier {
     } on Exception {
       throw const ProcessProxyException('launchFailed');
     } finally {
+      if (!tracked) {
+        unsubscribe?.call();
+        lease?.dispose();
+        compatibilityProcess?.kill();
+      }
       if (!started && sessionDirectory != null) {
         await sessionDirectory
             .delete(recursive: true)
@@ -304,7 +348,11 @@ class ProcessProxyService extends ChangeNotifier {
           executable: session.executable,
           backendPid: session.backendPid,
           backendExecutable: session.backendExecutable,
-          status: code == 0 ? 'exited' : 'failed',
+          status: _invalidated.contains(session.id)
+              ? 'coreInvalidated'
+              : code == 0
+              ? 'exited'
+              : 'failed',
           exitCode: code,
           nativeBridge: session.nativeBridge,
           targetPid: session.targetPid,
@@ -312,7 +360,9 @@ class ProcessProxyService extends ChangeNotifier {
         final bridge = _bridges.remove(session.id);
         if (bridge != null) unawaited(bridge.close());
         _runtimeChecks.remove(session.id);
-        _endpoints.remove(session.id);
+        _runtimeLeases.remove(session.id)?.dispose();
+        _runtimeSubscriptions.remove(session.id)?.call();
+        _compatibilityProcesses.remove(session.id);
         if (!session.nativeBridge) {
           final ini = File(
             p.join(p.dirname(session.backendExecutable), 'ProxyLane.ini'),
@@ -322,7 +372,9 @@ class ProcessProxyService extends ChangeNotifier {
                 FileSystemEntityType.file) {
               await ini.delete();
             }
-          } on FileSystemException {}
+          } on FileSystemException {
+            // Locked credentials remain for the documented manual cleanup.
+          }
         }
         _changed();
       }),
@@ -343,14 +395,43 @@ class ProcessProxyService extends ChangeNotifier {
       'connections.reconnect',
     }.contains(operation)) {
       final check = _runtimeChecks[sessionId];
-      final endpoint = _endpoints[sessionId];
-      if (check == null ||
-          endpoint == null ||
-          !endpoint.sameAs((await check()).endpoint)) {
+      final lease = _runtimeLeases[sessionId];
+      if (check == null || lease == null || !lease.valid) {
         throw const ProcessProxyException('coreConfigurationChanged');
       }
+      lease.requireCurrent(await check());
     }
     return bridge.request(operation, arguments);
+  }
+
+  Future<void> _invalidateSession(String id) async {
+    if (!_invalidated.add(id)) return;
+    _runtimeSubscriptions.remove(id)?.call();
+    final index = _sessions.indexWhere((session) => session.id == id);
+    if (index >= 0) {
+      final old = _sessions[index];
+      _sessions[index] = ProcessProxySession(
+        id: old.id,
+        executable: old.executable,
+        backendPid: old.backendPid,
+        backendExecutable: old.backendExecutable,
+        status: 'coreInvalidated',
+        nativeBridge: old.nativeBridge,
+        targetPid: old.targetPid,
+      );
+      _changed();
+    }
+    final bridge = _bridges.remove(id);
+    if (bridge != null) {
+      try {
+        await bridge.request('stop', {'confirm': true});
+      } on Exception {
+        // EOF cleanup is still required if the explicit stop was uncertain.
+      } finally {
+        await bridge.close();
+      }
+    }
+    _compatibilityProcesses.remove(id)?.kill();
   }
 
   Future<void> showBackendWindow(String id) async {
@@ -369,7 +450,18 @@ class ProcessProxyService extends ChangeNotifier {
     }
     _bridges.clear();
     _runtimeChecks.clear();
-    _endpoints.clear();
+    for (final unsubscribe in _runtimeSubscriptions.values) {
+      unsubscribe();
+    }
+    _runtimeSubscriptions.clear();
+    for (final lease in _runtimeLeases.values) {
+      lease.dispose();
+    }
+    _runtimeLeases.clear();
+    for (final process in _compatibilityProcesses.values) {
+      process.kill();
+    }
+    _compatibilityProcesses.clear();
     super.dispose();
   }
 }
