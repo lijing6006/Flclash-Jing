@@ -8,6 +8,7 @@ import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/services/process_proxy.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/ui/ui.dart';
+import 'package:fl_clash/views/process_proxy_error.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,7 +39,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   bool _trusted = false;
   bool _decryptHttps = false;
   bool _decryptQuic = false;
-  String? _error;
+  Object? _error;
   List<ProcessProxyCandidate> _processes = [];
 
   @override
@@ -67,7 +68,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
         _remoteDns = saved.remoteDns;
       }
     } catch (error) {
-      if (mounted) _error = error.toString();
+      if (mounted) _error = error;
     } finally {
       if (mounted) setState(() => _loaded = true);
     }
@@ -93,14 +94,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
   }
 
   ProcessProxyLaunchRequest _request() {
-    final List<String> arguments;
-    try {
-      arguments = parseProcessArguments(_arguments.text);
-    } on ProcessProxyException {
-      throw MessageException(
-        context.appLocalizations.processProxyInvalidArguments,
-      );
-    }
+    final arguments = parseProcessArguments(_arguments.text);
     return ProcessProxyLaunchRequest(
       backendPath: _backend.text.trim(),
       executable: _target.text.trim(),
@@ -121,7 +115,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       await _service.saveSettings(_request());
       if (mounted) setState(() => _error = null);
     } catch (error) {
-      if (mounted) setState(() => _error = error.toString());
+      if (mounted) setState(() => _error = error);
     }
   }
 
@@ -139,7 +133,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
         }
       });
     } catch (error) {
-      if (mounted) setState(() => _error = error.toString());
+      if (mounted) setState(() => _error = error);
     }
   }
 
@@ -153,7 +147,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       final processes = await _service.searchProcesses(_query.text.trim());
       if (mounted) setState(() => _processes = processes);
     } catch (error) {
-      if (mounted) setState(() => _error = error.toString());
+      if (mounted) setState(() => _error = error);
     } finally {
       if (mounted) setState(() => _searching = false);
     }
@@ -180,7 +174,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       if (!mounted || confirmed != true) return;
       await _service.launch(request: request, runtime: () async => _runtime());
     } catch (error) {
-      if (mounted) setState(() => _error = error.toString());
+      if (mounted) setState(() => _error = error);
     } finally {
       if (mounted) setState(() => _confirming = false);
     }
@@ -190,7 +184,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
     try {
       await _service.showBackendWindow(session.id);
     } catch (error) {
-      if (mounted) setState(() => _error = error.toString());
+      if (mounted) setState(() => _error = error);
     }
   }
 
@@ -199,7 +193,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
       'requested' => l.processProxyRequested,
       'backendRunning' => l.processProxyBackendRunning,
       'exited' => l.processProxyExited,
-      _ => l.processProxyFailed('${session.exitCode ?? session.status}'),
+      _ => l.processProxyFailed(processProxyExitMessage(session.exitCode, l)),
     };
   }
 
@@ -300,7 +294,7 @@ class _ProcessProxyViewState extends ConsumerState<ProcessProxyView> {
                 if (_error case final error?)
                   ListItem(
                     title: Text(
-                      l.processProxyFailed(error),
+                      l.processProxyFailed(processProxyErrorMessage(error, l)),
                       style: AppTextStyle.body
                           .of(context)
                           .copyWith(color: context.colorScheme.error),
