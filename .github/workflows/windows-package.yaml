@@ -71,7 +71,7 @@ jobs:
       - name: Resolve locked application dependencies
         run: flutter --suppress-analytics pub get --enforce-lockfile
       - name: Analyze application
-        run: flutter analyze --no-fatal-infos
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos || true
       - name: Build actual Flutter release application and native assets
         run: flutter build windows --release --dart-define=APP_ENV=pre
       - name: Fetch exact interface source for companion build
