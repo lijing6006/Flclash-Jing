@@ -33,7 +33,7 @@ GONC SecureTransport 与普通 FlClash 本地代理监听不兼容，不会改�
 仅 companion 使用已审阅 ABI 头与 nlohmann JSON，保留 GPL 与两个第三方声明。
 
 继承的可选 **EnableLoopback.exe** 没有可确认的邻接源码/再分发许可，本次二进制包将其排除；
-源码仓库不修改该上游文件。UWP loopback 辅助按钮在本包不可用，选定 Win32 EXE
+源码仓库不修改该上游文件；CMake 在它缺失时允许跳过这一个可选复制规则，保证不含该文件的源码包仍可构建。UWP loopback 辅助按钮在本包不可用，选定 Win32 EXE
 的进程代理不依赖它。不要把缺少该辅助工具误认为进程代理后端缺失。
 
 HTTPS/QUIC 解密、监视、录制仍默认关闭；QUIC 准备和证书创建/信任/删除分别确认。
@@ -59,7 +59,7 @@ tool/package_windows.py 验证主 EXE/Core/Helper/bridge/Flutter 引擎的 x64 P
 
 同一 Release 附项目源码 ZIP（包含精确 Core 子模块源）和 dependency-source ZIP，
 后者保存锁定 Go/Rust vendored 源、实际 Dart/Flutter framework 包、5 个 ABI 头与 nlohmann，
-并把依赖许可/NOTICE/COPYING 收集到应用 licenses/dependencies。SDK/engine 的固定源码版本
+并把依赖许可/NOTICE/COPYING 收集到应用 licenses/dependencies，继承字体的 OFL/Apache/CC-BY 声明位于 licenses/fonts。SDK/engine 的固定源码版本
 另记于 DEPENDENCIES.json；构建脚本、锁文件与再生成说明一同保留。
 不包含个人配置、秘密或实际流量。SHA256SUMS 可校验应用、源码与 manifest。
 完整能力边界仍见 [能力矩阵](CAPABILITIES.md)。

@@ -117,6 +117,7 @@ def main():
             path.unlink()
     verify_bundle(staging)
     shutil.copy2(ROOT / "LICENSE", staging / "LICENSE")
+    shutil.copytree(ROOT / "licenses/fonts", staging / "licenses/fonts")
     shutil.copy2(ROOT / "docs/process-proxy/WINDOWS_PACKAGE.md", staging / "READ_ME_FIRST.md")
     notices = staging / "licenses/proxylane_bridge"
     notices.mkdir(parents=True)

@@ -89,7 +89,9 @@ def main():
             shutil.copy2(path, sdk_notices / name)
     engine = flutter / "bin/cache/artifacts/engine"
     for path in engine.glob("windows*/LICENSE*"):
-        shutil.copy2(path, sdk_notices / f"{path.parent.name}-{path.name}")
+        destination = sdk_notices / path.parent.name / path.name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, destination)
     abi = Path(os.environ["RUNNER_TEMP"]) / "ProxyLane"
     revision = subprocess.check_output(["git", "-C", str(abi), "rev-parse", "HEAD"], text=True).strip()
     if revision != ABI_COMMIT:

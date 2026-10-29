@@ -90,7 +90,7 @@ install(FILES "${FLUTTER_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
   COMPONENT Runtime)
 
 install(FILES "EnableLoopback.exe" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
-  COMPONENT Runtime)
+  COMPONENT Runtime OPTIONAL)
 
 # Ship the MSVC runtime next to the executable. Neither the installer nor the
 # portable archive can assume a machine already carries VCRedist, and without

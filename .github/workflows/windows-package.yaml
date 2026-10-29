@@ -58,6 +58,7 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
+          cache: true
       - name: Prepare pinned Windows toolchain
         shell: pwsh
         run: |
